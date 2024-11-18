@@ -2,15 +2,21 @@ package team9.ddang.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.chat.entity.Chat;
 import team9.ddang.chat.entity.ChatRoom;
 import team9.ddang.chat.entity.ChatType;
 import team9.ddang.chat.exception.ChatExceptionMessage;
 import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.chat.repository.ChatRoomRepository;
+import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
+
+import java.beans.Transient;
 
 @Slf4j
 @Service
@@ -22,6 +28,7 @@ public class ChatServiceImpl implements ChatService {
     private final MemberRepository memberRepository;
 
     @Override
+    @Transactional
     public Chat saveChat(Long chatRoomId, Long memberId, String message) {
 
         // TODO 나중에는 ChatRoomID 검색해서 유효성 확인할 예정
@@ -39,6 +46,17 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.save(chat);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable) {
+        // TODO 나중에 Member가 해당 채팅방에 속해있는지 검증 필요
+        findChatRoomByIdOrThrowException(chatRoomId);
+        Slice<Chat> chats = chatRepository.findByChatRoomId(chatRoomId, pageable);
+
+        return chats.map(ChatResponse::new);
+    }
+
 
 
     private ChatRoom findChatRoomByIdOrThrowException(Long id) {
