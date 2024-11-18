@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.producer.ChatProducer;
@@ -19,13 +20,12 @@ public class ChatController {
 
     private final ChatService chatService;
 
-//    private final ChatProducer chatProducer;
+    private final ChatProducer chatProducer;
 
-//    @PostMapping("/send")
-//    public ResponseEntity<ApiResponse<Void>> sendMessage(@RequestBody ChatRequest chatRequest) {
-//        chatProducer.sendMessage("topic-chat-1", chatRequest);
-//        return ResponseEntity.ok(ApiResponse.ok(null));
-//    }
+    @MessageMapping("/api/v1/chat/send")
+    public void sendMessage(ChatRequest chatRequest) {
+        chatProducer.sendMessage("topic-chat-" + chatRequest.chatRoomId(), chatRequest);
+    }
 
     @GetMapping("/rooms/{chatRoomId}")
     public ResponseEntity<ApiResponse<Slice<ChatResponse>>> getChatMessages(

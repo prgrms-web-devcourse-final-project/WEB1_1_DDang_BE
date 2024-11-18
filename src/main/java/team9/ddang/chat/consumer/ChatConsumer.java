@@ -10,6 +10,7 @@ import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.entity.Chat;
 import team9.ddang.chat.entity.ChatType;
 import team9.ddang.chat.service.ChatService;
+import team9.ddang.chat.service.WebSocketMessageService;
 import team9.ddang.member.entity.Member;
 
 
@@ -21,6 +22,7 @@ public class ChatConsumer {
 
     private final ChatService chatService;
     private final ObjectMapper objectMapper;
+    private final WebSocketMessageService webSocketMessageService;
 
     @KafkaListener(topics = "topic-chat-1", groupId = "ddang-chat-group")
     public void consumeMessage(String message) {
@@ -28,6 +30,11 @@ public class ChatConsumer {
             ChatRequest chatMessage = objectMapper.readValue(message, ChatRequest.class);
 
             chatService.saveChat(chatMessage.chatRoomId(), chatMessage.memberId(), chatMessage.message());
+
+            String destination = "/sub/chat/" + chatMessage.chatRoomId();
+            webSocketMessageService.broadcastMessage(destination, chatMessage);
+
+            log.info("Message broadcasted to WebSocket: {}", destination);
         } catch (Exception e) {
             log.error("Failed to process message: {}", message, e);
         }

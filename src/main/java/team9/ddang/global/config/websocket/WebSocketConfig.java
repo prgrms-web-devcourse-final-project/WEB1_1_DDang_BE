@@ -25,12 +25,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry
                 .addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")
-                .setAllowedOrigins("*")
-                .withSockJS();
+                .setAllowedOriginPatterns("*");
+//                .withSockJS();
     }
 
     public void configureClientInboundChannel(ChannelRegistration registration){
-        registration.interceptors(stompHandler);
+//        registration.interceptors(stompHandler);
     }
 }
