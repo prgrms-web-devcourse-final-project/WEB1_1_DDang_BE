@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum ChatExceptionMessage {
     // Chat
     CHAT_NOT_FOUND("해당 채팅을 찾을 수 없습니다."),
+    CHAT_JSON_PROCESSING_ERROR("메시지 변환 중 문제가 발생했습니다."),
 
     // ChatRoom
     CHATROOM_NOT_FOUND("해당 채팅방을 찾을 수 없습니다."),
