@@ -11,6 +11,7 @@ import team9.ddang.chat.entity.Chat;
 import team9.ddang.chat.entity.ChatType;
 import team9.ddang.chat.service.ChatService;
 import team9.ddang.chat.service.WebSocketMessageService;
+import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.member.entity.Member;
 
 
@@ -24,15 +25,16 @@ public class ChatConsumer {
     private final ObjectMapper objectMapper;
     private final WebSocketMessageService webSocketMessageService;
 
-    @KafkaListener(topics = "topic-chat-1", groupId = "ddang-chat-group")
-    public void consumeMessage(String message) {
+    public void consumeMessage(String topic, String message) {
         try {
-            ChatRequest chatMessage = objectMapper.readValue(message, ChatRequest.class);
+            ChatRequest chatRequest = objectMapper.readValue(message, ChatRequest.class);
 
-            chatService.saveChat(chatMessage.chatRoomId(), chatMessage.memberId(), chatMessage.message());
+            Chat chat = chatService.saveChat(chatRequest.chatRoomId(), chatRequest.memberId(), chatRequest.message());
 
-            String destination = "/sub/chat/" + chatMessage.chatRoomId();
-            webSocketMessageService.broadcastMessage(destination, chatMessage);
+            ChatResponse chatResponse = new ChatResponse(chat);
+
+            String destination = "/sub/chat/" + chatRequest.chatRoomId();
+            webSocketMessageService.broadcastMessage(destination, chatResponse);
 
             log.info("Message broadcasted to WebSocket: {}", destination);
         } catch (Exception e) {
@@ -40,31 +42,3 @@ public class ChatConsumer {
         }
     }
 }
-
-
-
-//@Slf4j
-//@Service
-//@RequiredArgsConstructor
-//public class ChatConsumer {
-//
-//    private final ChatService chatService;
-//
-//    @KafkaListener(topics = "topic-chat-1", groupId = "ddang-chat-group")
-//    public void consumeMessage(String message) {
-//        try {
-//            String authenticatedMemberId = SecurityContextHolder.getContext().getAuthentication().getName();
-//
-//            Chat chat = Chat.builder()
-//                    .chatRoom(null)
-//                    .member(new Member(Long.parseLong(authenticatedMemberId)))
-//                    .chatType(ChatType.TALK)
-//                    .text(message)
-//                    .build();
-//
-//            chatService.saveChat(chat);
-//        } catch (Exception e) {
-//            log.error("Failed to process message: {}", message, e);
-//        }
-//    }
-//}

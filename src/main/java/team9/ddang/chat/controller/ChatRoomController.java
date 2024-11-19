@@ -24,6 +24,7 @@ public class ChatRoomController {
         return ApiResponse.ok(response);
     }
 
+    // TODO 마지막 메세지 정보 추가시키기
     @GetMapping
     public ApiResponse<List<ChatRoomResponse>> getChatRooms() {
         List<ChatRoomResponse> chatRooms = chatRoomService.getChatRoomsForAuthenticatedMember();

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.chat.entity.ChatMember;
 import team9.ddang.chat.entity.ChatRoom;
 import team9.ddang.chat.repository.ChatMemberRepository;
+import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.chat.repository.ChatRoomRepository;
 import team9.ddang.chat.service.response.ChatRoomResponse;
 import team9.ddang.member.entity.Member;
@@ -23,6 +24,7 @@ public class ChatRoomServiceImpl implements ChatRoomService{
     private final ChatMemberRepository chatMemberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
+    private final ChatRepository chatRepository;
 
     @Transactional
     public ChatRoomResponse createChatRoom(Long opponentMemberId) {
@@ -42,11 +44,13 @@ public class ChatRoomServiceImpl implements ChatRoomService{
         // TODO 시큐리티 들어오면 교체할 코드
         Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(opponentMember1, opponentMember);
         if (existingChatRoom.isPresent()) {
-            return new ChatRoomResponse(existingChatRoom.get());
+            String lastMessage = getLastMessage(existingChatRoom.get().getChatroomId());
+            return new ChatRoomResponse(existingChatRoom.get(), lastMessage);
         }
 //        Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(authenticatedMember, opponentMember);
 //        if (existingChatRoom.isPresent()) {
-//            return new ChatRoomResponse(existingChatRoom.get());
+//            String lastMessage = chatRepository.findLastMessageByChatRoom(existingChatRoom.get().getChatroomId());
+//            return new ChatRoomResponse(existingChatRoom.get(), lastMessage, members);
 //        }
 
         // TODO 채팅방 이름은 어떻게 할까
@@ -55,8 +59,9 @@ public class ChatRoomServiceImpl implements ChatRoomService{
                 .build());
 
 
+        // TODO opponentMember1 -> authenticatedMember로 수정할것
         chatMemberRepository.save(ChatMember.builder()
-                .member(authenticatedMember)
+                .member(opponentMember1)
                 .chatRoom(chatRoom)
                 .build());
 
@@ -68,7 +73,7 @@ public class ChatRoomServiceImpl implements ChatRoomService{
 
         kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
 
-        return new ChatRoomResponse(chatRoom);
+        return new ChatRoomResponse(chatRoom, null);
     }
 
     @Transactional(readOnly = true)
@@ -78,13 +83,13 @@ public class ChatRoomServiceImpl implements ChatRoomService{
 
         List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByMember(authenticatedMember);
 
-        // 각 채팅방의 멤버 조회 후 ChatRoomResponse로 변환
         return chatRooms.stream()
                 .map(chatRoom -> {
+                    String lastMessage = chatRepository.findLastMessageByChatRoom(chatRoom.getChatroomId());
                     List<Member> members = chatMemberRepository.findMembersByChatRoom(chatRoom);
                     // TODO 나중에 채팅방 목록에 채팅방에 참여중인 인원에 대한 정보도 같이 반환하도록
-                    return new ChatRoomResponse(chatRoom);
-//                    return new ChatRoomResponse(chatRoom, members);
+                    return new ChatRoomResponse(chatRoom, lastMessage);
+//                    return new ChatRoomResponse(chatRoom, lastMessage, members);
                 })
                 .toList();
     }
@@ -96,4 +101,7 @@ public class ChatRoomServiceImpl implements ChatRoomService{
 //    private Member getAuthenticatedMember(@AuthenticationPrincipal MemberDetails memberDetails) {
 //        return memberDetails.getMember();
 //    }
+    private String getLastMessage(Long chatRoomId) {
+        return chatRepository.findLastMessageByChatRoom(chatRoomId);
+    }
 }

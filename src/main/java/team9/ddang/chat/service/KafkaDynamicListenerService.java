@@ -11,30 +11,27 @@ import team9.ddang.chat.consumer.ChatConsumer;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KafkaDynamicListenerService {
 
     private final ConcurrentKafkaListenerContainerFactory<String, String> factory;
-    private final ChatConsumer chatConsumer;
-
     private final Map<String, ConcurrentMessageListenerContainer<String, String>> containers = new HashMap<>();
+    private final ChatConsumer chatConsumer;
 
     public void addListenerForChatRoom(Long chatRoomId) {
         String topicName = "topic-chat-" + chatRoomId;
 
         if (containers.containsKey(topicName)) {
-            log.info("Topic '{}' already exists.", topicName);
+            log.info("Listener for topic '{}' already exists.", topicName);
             return;
         }
 
-        ConcurrentMessageListenerContainer<String, String> container =
-                factory.createContainer(topicName);
-
+        ConcurrentMessageListenerContainer<String, String> container = factory.createContainer(topicName);
         container.getContainerProperties().setMessageListener((MessageListener<String, String>) record -> {
-            log.info("Received message from topic '{}': {}", topicName, record.value());
-            chatConsumer.consumeMessage(record.value());
+            log.info("Received message for topic '{}': {}", topicName, record.value());
+            chatConsumer.consumeMessage(topicName, record.value());
         });
 
         container.start();
@@ -47,12 +44,9 @@ public class KafkaDynamicListenerService {
         String topicName = "topic-chat-" + chatRoomId;
 
         ConcurrentMessageListenerContainer<String, String> container = containers.remove(topicName);
-
         if (container != null) {
             container.stop();
             log.info("Stopped Kafka listener for topic '{}'", topicName);
-        } else {
-            log.warn("No listener found for topic '{}'", topicName);
         }
     }
 }

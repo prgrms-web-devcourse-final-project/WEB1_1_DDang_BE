@@ -17,4 +17,8 @@ public interface ChatMemberRepository extends JpaRepository<ChatMember, Long> {
     @Query("SELECT cm.member FROM ChatMember cm " +
             "WHERE cm.chatRoom = :chatRoom AND cm.isDeleted = 'FALSE'")
     List<Member> findMembersByChatRoom(@Param("chatRoom") ChatRoom chatRoom);
+
+    @Query("SELECT COUNT(cm) > 0 FROM ChatMember cm " +
+            "WHERE cm.chatRoom.chatroomId = :chatRoomId AND cm.member.memberId = :memberId AND cm.isDeleted = 'FALSE'")
+    boolean existsByChatRoomIdAndMemberId(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
 }
