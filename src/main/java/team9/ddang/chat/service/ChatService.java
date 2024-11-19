@@ -6,6 +6,7 @@ import team9.ddang.chat.entity.Chat;
 import team9.ddang.chat.service.response.ChatResponse;
 
 public interface ChatService {
+    // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
     Chat saveChat(Long chatRoomId, Long memberId, String message);
     Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable);
 }

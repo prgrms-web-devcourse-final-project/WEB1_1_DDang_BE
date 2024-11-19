@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.chat.controller.request.ChatRequest;
@@ -28,12 +27,15 @@ public class ChatController {
     }
 
     @GetMapping("/rooms/{chatRoomId}")
-    public ResponseEntity<ApiResponse<Slice<ChatResponse>>> getChatMessages(
+    public ApiResponse<Slice<ChatResponse>> getChatMessages(
             @PathVariable Long chatRoomId,
             @RequestParam(defaultValue = "0") int page
     ) {
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+        }
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("createdAt").ascending());
         Slice<ChatResponse> chats = chatService.findChatsByRoom(chatRoomId, pageRequest);
-        return ResponseEntity.ok(ApiResponse.ok(chats));
+        return ApiResponse.ok(chats);
     }
 }

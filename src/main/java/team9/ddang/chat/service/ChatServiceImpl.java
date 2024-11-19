@@ -31,7 +31,6 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     public Chat saveChat(Long chatRoomId, Long memberId, String message) {
 
-        // TODO 나중에는 ChatRoomID 검색해서 유효성 확인할 예정
         ChatRoom chatRoom = findChatRoomByIdOrThrowException(chatRoomId);
 
         // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
@@ -50,6 +49,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional(readOnly = true)
     public Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable) {
+        // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
         // TODO 나중에 Member가 해당 채팅방에 속해있는지 검증 필요
         findChatRoomByIdOrThrowException(chatRoomId);
         Slice<Chat> chats = chatRepository.findByChatRoomId(chatRoomId, pageable);
