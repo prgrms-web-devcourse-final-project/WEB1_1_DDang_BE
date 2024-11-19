@@ -1,14 +1,13 @@
 package team9.ddang.chat.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import team9.ddang.chat.controller.request.ChatRoomCreateRequest;
 import team9.ddang.chat.service.ChatRoomService;
 import team9.ddang.chat.service.response.ChatRoomResponse;
 import team9.ddang.global.api.ApiResponse;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/chat/rooms")
@@ -23,5 +22,11 @@ public class ChatRoomController {
     ) {
         ChatRoomResponse response = chatRoomService.createChatRoom(request.opponentMemberId());
         return ApiResponse.ok(response);
+    }
+
+    @GetMapping
+    public ApiResponse<List<ChatRoomResponse>> getChatRooms() {
+        List<ChatRoomResponse> chatRooms = chatRoomService.getChatRoomsForAuthenticatedMember();
+        return ApiResponse.ok(chatRooms);
     }
 }

@@ -12,6 +12,7 @@ import team9.ddang.chat.service.response.ChatRoomResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -68,6 +69,24 @@ public class ChatRoomServiceImpl implements ChatRoomService{
         kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
 
         return new ChatRoomResponse(chatRoom);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatRoomResponse> getChatRoomsForAuthenticatedMember() {
+
+        Member authenticatedMember = getAuthenticatedMember();
+
+        List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByMember(authenticatedMember);
+
+        // 각 채팅방의 멤버 조회 후 ChatRoomResponse로 변환
+        return chatRooms.stream()
+                .map(chatRoom -> {
+                    List<Member> members = chatMemberRepository.findMembersByChatRoom(chatRoom);
+                    // TODO 나중에 채팅방 목록에 채팅방에 참여중인 인원에 대한 정보도 같이 반환하도록
+                    return new ChatRoomResponse(chatRoom);
+//                    return new ChatRoomResponse(chatRoom, members);
+                })
+                .toList();
     }
 
     private Member getAuthenticatedMember() {

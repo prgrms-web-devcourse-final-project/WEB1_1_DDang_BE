@@ -13,7 +13,7 @@ import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.global.api.ApiResponse;
 
 @RestController
-@RequestMapping("/api/v1/chat")
+@RequestMapping("/api/v1/chat/message")
 @RequiredArgsConstructor
 public class ChatController {
 
@@ -21,12 +21,12 @@ public class ChatController {
 
     private final ChatProducer chatProducer;
 
-    @MessageMapping("/api/v1/chat/send")
+    @MessageMapping("/api/v1/chat/message")
     public void sendMessage(ChatRequest chatRequest) {
         chatProducer.sendMessage("topic-chat-" + chatRequest.chatRoomId(), chatRequest);
     }
 
-    @GetMapping("/rooms/{chatRoomId}")
+    @GetMapping("/{chatRoomId}")
     public ApiResponse<Slice<ChatResponse>> getChatMessages(
             @PathVariable Long chatRoomId,
             @RequestParam(defaultValue = "0") int page
