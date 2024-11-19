@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,24 +15,20 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long locationId;
 
-    @Column(nullable = false)
-    private BigDecimal latitude;
-
-    @Column(nullable = false)
-    private BigDecimal longitude;
-
-    @Column(nullable = false)
-    private LocalDateTime timeStamp;
+    @Embedded
+    private Position position;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "walk_id",nullable = false)
     private Walk walk;
 
     @Builder
-    private Location(BigDecimal latitude, BigDecimal longitude, LocalDateTime timeStamp, Walk walk) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.timeStamp = timeStamp;
+    private Location(Position position, Walk walk) {
+        this.position = position;
+        this.walk = walk;
+    }
+
+    public void updateWalk(Walk walk){
         this.walk = walk;
     }
 }
