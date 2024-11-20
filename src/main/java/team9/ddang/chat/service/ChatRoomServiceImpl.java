@@ -9,6 +9,7 @@ import team9.ddang.chat.entity.ChatRoom;
 import team9.ddang.chat.repository.ChatMemberRepository;
 import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.chat.repository.ChatRoomRepository;
+import team9.ddang.chat.service.request.ChatRoomCreateServiceRequest;
 import team9.ddang.chat.service.response.ChatRoomResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
@@ -27,7 +28,9 @@ public class ChatRoomServiceImpl implements ChatRoomService{
     private final ChatRepository chatRepository;
 
     @Transactional
-    public ChatRoomResponse createChatRoom(Long opponentMemberId) {
+    public ChatRoomResponse createChatRoom(ChatRoomCreateServiceRequest request) {
+
+        Long opponentMemberId = request.opponentMemberId();
 
         Member authenticatedMember = getAuthenticatedMember();
 

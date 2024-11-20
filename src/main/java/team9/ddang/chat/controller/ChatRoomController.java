@@ -58,7 +58,7 @@ public class ChatRoomController {
     public ApiResponse<ChatRoomResponse> createChatRoom(
             @RequestBody ChatRoomCreateRequest request
     ) {
-        ChatRoomResponse response = chatRoomService.createChatRoom(request.opponentMemberId());
+        ChatRoomResponse response = chatRoomService.createChatRoom(request.toServiceRequest());
         return ApiResponse.ok(response);
     }
 
