@@ -31,7 +31,12 @@ public class KafkaDynamicListenerService {
         ConcurrentMessageListenerContainer<String, String> container = factory.createContainer(topicName);
         container.getContainerProperties().setMessageListener((MessageListener<String, String>) record -> {
             log.info("Received message for topic '{}': {}", topicName, record.value());
-            chatConsumer.consumeMessage(topicName, record.value());
+
+            if (record.value().contains("\"readMessageIds\"")) {
+                chatConsumer.consumeReadEvent(topicName, record.value());
+            } else {
+                chatConsumer.consumeMessage(topicName, record.value());
+            }
         });
 
         container.start();

@@ -2,6 +2,7 @@ package team9.ddang.chat.service.response;
 
 import team9.ddang.chat.entity.Chat;
 import team9.ddang.chat.entity.ChatType;
+import team9.ddang.chat.entity.IsRead;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +13,7 @@ public record ChatResponse(
         Long chatRoomId,
         ChatMemberInfo memberInfo,
         ChatType chatType,
+        IsRead isRead,
         String text) {
 
     public ChatResponse(Chat chat) {
@@ -22,6 +24,7 @@ public record ChatResponse(
                 chat.getChatRoom().getChatroomId(),
                 new ChatMemberInfo(chat.getMember()),
                 chat.getChatType(),
+                chat.getIsRead(),
                 chat.getText()
         );
     }

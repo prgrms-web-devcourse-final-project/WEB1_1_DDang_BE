@@ -48,7 +48,8 @@ public class ChatRoomServiceImpl implements ChatRoomService{
         Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(opponentMember1, opponentMember);
         if (existingChatRoom.isPresent()) {
             String lastMessage = getLastMessage(existingChatRoom.get().getChatroomId());
-            Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(existingChatRoom.get().getChatroomId(), authenticatedMember.getMemberId());
+            // TODO opponentMember1 -> authenticatedMember로 수정할것
+            Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(existingChatRoom.get().getChatroomId(), opponentMember1.getMemberId());
             return new ChatRoomResponse(existingChatRoom.get(), lastMessage, unreadCount);
 
         }
@@ -84,7 +85,10 @@ public class ChatRoomServiceImpl implements ChatRoomService{
     @Transactional(readOnly = true)
     public List<ChatRoomResponse> getChatRoomsForAuthenticatedMember() {
 
-        Member authenticatedMember = getAuthenticatedMember();
+        // TODO 나중에 시큐리티 들어오면 수정할 코드
+        Member authenticatedMember = memberRepository.findById(2L)
+                .orElseThrow(() -> new EntityNotFoundException("회원이 존재하지 않습니다."));
+//        Member authenticatedMember = getAuthenticatedMember();
 
         List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByMember(authenticatedMember);
 

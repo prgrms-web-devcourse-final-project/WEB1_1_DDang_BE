@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.chat.entity.Chat;
 import team9.ddang.chat.entity.ChatRoom;
 import team9.ddang.chat.entity.ChatType;
+import team9.ddang.chat.event.MessageReadEvent;
 import team9.ddang.chat.exception.ChatExceptionMessage;
+import team9.ddang.chat.producer.ChatProducer;
 import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.chat.repository.ChatRoomRepository;
 import team9.ddang.chat.service.response.ChatResponse;
@@ -26,6 +28,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
+    private final ChatProducer chatProducer;
 
     @Override
     @Transactional
@@ -48,23 +51,33 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable) {
         // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
+        Long memberId = 3L;
+
         // TODO 나중에 Member가 해당 채팅방에 속해있는지 검증 필요
         findChatRoomByIdOrThrowException(chatRoomId);
+
         Slice<Chat> chats = chatRepository.findByChatRoomId(chatRoomId, pageable);
+
+        List<Chat> unreadChats = chatRepository.findUnreadMessagesByChatRoomIdAndMemberId(chatRoomId, memberId);
+
+        if (unreadChats.isEmpty()) {
+            return chats.map(ChatResponse::new);
+        }
+
+        unreadChats.forEach(Chat::markAsRead);
+
+        List<Long> readMessageIds = unreadChats.stream()
+                .map(Chat::getChatId)
+                .toList();
+        String topic = "topic-chat-" + chatRoomId;
+        MessageReadEvent readEvent = new MessageReadEvent(chatRoomId, memberId, readMessageIds);
+        chatProducer.sendReadEvent(topic, readEvent);
 
         return chats.map(ChatResponse::new);
     }
-
-    @Transactional
-    public void markMessagesAsRead(Long chatRoomId, Long memberId) {
-        // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
-        List<Chat> unreadChats = chatRepository.findUnreadMessagesByChatRoomIdAndMemberId(chatRoomId, memberId);
-        unreadChats.forEach(Chat::markAsRead);
-    }
-
 
     private ChatRoom findChatRoomByIdOrThrowException(Long id) {
         return chatRoomRepository.findActiveById(id)
