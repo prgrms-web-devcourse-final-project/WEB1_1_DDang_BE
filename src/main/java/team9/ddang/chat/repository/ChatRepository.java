@@ -27,4 +27,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
             "AND c.isDeleted = 'FALSE' " +
             "ORDER BY c.createdAt DESC")
     String findLastMessageByChatRoom(@Param("chatRoomId") Long chatRoomId);
+
+    @Query("SELECT COUNT(c) FROM Chat c WHERE c.chatRoom.chatroomId = :chatRoomId AND c.isRead = false")
+    Long countUnreadMessagesByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 }

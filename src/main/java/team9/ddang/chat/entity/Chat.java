@@ -33,11 +33,16 @@ public class Chat extends BaseEntity {
     @Column(nullable = false)
     private ChatType chatType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private IsRead isRead;
+
     @Builder
-    private Chat(ChatRoom chatRoom, Member member, ChatType chatType, String text) {
+    private Chat(ChatRoom chatRoom, Member member, ChatType chatType, String text, IsRead isRead) {
         this.chatRoom = chatRoom;
         this.member = member;
         this.chatType = chatType;
         this.text = text;
+        this.isRead = isRead != null ? isRead : IsRead.FALSE;
     }
 }
