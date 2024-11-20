@@ -16,8 +16,6 @@ import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
-import java.beans.Transient;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public Chat saveChat(Long chatRoomId, Long memberId, String message) {
+    public ChatResponse saveChat(Long chatRoomId, Long memberId, String message) {
 
         ChatRoom chatRoom = findChatRoomByIdOrThrowException(chatRoomId);
 
@@ -43,7 +41,8 @@ public class ChatServiceImpl implements ChatService {
                 .text(message)
                 .build();
 
-        return chatRepository.save(chat);
+
+        return new ChatResponse(chatRepository.save(chat));
     }
 
     @Override
@@ -56,7 +55,6 @@ public class ChatServiceImpl implements ChatService {
 
         return chats.map(ChatResponse::new);
     }
-
 
 
     private ChatRoom findChatRoomByIdOrThrowException(Long id) {
