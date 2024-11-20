@@ -9,4 +9,6 @@ public interface ChatService {
     ChatResponse saveChat(Long chatRoomId, Long memberId, String message);
 
     Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable);
+    // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
+    void markMessagesAsRead(Long chatRoomId, Long memberId);
 }

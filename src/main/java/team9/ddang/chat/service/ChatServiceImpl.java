@@ -16,6 +16,8 @@ import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -54,6 +56,13 @@ public class ChatServiceImpl implements ChatService {
         Slice<Chat> chats = chatRepository.findByChatRoomId(chatRoomId, pageable);
 
         return chats.map(ChatResponse::new);
+    }
+
+    @Transactional
+    public void markMessagesAsRead(Long chatRoomId, Long memberId) {
+        // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
+        List<Chat> unreadChats = chatRepository.findUnreadMessagesByChatRoomIdAndMemberId(chatRoomId, memberId);
+        unreadChats.forEach(Chat::markAsRead);
     }
 
 

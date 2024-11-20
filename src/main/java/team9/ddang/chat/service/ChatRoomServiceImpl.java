@@ -45,12 +45,14 @@ public class ChatRoomServiceImpl implements ChatRoomService{
         Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(opponentMember1, opponentMember);
         if (existingChatRoom.isPresent()) {
             String lastMessage = getLastMessage(existingChatRoom.get().getChatroomId());
-            return new ChatRoomResponse(existingChatRoom.get(), lastMessage);
+            Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(existingChatRoom.get().getChatroomId(), authenticatedMember.getMemberId());
+            return new ChatRoomResponse(existingChatRoom.get(), lastMessage, unreadCount);
+
         }
 //        Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(authenticatedMember, opponentMember);
 //        if (existingChatRoom.isPresent()) {
 //            String lastMessage = chatRepository.findLastMessageByChatRoom(existingChatRoom.get().getChatroomId());
-//            return new ChatRoomResponse(existingChatRoom.get(), lastMessage, members);
+//            return new ChatRoomResponse(existingChatRoom.get(), lastMessage, unreadCount, members);
 //        }
 
         // TODO 채팅방 이름은 어떻게 할까
@@ -73,7 +75,7 @@ public class ChatRoomServiceImpl implements ChatRoomService{
 
         kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
 
-        return new ChatRoomResponse(chatRoom, null);
+        return new ChatRoomResponse(chatRoom, null,0L);
     }
 
     @Transactional(readOnly = true)
@@ -87,9 +89,10 @@ public class ChatRoomServiceImpl implements ChatRoomService{
                 .map(chatRoom -> {
                     String lastMessage = chatRepository.findLastMessageByChatRoom(chatRoom.getChatroomId());
                     List<Member> members = chatMemberRepository.findMembersByChatRoom(chatRoom);
+                    Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(chatRoom.getChatroomId(), authenticatedMember.getMemberId());
                     // TODO 나중에 채팅방 목록에 채팅방에 참여중인 인원에 대한 정보도 같이 반환하도록
-                    return new ChatRoomResponse(chatRoom, lastMessage);
-//                    return new ChatRoomResponse(chatRoom, lastMessage, members);
+                    return new ChatRoomResponse(chatRoom, lastMessage, unreadCount);
+//                    return new ChatRoomResponse(chatRoom, lastMessage, unreadCount, members);
                 })
                 .toList();
     }

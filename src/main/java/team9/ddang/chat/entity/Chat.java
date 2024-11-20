@@ -45,4 +45,8 @@ public class Chat extends BaseEntity {
         this.text = text;
         this.isRead = isRead != null ? isRead : IsRead.FALSE;
     }
+
+    public void markAsRead() {
+        this.isRead = IsRead.TRUE;
+    }
 }

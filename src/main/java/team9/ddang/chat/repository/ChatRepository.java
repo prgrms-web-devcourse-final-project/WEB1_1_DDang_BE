@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import team9.ddang.chat.entity.Chat;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
@@ -28,6 +29,21 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
             "ORDER BY c.createdAt DESC")
     String findLastMessageByChatRoom(@Param("chatRoomId") Long chatRoomId);
 
-    @Query("SELECT COUNT(c) FROM Chat c WHERE c.chatRoom.chatroomId = :chatRoomId AND c.isRead = false")
-    Long countUnreadMessagesByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+    @Query("""
+        SELECT COUNT(c)
+        FROM Chat c
+        WHERE c.chatRoom.chatroomId = :chatRoomId
+          AND c.member.memberId <> :memberId
+          AND c.isRead = 'FALSE'
+    """)
+    Long countUnreadMessagesByChatRoomAndMember(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
+
+    @Query("""
+        SELECT c
+        FROM Chat c
+        WHERE c.chatRoom.chatroomId = :chatRoomId
+          AND c.member.memberId <> :memberId
+          AND c.isRead = 'FALSE'
+    """)
+    List<Chat> findUnreadMessagesByChatRoomIdAndMemberId(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
 }
