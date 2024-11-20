@@ -46,7 +46,7 @@ public class Member extends BaseEntity {
     private IsMatched isMatched;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "family_id", nullable = false)
+    @JoinColumn(name = "family_id")
     private Family family;
 
     @Enumerated(EnumType.STRING)

@@ -41,6 +41,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // SpringDoc OpenAPI for Spring Boot
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
     // Querydsl-JPA
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
