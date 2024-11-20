@@ -1,8 +1,6 @@
 package team9.ddang.walk.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.geo.Point;
-import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -15,11 +13,10 @@ import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.walk.entity.Location;
 import team9.ddang.walk.entity.Walk;
 import team9.ddang.walk.entity.WalkDog;
-import team9.ddang.walk.repository.LocationRepository;
+import team9.ddang.walk.repository.LocationBulkRepository;
 import team9.ddang.walk.repository.WalkDogRepository;
 import team9.ddang.walk.repository.WalkRepository;
 import team9.ddang.walk.service.request.CompleteWalkServiceRequest;
-import team9.ddang.walk.service.request.LocationServiceRequest;
 import team9.ddang.walk.service.response.CompleteWalkAloneResponse;
 
 import java.time.LocalDateTime;
@@ -33,10 +30,10 @@ import static team9.ddang.walk.util.WalkCalculator.calculateCalorie;
 public class WalkServiceImpl implements WalkService{
 
     private final RedisTemplate redisTemplate;
-    private final LocationRepository locationRepository;
     private final WalkRepository walkRepository;
     private final MemberDogRepository memberDogRepository;
     private final WalkDogRepository walkDogRepository;
+    private final LocationBulkRepository locationBulkRepository;
     private final MemberRepository memberRepository;
 
     private static final String LIST_KEY = "geoPoints:";
@@ -74,7 +71,7 @@ public class WalkServiceImpl implements WalkService{
 
         walkRepository.save(walk);
         walkDogRepository.save(walkDog);
-        locationRepository.saveAll(locations);
+        locationBulkRepository.saveAll(locations);
     }
 
     private List<String> getListFromRedis(Long memberId) {
