@@ -12,7 +12,7 @@ public record CompleteWalkRequest(
         @NotNull(message = "산책 총 거리가 존재해야 합니다.")
         Integer totalDistance,
 
-        @Schema(description = "산책 총 시간 (분)", example = "30")
+        @Schema(description = "산책 총 시간 (초)", example = "1800")
         @NotNull(message = "산책 총 시간이 존재해야 합니다.")
         Long totalWalkTime
 ) {

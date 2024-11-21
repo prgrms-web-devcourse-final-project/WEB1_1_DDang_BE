@@ -17,7 +17,7 @@ public record CompleteWalkAloneResponse(
         @Schema(description = "총 이동 거리 (미터)", example = "1200")
         int totalDistance,
 
-        @Schema(description = "총 이동 시간 (분)", example = "60")
+        @Schema(description = "총 이동 시간 (초)", example = "1800")
         long totalMinute,
 
         @Schema(description = "총 소비 칼로리", example = "300")
