@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static team9.ddang.walk.service.RedisKey.LIST_KEY;
+import static team9.ddang.walk.service.RedisKey.POINT_KEY;
 import static team9.ddang.walk.util.WalkCalculator.calculateCalorie;
 
 @Service
@@ -36,7 +38,6 @@ public class WalkServiceImpl implements WalkService{
     private final LocationBulkRepository locationBulkRepository;
     private final MemberRepository memberRepository;
 
-    private static final String LIST_KEY = "geoPoints:";
 
     @Override
     @Transactional
@@ -53,6 +54,7 @@ public class WalkServiceImpl implements WalkService{
 
         Walk walk = completeWalkServiceRequest.toEntity(locations, member);
         saveWalkAndLocationAndDog(locations, walk, dog);
+        removeMemberLocation(member.getEmail());
 
         return CompleteWalkAloneResponse.of(
                 member.getName(), walk.getTotalDistance(), completeWalkServiceRequest.totalWalkTime(),
@@ -80,7 +82,6 @@ public class WalkServiceImpl implements WalkService{
         List<String> locations = listOperations.range(key, 0, -1);
 
         redisTemplate.delete(key);
-
         return locations;
     }
 
@@ -104,6 +105,10 @@ public class WalkServiceImpl implements WalkService{
         MemberDog memberDog = memberDogRepository.findMemberDogByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("멤버가 소유하고 있는 개가 없습니다!"));
         return memberDog.getDog();
+    }
+
+    private void removeMemberLocation(String email){
+        redisTemplate.opsForGeo().remove(POINT_KEY, email);
     }
 
 }
