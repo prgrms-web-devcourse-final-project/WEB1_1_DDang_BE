@@ -56,7 +56,7 @@ public class WalkServiceImpl implements WalkService{
 
         return CompleteWalkAloneResponse.of(
                 member.getName(), walk.getTotalDistance(), completeWalkServiceRequest.totalWalkTime(),
-                calculateCalorie(dog.getWeight(),completeWalkServiceRequest.totalWalkTime()),
+                calculateCalorie(dog.getWeight(),completeWalkServiceRequest.totalDistance()),
                 locations.stream().map(Location::getPosition).toList()
         );
     }
