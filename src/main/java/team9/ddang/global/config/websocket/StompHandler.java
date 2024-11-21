@@ -1,17 +1,8 @@
 package team9.ddang.global.config.websocket;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
-import team9.ddang.chat.repository.ChatMemberRepository;
-import team9.ddang.chat.repository.ChatRoomRepository;
-
-import java.nio.file.AccessDeniedException;
-import java.security.Principal;
 
 @Component
 @RequiredArgsConstructor

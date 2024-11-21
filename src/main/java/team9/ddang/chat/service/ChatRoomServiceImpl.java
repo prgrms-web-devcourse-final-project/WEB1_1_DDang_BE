@@ -9,6 +9,7 @@ import team9.ddang.chat.entity.ChatRoom;
 import team9.ddang.chat.repository.ChatMemberRepository;
 import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.chat.repository.ChatRoomRepository;
+import team9.ddang.chat.service.request.ChatRoomCreateServiceRequest;
 import team9.ddang.chat.service.response.ChatRoomResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ChatRoomServiceImpl implements ChatRoomService{
+public class ChatRoomServiceImpl implements ChatRoomService {
 
     private final KafkaDynamicListenerService kafkaDynamicListenerService;
     private final ChatMemberRepository chatMemberRepository;
@@ -27,7 +28,9 @@ public class ChatRoomServiceImpl implements ChatRoomService{
     private final ChatRepository chatRepository;
 
     @Transactional
-    public ChatRoomResponse createChatRoom(Long opponentMemberId) {
+    public ChatRoomResponse createChatRoom(ChatRoomCreateServiceRequest request) {
+
+        Long opponentMemberId = request.opponentMemberId();
 
         Member authenticatedMember = getAuthenticatedMember();
 
@@ -45,12 +48,15 @@ public class ChatRoomServiceImpl implements ChatRoomService{
         Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(opponentMember1, opponentMember);
         if (existingChatRoom.isPresent()) {
             String lastMessage = getLastMessage(existingChatRoom.get().getChatroomId());
-            return new ChatRoomResponse(existingChatRoom.get(), lastMessage);
+            // TODO opponentMember1 -> authenticatedMember로 수정할것
+            Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(existingChatRoom.get().getChatroomId(), opponentMember1.getMemberId());
+            return new ChatRoomResponse(existingChatRoom.get(), lastMessage, unreadCount);
+
         }
 //        Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(authenticatedMember, opponentMember);
 //        if (existingChatRoom.isPresent()) {
 //            String lastMessage = chatRepository.findLastMessageByChatRoom(existingChatRoom.get().getChatroomId());
-//            return new ChatRoomResponse(existingChatRoom.get(), lastMessage, members);
+//            return new ChatRoomResponse(existingChatRoom.get(), lastMessage, unreadCount, members);
 //        }
 
         // TODO 채팅방 이름은 어떻게 할까
@@ -73,13 +79,16 @@ public class ChatRoomServiceImpl implements ChatRoomService{
 
         kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
 
-        return new ChatRoomResponse(chatRoom, null);
+        return new ChatRoomResponse(chatRoom, null, 0L);
     }
 
     @Transactional(readOnly = true)
     public List<ChatRoomResponse> getChatRoomsForAuthenticatedMember() {
 
-        Member authenticatedMember = getAuthenticatedMember();
+        // TODO 나중에 시큐리티 들어오면 수정할 코드
+        Member authenticatedMember = memberRepository.findById(2L)
+                .orElseThrow(() -> new EntityNotFoundException("회원이 존재하지 않습니다."));
+//        Member authenticatedMember = getAuthenticatedMember();
 
         List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByMember(authenticatedMember);
 
@@ -87,9 +96,10 @@ public class ChatRoomServiceImpl implements ChatRoomService{
                 .map(chatRoom -> {
                     String lastMessage = chatRepository.findLastMessageByChatRoom(chatRoom.getChatroomId());
                     List<Member> members = chatMemberRepository.findMembersByChatRoom(chatRoom);
+                    Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(chatRoom.getChatroomId(), authenticatedMember.getMemberId());
                     // TODO 나중에 채팅방 목록에 채팅방에 참여중인 인원에 대한 정보도 같이 반환하도록
-                    return new ChatRoomResponse(chatRoom, lastMessage);
-//                    return new ChatRoomResponse(chatRoom, lastMessage, members);
+                    return new ChatRoomResponse(chatRoom, lastMessage, unreadCount);
+//                    return new ChatRoomResponse(chatRoom, lastMessage, unreadCount, members);
                 })
                 .toList();
     }
@@ -98,7 +108,8 @@ public class ChatRoomServiceImpl implements ChatRoomService{
         // TODO: 시큐리티 들어오면 교체할 코드
         return null;
     }
-//    private Member getAuthenticatedMember(@AuthenticationPrincipal MemberDetails memberDetails) {
+
+    //    private Member getAuthenticatedMember(@AuthenticationPrincipal MemberDetails memberDetails) {
 //        return memberDetails.getMember();
 //    }
     private String getLastMessage(Long chatRoomId) {
