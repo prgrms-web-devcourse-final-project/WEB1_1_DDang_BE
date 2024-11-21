@@ -7,4 +7,5 @@ public record WebSocketErrorResponse(
         @Schema(description = "에러 코드", example = "400") int code,
         @Schema(description = "상태", example = "BAD_REQUEST") String status,
         @Schema(description = "에러 메시지", example = "유효성 검사 실패: 채팅방 아이디는 필수입니다.") String message
-) {}
+) {
+}

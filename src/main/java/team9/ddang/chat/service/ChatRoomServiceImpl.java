@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ChatRoomServiceImpl implements ChatRoomService{
+public class ChatRoomServiceImpl implements ChatRoomService {
 
     private final KafkaDynamicListenerService kafkaDynamicListenerService;
     private final ChatMemberRepository chatMemberRepository;
@@ -79,7 +79,7 @@ public class ChatRoomServiceImpl implements ChatRoomService{
 
         kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
 
-        return new ChatRoomResponse(chatRoom, null,0L);
+        return new ChatRoomResponse(chatRoom, null, 0L);
     }
 
     @Transactional(readOnly = true)
@@ -108,7 +108,8 @@ public class ChatRoomServiceImpl implements ChatRoomService{
         // TODO: 시큐리티 들어오면 교체할 코드
         return null;
     }
-//    private Member getAuthenticatedMember(@AuthenticationPrincipal MemberDetails memberDetails) {
+
+    //    private Member getAuthenticatedMember(@AuthenticationPrincipal MemberDetails memberDetails) {
 //        return memberDetails.getMember();
 //    }
     private String getLastMessage(Long chatRoomId) {

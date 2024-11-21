@@ -2,10 +2,6 @@ package team9.ddang.chat.service.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.chat.entity.ChatRoom;
-import team9.ddang.member.entity.Member;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Schema(description = "채팅방 응답 데이터")
 public record ChatRoomResponse(

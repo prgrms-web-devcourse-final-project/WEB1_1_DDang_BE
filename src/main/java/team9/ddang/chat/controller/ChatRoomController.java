@@ -25,10 +25,10 @@ public class ChatRoomController {
     @Operation(
             summary = "채팅방 생성",
             description = """
-                새로운 채팅방을 생성하고, 채팅방 정보를 반환합니다.
-                이미 동일한 맴버와의 채팅방이 있다면, 해당 채팅방을 반환합니다.
-                요청 본문에 상대방의 회원 ID(opponentMemberId)를 포함해야 합니다.
-                """,
+                    새로운 채팅방을 생성하고, 채팅방 정보를 반환합니다.
+                    이미 동일한 맴버와의 채팅방이 있다면, 해당 채팅방을 반환합니다.
+                    요청 본문에 상대방의 회원 ID(opponentMemberId)를 포함해야 합니다.
+                    """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "채팅방 생성 요청 데이터",
                     content = @Content(
@@ -82,10 +82,10 @@ public class ChatRoomController {
     @Operation(
             summary = "사용자의 채팅방 목록 조회",
             description = """
-                현재 인증된 사용자가 참여 중인 채팅방 목록을 조회합니다.
-                각 채팅방 정보에 추가적으로 마지막 메시지 정보가 포함됩니다.
-                시큐리티 완성 시, 채팅방에 참여중인 member 정보가 추가될 예정입니다.
-                """,
+                    현재 인증된 사용자가 참여 중인 채팅방 목록을 조회합니다.
+                    각 채팅방 정보에 추가적으로 마지막 메시지 정보가 포함됩니다.
+                    시큐리티 완성 시, 채팅방에 참여중인 member 정보가 추가될 예정입니다.
+                    """,
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "200",

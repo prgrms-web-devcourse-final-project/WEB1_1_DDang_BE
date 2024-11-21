@@ -17,7 +17,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/sub" , "/queue");
+        config.enableSimpleBroker("/sub", "/queue");
         config.setApplicationDestinationPrefixes("/pub");
         config.setUserDestinationPrefix("/user");
     }
@@ -30,7 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //                .withSockJS();
     }
 
-    public void configureClientInboundChannel(ChannelRegistration registration){
+    public void configureClientInboundChannel(ChannelRegistration registration) {
 //        registration.interceptors(stompHandler);
     }
 }

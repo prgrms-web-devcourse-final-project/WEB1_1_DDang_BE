@@ -30,12 +30,12 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     String findLastMessageByChatRoom(@Param("chatRoomId") Long chatRoomId);
 
     @Query("""
-        SELECT COUNT(c)
-        FROM Chat c
-        WHERE c.chatRoom.chatroomId = :chatRoomId
-          AND c.member.memberId <> :memberId
-          AND c.isRead = 'FALSE'
-    """)
+                SELECT COUNT(c)
+                FROM Chat c
+                WHERE c.chatRoom.chatroomId = :chatRoomId
+                  AND c.member.memberId <> :memberId
+                  AND c.isRead = 'FALSE'
+            """)
     Long countUnreadMessagesByChatRoomAndMember(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
 
     @Query("""

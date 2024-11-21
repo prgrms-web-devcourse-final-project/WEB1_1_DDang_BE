@@ -78,7 +78,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public void updateMessageReadStatus(Long chatRoomId){
+    public void updateMessageReadStatus(Long chatRoomId) {
         // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
         Long memberId = 2L;
 

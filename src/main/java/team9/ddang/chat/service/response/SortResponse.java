@@ -2,6 +2,7 @@ package team9.ddang.chat.service.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Sort;
+
 // 명세용 응답 클래스
 @Schema(description = "정렬 정보")
 public class SortResponse {

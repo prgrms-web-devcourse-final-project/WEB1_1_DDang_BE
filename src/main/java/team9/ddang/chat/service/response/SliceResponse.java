@@ -1,9 +1,9 @@
 package team9.ddang.chat.service.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
+
 // 명세용 응답 클래스
 @Schema(description = "페이징된 데이터 응답")
 public class SliceResponse<T> {

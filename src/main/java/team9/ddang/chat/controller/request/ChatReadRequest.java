@@ -14,4 +14,5 @@ public record ChatReadRequest(
 
         @Schema(description = "읽음 처리된 메시지 ID 목록, 확장성을 고려하여 만든 것으로, 최종 제출까지는 null", example = "null")
         List<Long> readMessageIds
-) {}
+) {
+}

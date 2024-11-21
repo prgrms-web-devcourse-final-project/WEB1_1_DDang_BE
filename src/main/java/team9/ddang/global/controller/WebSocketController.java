@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import team9.ddang.chat.controller.request.ChatReadRequest;
 import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.event.MessageReadEvent;
@@ -47,7 +47,8 @@ public class WebSocketController {
             }
     )
     @GetMapping("/docs/ws/api/v1/chat/message")
-    public void sendMessage() {}
+    public void sendMessage() {
+    }
 
     @Operation(
             summary = "메시지 읽음 처리",
@@ -79,5 +80,6 @@ public class WebSocketController {
             }
     )
     @GetMapping("/docs/ws/api/v1/chat/ack")
-    public void handleMessageAck() {}
+    public void handleMessageAck() {
+    }
 }

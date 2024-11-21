@@ -1,7 +1,10 @@
 package team9.ddang.chat.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import team9.ddang.global.entity.BaseEntity;
 import team9.ddang.member.entity.Member;
 
