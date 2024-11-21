@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import team9.ddang.member.entity.Member;
+import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.walk.controller.request.LocationRequest;
 import team9.ddang.walk.service.WalkLocationService;
 
@@ -15,9 +17,12 @@ import team9.ddang.walk.service.WalkLocationService;
 public class WalkLocationController {
 
     private final WalkLocationService walkLocationService;
+    private final MemberRepository memberRepository;
 
-    @MessageMapping("/location")
+    @MessageMapping("/api/v1/location")
     public void updateUserLocationTest(LocationRequest locationRequest) {
-        walkLocationService.saveMemberLocation(1L , locationRequest.toService());
-    } // TODO : Security 적용
+        Member member = memberRepository.findById(1L).orElseThrow();
+        walkLocationService.startWalk(member.getEmail() , locationRequest.toService());
+    }
+    // TODO : Security 적용
 }

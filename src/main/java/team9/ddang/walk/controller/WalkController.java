@@ -57,8 +57,11 @@ public class WalkController {
             }
     )
     @PostMapping("/complete")
-    public ApiResponse<CompleteWalkAloneResponse> completeWalk(@RequestBody @Valid CompleteWalkRequest request){ // TODO : 멤버 인증 정보 추가 예정
+    public ApiResponse<CompleteWalkAloneResponse> completeWalk(@RequestBody @Valid CompleteWalkRequest request){
+
         return ApiResponse.ok(walkService.completeWalk(1L, request.toServiceRequest()));
     }
+
+    // TODO : 멤버 인증 정보 추가 예정
 
 }
