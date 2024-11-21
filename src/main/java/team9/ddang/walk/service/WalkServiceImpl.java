@@ -46,7 +46,7 @@ public class WalkServiceImpl implements WalkService{
                 .orElseThrow();
         // TODO : security로 멤버 받아올 예정
         Dog dog = getDogFromMemberId(memberId);
-        List<Location> locations = getLocationList(memberId);
+        List<Location> locations = getLocationList(member.getEmail());
 
         if(locations.isEmpty()) {
             throw new IllegalArgumentException("산책이 정상적으로 이루어지지 않았습니다.");
@@ -76,8 +76,8 @@ public class WalkServiceImpl implements WalkService{
         locationBulkRepository.saveAll(locations);
     }
 
-    private List<String> getListFromRedis(Long memberId) {
-        String key = LIST_KEY + memberId;
+    private List<String> getListFromRedis(String email) {
+        String key = LIST_KEY + email;
         ListOperations<String, String> listOperations = redisTemplate.opsForList();
         List<String> locations = listOperations.range(key, 0, -1);
 
@@ -85,8 +85,8 @@ public class WalkServiceImpl implements WalkService{
         return locations;
     }
 
-    private List<Location> getLocationList(Long memberId){
-        List<String> locations = getListFromRedis(memberId);
+    private List<Location> getLocationList(String email){
+        List<String> locations = getListFromRedis(email);
 
         return locations != null && !locations.isEmpty() ?
                 locations.stream().map(this::getLocationTempFromString).toList() : Collections.emptyList();
