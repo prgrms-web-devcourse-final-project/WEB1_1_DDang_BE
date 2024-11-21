@@ -54,7 +54,7 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     public Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable) {
         // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
-        Long memberId = 3L;
+        Long memberId = 2L;
 
         // TODO 나중에 Member가 해당 채팅방에 속해있는지 검증 필요
         findChatRoomByIdOrThrowException(chatRoomId);
@@ -69,14 +69,34 @@ public class ChatServiceImpl implements ChatService {
 
         unreadChats.forEach(Chat::markAsRead);
 
-        List<Long> readMessageIds = unreadChats.stream()
-                .map(Chat::getChatId)
-                .toList();
         String topic = "topic-chat-" + chatRoomId;
-        MessageReadEvent readEvent = new MessageReadEvent(chatRoomId, memberId, readMessageIds);
+        MessageReadEvent readEvent = new MessageReadEvent(chatRoomId, memberId, null);
         chatProducer.sendReadEvent(topic, readEvent);
 
         return chats.map(ChatResponse::new);
+    }
+
+    @Override
+    @Transactional
+    public void updateMessageReadStatus(Long chatRoomId){
+        // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
+        Long memberId = 2L;
+
+        // TODO 나중에 Member가 해당 채팅방에 속해있는지 검증 필요
+        findChatRoomByIdOrThrowException(chatRoomId);
+
+        List<Chat> unreadChats = chatRepository.findUnreadMessagesByChatRoomIdAndMemberId(chatRoomId, memberId);
+
+        if (unreadChats.isEmpty()) {
+            return;
+        }
+
+        unreadChats.forEach(Chat::markAsRead);
+
+        MessageReadEvent readEvent = new MessageReadEvent(chatRoomId, memberId, null);
+
+        String topicName = "topic-chat-" + chatRoomId;
+        chatProducer.sendReadEvent(topicName, readEvent);
     }
 
     private ChatRoom findChatRoomByIdOrThrowException(Long id) {

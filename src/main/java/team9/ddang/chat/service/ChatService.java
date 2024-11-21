@@ -9,4 +9,6 @@ public interface ChatService {
     ChatResponse saveChat(Long chatRoomId, Long memberId, String message);
 
     Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable);
+
+    void updateMessageReadStatus(Long chatRoomId);
 }
