@@ -84,6 +84,7 @@ public class ChatRoomController {
             description = """
                 현재 인증된 사용자가 참여 중인 채팅방 목록을 조회합니다.
                 각 채팅방 정보에 추가적으로 마지막 메시지 정보가 포함됩니다.
+                시큐리티 완성 시, 채팅방에 참여중인 member 정보가 추가될 예정입니다.
                 """,
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(

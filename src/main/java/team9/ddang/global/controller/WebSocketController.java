@@ -19,7 +19,7 @@ public class WebSocketController {
 
     @Operation(
             summary = "채팅 메시지 전송",
-            description = "WebSocket을 통해 채팅 메시지를 전송합니다. 메시지를 전송하려면 '/pub/api/v1/chat/message' 경로로 JSON 데이터를 전송하세요.",
+            description = "WebSocket을 통해 채팅 메시지를 전송합니다. 메시지를 전송하려면 '/pub/api/v1/chat/message' 경로로 JSON 데이터를 전송하세요. 시큐리티 완성 시, 요청 데이터에서 memberId는 제외될 예정입니다.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "채팅 메시지 요청 데이터",
                     content = @Content(
