@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Boolean.FALSE;
 import static team9.ddang.walk.service.RedisKey.LIST_KEY;
 import static team9.ddang.walk.service.RedisKey.POINT_KEY;
 import static team9.ddang.walk.util.WalkCalculator.calculateCalorie;
@@ -81,7 +82,9 @@ public class WalkServiceImpl implements WalkService{
         ListOperations<String, String> listOperations = redisTemplate.opsForList();
         List<String> locations = listOperations.range(key, 0, -1);
 
-        redisTemplate.delete(key);
+        if(redisTemplate.delete(key).equals(FALSE)){
+            throw new IllegalStateException("위치 정보 리스트를 삭제하지 못했습니다.");
+        }
         return locations;
     }
 
@@ -108,7 +111,9 @@ public class WalkServiceImpl implements WalkService{
     }
 
     private void removeMemberLocation(String email){
-        redisTemplate.opsForGeo().remove(POINT_KEY, email);
+        if (redisTemplate.opsForGeo().remove(POINT_KEY, email) == null) {
+            throw new IllegalStateException("위치 정보를 삭제하지 못했습니다.");
+        }
     }
 
 }

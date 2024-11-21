@@ -34,7 +34,7 @@ public class WalkController {
                     description = "산책 완료 요청 데이터",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ChatRoomCreateRequest.class)
+                            schema = @Schema(implementation = CompleteWalkRequest.class)
                     )
             ),
             responses = {
@@ -43,7 +43,7 @@ public class WalkController {
                             description = "산책 완료 성공",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
+                                    schema = @Schema(implementation = CompleteWalkAloneResponse.class)
                             )
                     ),
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
