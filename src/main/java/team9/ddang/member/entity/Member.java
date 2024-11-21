@@ -38,13 +38,15 @@ public class Member extends BaseEntity {
 
     private String profileImg;
 
+    @Column(length = 30, nullable = false)
+    private String comment = "안녕하세요~ 같이 산책해요!";
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IsMatched isMatched;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "family_id")
+    @JoinColumn(name = "family_id", nullable = false)
     private Family family;
 
     @Enumerated(EnumType.STRING)
@@ -56,7 +58,7 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Builder
-    private Member(String name, String email, LocalDate birthDate, Gender gender, FamilyRole familyRole, Provider provider, String profileImg, IsMatched isMatched, Family family) {
+    private Member(String name, String email, LocalDate birthDate, Gender gender, FamilyRole familyRole, Provider provider, String profileImg, IsMatched isMatched, String comment, Family family) {
         this.name = name;
         this.email = email;
         this.birthDate = birthDate;
@@ -65,6 +67,7 @@ public class Member extends BaseEntity {
         this.provider = provider;
         this.profileImg = profileImg;
         this.isMatched = isMatched;
+        this.comment = comment;
         this.family = family;
     }
 }

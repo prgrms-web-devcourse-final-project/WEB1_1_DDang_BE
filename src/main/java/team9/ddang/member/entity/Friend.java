@@ -18,11 +18,11 @@ public class Friend extends BaseEntity {
     private Long friendId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member senderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member receiverId;
 
     @Builder
