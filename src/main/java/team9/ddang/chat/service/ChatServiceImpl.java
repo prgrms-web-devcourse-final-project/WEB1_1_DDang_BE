@@ -99,6 +99,10 @@ public class ChatServiceImpl implements ChatService {
         chatProducer.sendReadEvent(topicName, readEvent);
     }
 
+    public void checkChat(Long chatRoomId){
+        findChatRoomByIdOrThrowException(chatRoomId);
+    }
+
     private ChatRoom findChatRoomByIdOrThrowException(Long id) {
         return chatRoomRepository.findActiveById(id)
                 .orElseThrow(() -> {

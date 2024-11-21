@@ -34,6 +34,8 @@ public class ChatController {
     @MessageMapping("/api/v1/chat/message")
     public void sendMessage(@Valid ChatRequest chatRequest) {
 
+        chatService.checkChat(chatRequest.chatRoomId());
+
         chatProducer.sendMessage("topic-chat-" + chatRequest.chatRoomId(), chatRequest);
     }
 

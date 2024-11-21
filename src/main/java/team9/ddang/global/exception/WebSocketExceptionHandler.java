@@ -2,6 +2,7 @@ package team9.ddang.global.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.validation.BindException;
@@ -21,7 +22,7 @@ public class WebSocketExceptionHandler {
     }
 
     @MessageExceptionHandler(IllegalArgumentException.class)
-    @SendToUser("/queue/errors")
+    @SendTo("/queue/errors")
     public String handleIllegalArgumentException(IllegalArgumentException e) {
         log.error("WebSocket IllegalArgumentException: {}", e.getMessage());
         return "잘못된 요청: " + e.getMessage();
@@ -39,7 +40,7 @@ public class WebSocketExceptionHandler {
     }
 
     @MessageExceptionHandler(MethodArgumentNotValidException.class)
-    @SendToUser("/queue/errors")
+    @SendTo("/queue/errors")
     public String handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getAllErrors().stream()
                 .map(error -> error.getDefaultMessage())

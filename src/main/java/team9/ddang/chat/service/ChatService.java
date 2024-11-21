@@ -11,4 +11,6 @@ public interface ChatService {
     Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable);
 
     void updateMessageReadStatus(Long chatRoomId);
+
+    void checkChat(Long chatRoomId);
 }
