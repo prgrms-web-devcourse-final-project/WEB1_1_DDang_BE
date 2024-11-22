@@ -72,6 +72,7 @@ public class WalkServiceImpl implements WalkService{
                 .walk(walk)
                 .build();
 
+        dog.doWalk();
         walkRepository.save(walk);
         walkDogRepository.save(walkDog);
         locationBulkRepository.saveAll(locations);
@@ -83,7 +84,7 @@ public class WalkServiceImpl implements WalkService{
         List<String> locations = listOperations.range(key, 0, -1);
 
         if(redisTemplate.delete(key).equals(FALSE)){
-            throw new IllegalStateException("위치 정보 리스트를 삭제하지 못했습니다.");
+            throw new IllegalArgumentException("위치 정보 리스트를 삭제하지 못했습니다.");
         }
         return locations;
     }
@@ -112,7 +113,7 @@ public class WalkServiceImpl implements WalkService{
 
     private void removeMemberLocation(String email){
         if (redisTemplate.opsForGeo().remove(POINT_KEY, email) == null) {
-            throw new IllegalStateException("위치 정보를 삭제하지 못했습니다.");
+            throw new IllegalArgumentException("위치 정보를 삭제하지 못했습니다.");
         }
     }
 
