@@ -7,24 +7,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
-import team9.ddang.member.entity.Member;
-import team9.ddang.member.repository.MemberRepository;
-import team9.ddang.walk.controller.request.LocationRequest;
+import org.springframework.web.bind.annotation.RequestMapping;
+import team9.ddang.walk.controller.request.StartWalkRequest;
 import team9.ddang.walk.service.WalkLocationService;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 @Tag(name = "Walk WebSocket API", description = "산책 웹소켓 API")
 public class WalkLocationController {
 
     private final WalkLocationService walkLocationService;
-    private final MemberRepository memberRepository;
 
-    @MessageMapping("/api/v1/location")
-    public void updateUserLocationTest(@RequestBody @Valid LocationRequest locationRequest) {
-        Member member = memberRepository.findById(1L).orElseThrow();
-        walkLocationService.startWalk(member.getEmail() , locationRequest.toService());
+    @MessageMapping("/location")
+    public void startWalk(@RequestBody @Valid StartWalkRequest startWalkRequest) {
+        walkLocationService.startWalk("michael.brown@example.com" , startWalkRequest.toService());
     }
     // TODO : Security 적용
 }
