@@ -22,6 +22,11 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     @Transactional
     public FamilyResponse createFamily(FamilyCreateRequest request) {
+
+        // TODO : 맴버가 이미 가족이 있는지 확인
+        // TODO : 맴버의 familyID를 업데이트
+        // TODO : 맴버가 소유한 강아지들의  familyID도 업데이트
+        // TODO : 생성 요청한 맴버가 패밀리댕의 주인
         String familyCode = generateUniqueFamilyCode();
 
         Family family = Family.builder()
