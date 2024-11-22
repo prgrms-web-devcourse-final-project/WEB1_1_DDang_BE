@@ -1,8 +1,8 @@
 package team9.ddang.walk.service;
 
-import team9.ddang.walk.service.request.LocationServiceRequest;
+import team9.ddang.walk.service.request.StartWalkServiceRequest;
 
 public interface WalkLocationService {
 
-    void startWalk(String email, LocationServiceRequest locationServiceRequest);
+    void startWalk(String email, StartWalkServiceRequest startWalkServiceRequest);
 }
