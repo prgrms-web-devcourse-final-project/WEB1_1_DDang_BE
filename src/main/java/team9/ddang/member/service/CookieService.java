@@ -1,0 +1,48 @@
+package team9.ddang.member.service;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component
+@Slf4j
+public class CookieService {
+
+    private final Long refreshTokenExpirationPeriod;
+
+    public CookieService(@Value("${jwt.refresh.expiration}") Long refreshTokenExpirationPeriod) {
+        this.refreshTokenExpirationPeriod = refreshTokenExpirationPeriod;
+    }
+
+    public ResponseCookie createRefreshTokenToCookie(String refreshToken) {
+        return ResponseCookie.from("refreshToken", refreshToken)
+                .path("/")
+                .maxAge(refreshTokenExpirationPeriod / 1000)
+                .httpOnly(true)
+//                 TODO : https 설정 시 적용
+//                .sameSite("None") // 필요 시 설정
+//                .secure(true)     // HTTPS 사용 시 설정
+                .build();
+    }
+
+    public void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        ResponseCookie cookie = createRefreshTokenToCookie(refreshToken);
+        response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    public Optional<String> getRefreshTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return Optional.of(cookie.getValue());
+                }
+            }
+        }
+        return Optional.empty();
+    }
+}
