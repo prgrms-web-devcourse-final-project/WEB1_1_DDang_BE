@@ -11,12 +11,16 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.entity.Provider;
+import team9.ddang.member.entity.Role;
 import team9.ddang.member.oauth2.CustomOAuth2User;
-import team9.ddang.member.oauth2.OAuthAttributes;
+import team9.ddang.member.oauth2.OAuth2Attributes;
+import team9.ddang.member.oauth2.userinfo.OAuth2UserInfo;
 import team9.ddang.member.repository.MemberRepository;
 
 import java.util.Collections;
 import java.util.Map;
+
+import static team9.ddang.member.oauth2.OAuth2Attributes.getProvider;
 
 @Slf4j
 @Service
@@ -24,36 +28,6 @@ import java.util.Map;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
-
-    private static final String NAVER = "naver";
-    private static final String KAKAO = "kakao";
-
-//    @Override
-//    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-//
-//        log.info("CustomOAuth2UserService.loadUser() 실행 - OAuth2 로그인 요청 진입");
-//
-//        OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
-//        OAuth2User oAuth2User = delegate.loadUser(userRequest);
-//
-//        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-//        Provider provider = getProvider(registrationId);
-//        String userNameAttributeName = userRequest.getClientRegistration()
-//                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-//        Map<String, Object> attributes = oAuth2User.getAttributes();
-//
-//        OAuthAttributes extractAttributes = OAuthAttributes.of(provider, userNameAttributeName, attributes);
-//
-//        Member createdMember = getMember(extractAttributes, provider);
-//
-//        return new CustomOAuth2User(
-//                Collections.singleton(new SimpleGrantedAuthority(createdMember.getRole().toString())),
-//                attributes,
-//                extractAttributes.getNameAttributeKey(),
-//                createdMember
-//        );
-//
-//    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -64,65 +38,31 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        Provider provider = getProvider(registrationId);
         String userNameAttributeName = userRequest.getClientRegistration()
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+        Provider provider = getProvider(registrationId);
+
+        log.info("registrationId={}", registrationId);
+        log.info("userNameAttributeName={}", userNameAttributeName);
+        log.info("provider={}", provider);
+
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        log.info("attributes: {}", attributes);
 
-        OAuthAttributes extractAttributes = OAuthAttributes.of(provider, userNameAttributeName, attributes);
-        log.info("extractAttributes: {}", extractAttributes);
+        OAuth2Attributes oAuth2Attributes = OAuth2Attributes.of(provider, userNameAttributeName, attributes);
 
-        // 이메일을 통해 Member 조회
-        String email = extractAttributes.getOauth2UserInfo().getEmail();
-        Member findMember = memberRepository.findByEmail(email).orElse(null);
+        OAuth2UserInfo oauth2UserInfo = oAuth2Attributes.getOauth2UserInfo();
+        String email = oauth2UserInfo.getEmail();
 
-        if (findMember == null) {
-            // GUEST 상태에서만 이메일과 provider를 가진 CustomOAuth2User 생성
-            log.info("GUEST 상태의 OAuth2 사용자 생성 - 이메일: {}", email);
-            return new CustomOAuth2User(
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
-                    attributes,
-                    extractAttributes.getNameAttributeKey(),
-                    email,
-                    provider
-            );
-        }
+        // 소셜 타입과 소셜 ID 로 조회된다면 이전에 로그인을 한 유저
+        // DB 에 조회되지 않는다면 Role 을 GUEST 로 설정하여 반환 -> LoginSuccessHandler 에서 회원가입으로 리다이렉트 후 추가 정보를 받는다
+        Member member = memberRepository.findByEmail(email)
+                .orElse(Member.builder().email(email).role(Role.GUEST).provider(provider).build());
 
-        // 이미 회원가입이 완료된 사용자 (ROLE_USER 등)
-        log.info("USER 상태의 OAuth2 사용자 로드 - 이메일: {}", findMember.getEmail());
         return new CustomOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(findMember.getRole().toString())),
+                Collections.singleton(new SimpleGrantedAuthority(member.getRole().getKey())),
                 attributes,
-                extractAttributes.getNameAttributeKey(),
-                findMember
+                oAuth2Attributes.getNameAttributeKey(),
+                member
         );
-    }
-
-    private Provider getProvider(String registrationId) {
-        if(NAVER.equals(registrationId)) {
-            return Provider.NAVER;
-        }
-        if(KAKAO.equals(registrationId)) {
-            return Provider.KAKAO;
-        }
-        return Provider.GOOGLE;
-    }
-
-    private Member getMember(OAuthAttributes attributes, Provider provider) {
-        String email = attributes.getOauth2UserInfo().getEmail();
-        Member findMember = memberRepository.findByEmail(email).orElse(null);
-
-        if(findMember == null) {
-            return saveMember(attributes, provider);
-        }
-        return findMember;
-    }
-
-    private Member saveMember(OAuthAttributes attributes, Provider provider) {
-//        Member createdMember = attributes.toEntity(provider, attributes.getOauth2UserInfo());
-//        return memberRepository.save(createdMember);
-        log.info("GUEST 상태의 회원 생성 - 이메일: {}", attributes.getOauth2UserInfo().getEmail());
-        return attributes.toEntity(provider, attributes.getOauth2UserInfo());
     }
 }
