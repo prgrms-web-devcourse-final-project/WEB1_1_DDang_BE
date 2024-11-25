@@ -33,6 +33,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private Gender gender;
 
+    @Column(nullable = false)
+    private String address;
+
     @Enumerated(EnumType.STRING)
     private FamilyRole familyRole;
 
@@ -55,20 +58,17 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Builder
-    private Member(String name, String email, LocalDate birthDate, Gender gender, FamilyRole familyRole, Provider provider, String profileImg, IsMatched isMatched, Family family, Role role) {
+    private Member(String name, String email, LocalDate birthDate, Gender gender, String address, FamilyRole familyRole, Provider provider, String profileImg, IsMatched isMatched, Family family, Role role) {
         this.name = name;
         this.email = email;
         this.birthDate = birthDate;
         this.gender = gender;
+        this.address = address;
         this.familyRole = familyRole;
         this.provider = provider;
         this.profileImg = profileImg;
         this.isMatched = isMatched;
         this.family = family;
-        this.role = role;
-    }
-
-    public void updateRole(Role role) {
         this.role = role;
     }
 }
