@@ -8,106 +8,82 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.jwt.service.JwtService;
+import team9.ddang.member.oauth2.CustomOAuth2User;
 import team9.ddang.member.repository.MemberRepository;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
-    private static final List<String> NO_CHECK_URLS = List.of("/login", "/api/v1/join");
+    private static final List<String> EXCLUDED_URLS = Arrays.asList(
+            "/login", "/api/v1/member/join", "/api/v1/member/sign-up",
+            "/api/v1/member/reissue", "/swagger", "/swagger-ui.html",
+            "swagger-ui/index.html", "/swagger-ui", "/v3/api-docs");
 
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
 
-    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String requestURI = request.getRequestURI();
 
-        if (NO_CHECK_URLS.stream().anyMatch(requestURI::startsWith)) {
-            log.info("필터 제외 대상 요청: {}", requestURI);
+        if (isExcludedUrl(request.getRequestURI())) {
+            log.info("필터 제외 대상 요청: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
 
-        String refreshToken = jwtService.extractRefreshToken(request)
+        String accessToken = jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
                 .orElse(null);
 
-        if (refreshToken != null) {
-            checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
+        if (accessToken != null) {
+            checkAccessTokenAndAuthentication(accessToken, filterChain, request, response);
             return;
         }
 
-        if (refreshToken == null) {
-            checkAccessTokenAndAuthentication(request, response, filterChain);
-        }
+        // AccessToken이 유효하지 않으면 클라이언트에 401 응답 전송
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("AccessToken is invalid");
     }
 
-    /**
-     * 리프레시 토큰으로 유저 정보 찾기 & 액세스 토큰/리프레시 토큰 재발급
-     */
-    public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
-        jwtService.getRefreshTokenFromRedis(refreshToken)
-                .ifPresent(email -> {
-                    Member member = memberRepository.findByEmail(email)
-                            .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
-                    String reIssuedRefreshToken = reIssueRefreshToken(member);
-                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(member.getEmail()),
-                            reIssuedRefreshToken);
-                });
-    }
-
-    /**
-     * 리프레시 토큰 재발급 & Redis에 리프레시 토큰 업데이트
-     */
-    private String reIssueRefreshToken(Member member) {
-        String reIssuedRefreshToken = jwtService.createRefreshToken();
-        jwtService.saveRefreshTokenToRedis(reIssuedRefreshToken, member.getEmail());
-        return reIssuedRefreshToken;
-    }
-
-    /**
-     * 액세스 토큰 체크 & 인증 처리
-     */
-    public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                                  FilterChain filterChain) throws ServletException, IOException {
-        log.info("checkAccessTokenAndAuthentication() 호출");
-        jwtService.extractAccessToken(request)
-                .filter(jwtService::isTokenValid)
-                .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
-                        .ifPresent(email -> memberRepository.findByEmail(email)
-                                .ifPresent(this::saveAuthentication)));
+    private void checkAccessTokenAndAuthentication(String accessToken, FilterChain filterChain, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        jwtService.extractEmail(accessToken)
+                .ifPresent(email -> memberRepository.findByEmail(email)
+                        .ifPresent(this::saveAuthentication));
 
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * 인증 허가
-     */
-    public void saveAuthentication(Member myMember) {
+    private void saveAuthentication(Member myMember) {
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority(myMember.getRole().getKey())),
+                Map.of("email", myMember.getEmail()),
+                "email",
+                myMember
+        );
 
-        log.info("saveAuthentication() 호출");
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(myMember.getEmail())
-                .roles(myMember.getRole().name())
-                .build();
-
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null,
-                        authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                customOAuth2User,
+                null,
+                customOAuth2User.getAuthorities()
+        );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.info("SecurityContext Authentication: {}", SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    private boolean isExcludedUrl(String requestURI) {
+        return EXCLUDED_URLS.stream().anyMatch(requestURI::startsWith);
     }
 }
+
+
+
