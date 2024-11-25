@@ -45,15 +45,16 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     @Override
     public void proposalWalk(Member member, ProposalWalkServiceRequest proposalWalkServiceRequest) {
         Dog dog = memberDogRepository.findMemberDogByMemberId(member.getMemberId())
-                .orElseThrow().getDog();
+                .orElseThrow(() -> new IllegalArgumentException("개가 존재하지 않습니다.")).getDog();
 
         messagingTemplate.convertAndSend("/sub/walk/" + proposalWalkServiceRequest.otherMemberEmail(),
                 ProposalWalkResponse.of(dog, member, proposalWalkServiceRequest.comment()));
     }
 
     @Override
-    public void acceptWalk(Member member, AcceptWalkServiceRequest service) {
-
+    public void acceptWalk(Member member, AcceptWalkServiceRequest serviceRequest) {
+        messagingTemplate.convertAndSend("/sub/walk/"+member.getEmail()+"/request", "ACCEPTED");
+        messagingTemplate.convertAndSend("/sub/walk/"+serviceRequest.otherEmail()+"/request", "ACCEPTED");
     }
 
     private void saveMemberLocation(String email, StartWalkServiceRequest startWalkServiceRequest){
