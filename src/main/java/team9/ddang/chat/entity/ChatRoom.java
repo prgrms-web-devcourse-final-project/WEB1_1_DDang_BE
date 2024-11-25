@@ -1,11 +1,11 @@
 package team9.ddang.chat.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import jakarta.validation.constraints.NotNull;
 import team9.ddang.global.entity.BaseEntity;
 
 @Getter
