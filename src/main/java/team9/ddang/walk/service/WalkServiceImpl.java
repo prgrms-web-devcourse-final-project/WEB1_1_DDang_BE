@@ -83,7 +83,7 @@ public class WalkServiceImpl implements WalkService{
         ListOperations<String, String> listOperations = redisTemplate.opsForList();
         List<String> locations = listOperations.range(key, 0, -1);
 
-        if(redisTemplate.delete(key).equals(FALSE)){
+        if(redisTemplate.delete(key) == false){
             throw new IllegalArgumentException("위치 정보 리스트를 삭제하지 못했습니다.");
         }
         return locations;
@@ -112,7 +112,7 @@ public class WalkServiceImpl implements WalkService{
     }
 
     private void removeMemberLocation(String email){
-        if (redisTemplate.opsForGeo().remove(POINT_KEY, email) == null) {
+        if (redisTemplate.opsForGeo().remove(POINT_KEY, email) != 1) {
             throw new IllegalArgumentException("위치 정보를 삭제하지 못했습니다.");
         }
     }
