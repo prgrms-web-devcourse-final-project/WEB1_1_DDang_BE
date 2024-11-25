@@ -11,7 +11,7 @@ public record CompleteWalkAloneResponse(
         @Schema(description = "날짜", example = "2024-11-21")
         LocalDate date,
 
-        @Schema(description = "회원 이름", example = "문재경")
+        @Schema(description = "회원 이름", example = "김슝")
         String memberName,
 
         @Schema(description = "총 이동 거리 (미터)", example = "1200")

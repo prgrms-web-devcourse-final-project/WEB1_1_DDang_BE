@@ -31,25 +31,28 @@ public class WebSocketWalkController {
             ),
             responses = {
                     @ApiResponse(
-                            responseCode = "1000",
-                            description = "주변 존재하는 인원 리스트",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = MemberNearbyResponse.class)
-                            )
-                    ),
-                    @ApiResponse(
                             responseCode = "400",
                             description = "잘못된 요청 (유효성 검사 실패 또는 기타 클라이언트 오류)",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = WebSocketErrorResponse.class)
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "서버 에러 (감지하지 못한 서버 에러)",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = WebSocketErrorResponse.class)
+                            )
                     )
+
             }
     )
     @GetMapping("/api/v1/walk-alone")
-    public void startWalk() {
+    public WebSocketResponse<MemberNearbyResponse> startWalk() {
+        MemberNearbyResponse response = null;
+        return WebSocketResponse.ok(response);
     }
 
     @Operation(
@@ -64,16 +67,16 @@ public class WebSocketWalkController {
             ),
             responses = {
                     @ApiResponse(
-                            responseCode = "200",
-                            description = "본인의 개와 본인 정보",
+                            responseCode = "400",
+                            description = "잘못된 요청 (유효성 검사 실패 또는 기타 클라이언트 오류)",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ProposalWalkResponse.class)
+                                    schema = @Schema(implementation = WebSocketErrorResponse.class)
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "잘못된 요청 (유효성 검사 실패 또는 기타 클라이언트 오류)",
+                            responseCode = "500",
+                            description = "서버 에러 (감지하지 못한 서버 에러)",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = WebSocketErrorResponse.class)
@@ -82,7 +85,9 @@ public class WebSocketWalkController {
             }
     )
     @GetMapping("/api/v1/proposal")
-    public void proposalWalk(){
+    public WebSocketResponse<ProposalWalkResponse> proposalWalk(){
+        ProposalWalkResponse response = null;
+        return WebSocketResponse.ok(response);
     }
 
     @Operation(
@@ -97,16 +102,16 @@ public class WebSocketWalkController {
             ),
             responses = {
                     @ApiResponse(
-                            responseCode = "200",
-                            description = "동의 여부 ACCEPT 혹은 DENY",
+                            responseCode = "400",
+                            description = "잘못된 요청 (유효성 검사 실패 또는 기타 클라이언트 오류)",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = String.class)
+                                    schema = @Schema(implementation = WebSocketErrorResponse.class)
                             )
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "잘못된 요청 (유효성 검사 실패 또는 기타 클라이언트 오류)",
+                            responseCode = "500",
+                            description = "서버 에러 (감지하지 못한 서버 에러)",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = WebSocketErrorResponse.class)
@@ -115,6 +120,8 @@ public class WebSocketWalkController {
             }
     )
     @GetMapping("/api/v1/decision")
-    public void decisionWalk(){
+    public WebSocketResponse<String> decisionWalk(){
+        String response = null;
+        return WebSocketResponse.ok(response);
     }
 }

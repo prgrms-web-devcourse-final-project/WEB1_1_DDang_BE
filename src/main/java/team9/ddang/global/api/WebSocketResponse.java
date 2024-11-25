@@ -9,7 +9,7 @@ public class WebSocketResponse<T> {
     @Schema(description = "Ws 응답 코드", example = "1000")
     private int code;
 
-    @Schema(description = "응답 메시지", example = "요청이 성공적으로 처리되었습니다.")
+    @Schema(description = "응답 메시지", example = "success")
     private String message;
 
     @Schema(description = "응답 데이터")
