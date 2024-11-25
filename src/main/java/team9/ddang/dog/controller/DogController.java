@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team9.ddang.dog.dto.CreateDogRequest;
-import team9.ddang.dog.dto.UpdateDogRequest;
+import team9.ddang.dog.controller.request.CreateDogRequest;
+import team9.ddang.dog.controller.request.UpdateDogRequest;
 import team9.ddang.dog.service.DogService;
 
 @RestController

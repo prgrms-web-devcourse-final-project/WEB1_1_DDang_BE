@@ -1,5 +1,6 @@
-package team9.ddang.dog.dto;
+package team9.ddang.dog.controller.request;
 
+import team9.ddang.dog.service.request.UpdateDogServiceRequest;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.dog.entity.IsNeutered;
 
