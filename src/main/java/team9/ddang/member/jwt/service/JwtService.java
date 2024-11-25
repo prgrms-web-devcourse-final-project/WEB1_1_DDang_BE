@@ -6,17 +6,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import team9.ddang.member.service.CookieService;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 @Getter
+//@Setter // TEST 시 주석 해제
 @Slf4j
 public class JwtService {
 
@@ -32,36 +36,38 @@ public class JwtService {
     @Value("${jwt.access.header}")
     private String accessHeader;
 
-    @Value("${jwt.refresh.header}")
-    private String refreshHeader;
-
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
     private static final String EMAIL_CLAIM = "email";
+    private static final String PROVIDER_CLAIM = "provider";
     private static final String BEARER = "Bearer ";
 
-    private final StringRedisTemplate redisTemplate;
+    private final CookieService cookieService;
+    private final RedisTemplate<String, String> redisTemplate;
+
 
     /**
      * AccessToken 생성
      */
-    public String createAccessToken(String email) {
+    public String createAccessToken(String email, String provider) {
         Date now = new Date();
         return JWT.create()
                 .withSubject(ACCESS_TOKEN_SUBJECT)
-                .withExpiresAt(new Date(now.getTime() + refreshTokenExpirationPeriod))
+                .withExpiresAt(new Date(now.getTime() + accessTokenExpirationPeriod))
                 .withClaim(EMAIL_CLAIM, email)
+                .withClaim(PROVIDER_CLAIM, provider)
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
     /**
      * RefreshToken 생성
      */
-    public String createRefreshToken() {
+    public String createRefreshToken(String email) {
         Date now = new Date();
         return JWT.create()
                 .withSubject(REFRESH_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(now.getTime() + refreshTokenExpirationPeriod))
+                .withClaim(EMAIL_CLAIM, email)
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
@@ -72,7 +78,6 @@ public class JwtService {
         response.setStatus(HttpServletResponse.SC_OK);
 
         response.setHeader(accessHeader, accessToken);
-        log.info("재발급된 AccessToken : {}", accessToken);
     }
 
     /**
@@ -82,8 +87,7 @@ public class JwtService {
         response.setStatus(HttpServletResponse.SC_OK);
 
         setAccessTokenHeader(response, accessToken);
-        setRefreshTokenHeader(response, refreshToken);
-        log.info("AccessToken, RefreshToken 헤더 설정 완료");
+        setRefreshTokenCookie(response, refreshToken);
     }
 
     /**
@@ -95,13 +99,8 @@ public class JwtService {
                 .map(accessToken -> accessToken.replace(BEARER, ""));
     }
 
-    /**
-     * 헤더에서 RefreshToken 추출
-     */
-    public Optional<String> extractRefreshToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(refreshHeader))
-                .filter(refreshToken -> refreshToken.startsWith(BEARER))
-                .map(refreshToken -> refreshToken.replace(BEARER, ""));
+    public Optional<String> extractRefreshTokenFromCookie(HttpServletRequest request) {
+        return cookieService.getRefreshTokenFromCookie(request);
     }
 
     /**
@@ -121,6 +120,39 @@ public class JwtService {
     }
 
     /**
+     * RefreshToken 에서 Email 추출
+     */
+    public Optional<String> extractEmailFromRefreshToken(String refreshToken) {
+        try {
+            return Optional.ofNullable(JWT.require(Algorithm.HMAC512(secretKey))
+                    .build()
+                    .verify(refreshToken)
+                    .getClaim(EMAIL_CLAIM)
+                    .asString());
+        } catch (Exception e) {
+            log.error("리프레시 토큰이 유효하지 않습니다.");
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * AccessToken 에서 Provider 추출
+     */
+    public Optional<String> extractProvider(String accessToken) {
+        try {
+            return Optional.of(JWT.require(Algorithm.HMAC512(secretKey))
+                    .build()
+                    .verify(accessToken)
+                    .getClaim(PROVIDER_CLAIM)
+                    .asString());
+        } catch (Exception e) {
+            log.error("엑세스 토큰이 유효하지 않습니다.");
+            return Optional.empty();
+        }
+    }
+
+
+    /**
      * AccessToken 헤더 설정
      */
     public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
@@ -130,32 +162,8 @@ public class JwtService {
     /**
      * RefreshToken 헤더 설정
      */
-    public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
-        response.setHeader(refreshHeader, refreshToken);
-    }
-
-    /**
-     * Redis 에 RefreshToken 저장
-     */
-    public void saveRefreshTokenToRedis(String refreshToken, String email) {
-        redisTemplate.opsForValue().set(refreshToken, email, refreshTokenExpirationPeriod);
-        log.info("RefreshToken 저장 완료: {}", refreshToken);
-    }
-
-    /**
-     * Redis 에서 RefreshToken 조회
-     */
-    public Optional<String> getRefreshTokenFromRedis(String refreshToken) {
-        String email = redisTemplate.opsForValue().get(refreshToken);
-        return Optional.ofNullable(email);
-    }
-
-    /**
-     * Redis 에서 RefreshToken 제거
-     */
-    public void removeRefreshTokenFromRedis(String refreshToken) {
-        redisTemplate.delete(refreshToken);
-        log.info("Redis에서 RefreshToken 제거 완료: {}", refreshToken);
+    public void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        cookieService.addRefreshTokenCookie(response, refreshToken);
     }
 
     /**
@@ -168,6 +176,43 @@ public class JwtService {
         } catch (Exception e) {
             log.error("유효하지 않은 토큰입니다. {}", e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Redis에 RefreshToken 저장 (email을 키로 사용)
+     */
+    public void saveRefreshTokenToRedis(String email, String refreshToken) {
+        if (refreshToken.length() > 4096 || email.length() > 256) {
+            throw new IllegalArgumentException("Redis에 저장할 데이터 크기가 허용치를 초과했습니다.");
+        }
+
+        // 이메일을 키로 사용하여 RefreshToken 저장
+        redisTemplate.opsForValue().set(email, refreshToken, refreshTokenExpirationPeriod, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Redis에서 RefreshToken 조회
+     */
+    public Optional<String> getRefreshTokenFromRedis(String email) {
+        try {
+            String refreshToken = redisTemplate.opsForValue().get(email);
+            return Optional.ofNullable(refreshToken);
+        } catch (Exception e) {
+            log.error("Redis에서 RefreshToken 조회 실패: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Redis에서 RefreshToken 제거
+     */
+    public void removeRefreshTokenFromRedis(String email) {
+        try {
+            redisTemplate.delete(email);
+            log.info("Redis에서 RefreshToken 제거 완료: {}", email);
+        } catch (Exception e) {
+            log.error("Redis에서 RefreshToken 제거 실패: {}", e.getMessage());
         }
     }
 }
