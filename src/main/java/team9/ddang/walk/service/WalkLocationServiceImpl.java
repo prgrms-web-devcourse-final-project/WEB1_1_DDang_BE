@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.MemberDogRepository;
+import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 import team9.ddang.walk.service.request.DecisionWalkServiceRequest;
@@ -52,9 +53,9 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         }
 
         redisTemplate.opsForValue().set(PROPOSAL_KEY + member.getEmail(), otherEmail);
+        ProposalWalkResponse response = ProposalWalkResponse.of(dog, member, proposalWalkServiceRequest.comment());
 
-        messagingTemplate.convertAndSend("/sub/walk/" + otherEmail,
-                ProposalWalkResponse.of(dog, member, proposalWalkServiceRequest.comment()));
+        messagingTemplate.convertAndSend("/sub/walk/" + otherEmail, WebSocketResponse.ok(response));
     }
 
     @Override
@@ -64,8 +65,8 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         }
         redisTemplate.delete(PROPOSAL_KEY + serviceRequest.otherEmail());
 
-        messagingTemplate.convertAndSend("/sub/walk/"+member.getEmail()+"/request", serviceRequest.decision());
-        messagingTemplate.convertAndSend("/sub/walk/"+serviceRequest.otherEmail()+"/request",  serviceRequest.decision());
+        messagingTemplate.convertAndSend("/sub/walk/"+member.getEmail()+"/request", WebSocketResponse.ok(serviceRequest.decision()));
+        messagingTemplate.convertAndSend("/sub/walk/"+serviceRequest.otherEmail()+"/request",  WebSocketResponse.ok(serviceRequest.decision()));
     }
 
     private void saveMemberLocation(String email, StartWalkServiceRequest startWalkServiceRequest){
@@ -90,10 +91,15 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         }
 
         List<MemberNearbyInfo> memberNearbyInfos = memberDogRepository.findDogsAndMembersByMemberEmails(memberEmailList);
-        messagingTemplate.convertAndSend("/sub/walk/" + email,
-                memberNearbyInfos.stream()
+        sendNearbyMember(memberNearbyInfos, email);
+    }
+
+    private void sendNearbyMember(List<MemberNearbyInfo> memberNearbyInfos, String email){
+        List<MemberNearbyResponse> responseList = memberNearbyInfos.stream()
                 .filter(memberNearbyInfo -> memberNearbyInfo.isMatched().equals(IsMatched.TRUE))
-                .map(MemberNearbyResponse::from).toList());
+                .map(MemberNearbyResponse::from).toList();
+
+        messagingTemplate.convertAndSend("/sub/walk/" + email, WebSocketResponse.ok(responseList));
     }
 
     private Point findMemberLocation(String email){

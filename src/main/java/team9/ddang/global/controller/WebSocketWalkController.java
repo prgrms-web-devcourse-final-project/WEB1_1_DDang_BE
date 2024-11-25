@@ -5,10 +5,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.global.controller.response.WebSocketErrorResponse;
 import team9.ddang.walk.controller.request.DecisionWalkRequest;
 import team9.ddang.walk.controller.request.ProposalWalkRequest;
@@ -32,7 +31,7 @@ public class WebSocketWalkController {
             ),
             responses = {
                     @ApiResponse(
-                            responseCode = "200",
+                            responseCode = "1000",
                             description = "주변 존재하는 인원 리스트",
                             content = @Content(
                                     mediaType = "application/json",
@@ -116,6 +115,6 @@ public class WebSocketWalkController {
             }
     )
     @GetMapping("/api/v1/decision")
-    public void acceptWalk(){
+    public void decisionWalk(){
     }
 }

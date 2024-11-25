@@ -44,4 +44,9 @@ public class WalkLocationController {
 
         walkLocationService.decisionWalk(member, decisionWalkRequest.toService());
     }
+
+    @MessageMapping("/api/v1/walk-with")
+    public void startWalkWith(){
+
+    }
 }
