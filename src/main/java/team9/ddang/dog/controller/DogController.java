@@ -1,5 +1,6 @@
 package team9.ddang.dog.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class DogController {
     private final DogService dogService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreateDogResponse>> createDog(@RequestBody CreateDogRequest request) {
+    public ResponseEntity<ApiResponse<CreateDogResponse>> createDog(@RequestBody @Valid CreateDogRequest request) {
         CreateDogResponse response = dogService.createDog(request.toServiceRequest());
         return ResponseEntity.ok(ApiResponse.created(response)); // 생성된 강아지 정보 반환
     }
@@ -35,7 +36,7 @@ public class DogController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> updateDog(
             @PathVariable Long id,
-            @RequestBody UpdateDogRequest request
+            @RequestBody @Valid UpdateDogRequest request
     ) {
         dogService.updateDog(request.toServiceRequest(id));
         return ResponseEntity.ok(ApiResponse.ok(null)); // 성공 시 메시지만 반환
