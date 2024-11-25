@@ -3,8 +3,10 @@ package team9.ddang.walk.service.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.global.entity.Gender;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+@Schema(description = "근처 회원 정보 응답 객체")
 public record MemberNearbyResponse(
         @Schema(description = "강아지의 식별자", example = "4")
         Long dogId,
@@ -14,6 +16,8 @@ public record MemberNearbyResponse(
 
         @Schema(description = "강아지 이름", example = "초코")
         String dogName,
+
+        @Schema(description = "강아지 품종", example = "말티즈")
         String breed,
 
         @Schema(description = "강아지와의 산책 횟수", example = "10")
