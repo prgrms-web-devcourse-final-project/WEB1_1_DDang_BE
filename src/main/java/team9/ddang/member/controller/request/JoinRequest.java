@@ -13,32 +13,42 @@ import team9.ddang.member.service.request.JoinServiceRequest;
 import java.time.LocalDate;
 
 public record JoinRequest(
-        @NotBlank(message = "이름이 빈 칸입니다.")
+
+        @NotBlank(message = "이메일을 입력해주세요.")
+        String email,
+
+        @NotNull(message = "Provider를 입력해주세요.")
+        Provider provider,
+
+        @NotBlank(message = "이름을 입력해주세요.")
         String name,
 
-        @NotNull(message = "생년월일이 필요합니다.")
+        @NotNull(message = "생년월일을 입력해주세요.")
         LocalDate birthDate,
 
-        @NotNull(message = "성별이 필요합니다.")
+        @NotNull(message = "성별을 입력해주세요.")
         Gender gender,
+
+        @NotBlank(message = " 주소를 입력해주세요.")
+        String address,
 
         FamilyRole familyRole,
 
         String profileImg
 ) {
 
-    public JoinServiceRequest toServiceRequest(String email, Provider provider) {
+    public JoinServiceRequest toServiceRequest() {
         return new JoinServiceRequest(
                 email,
+                provider,
                 name,
                 birthDate,
                 gender,
+                address,
                 familyRole,
-                null,
                 profileImg,
                 IsMatched.TRUE,
-                provider,
-                Role.ROLE_USER
+                Role.USER
         );
     }
 }
