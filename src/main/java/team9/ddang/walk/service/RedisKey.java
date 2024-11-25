@@ -4,5 +4,6 @@ public abstract class RedisKey {
     public static final String LIST_KEY = "geoPoints: ";
     public static final String POINT_KEY = "geoPoint";
     public static final String PROPOSAL_KEY = "proposal: ";
+    public static final String WITH_WALK_KEY = "withWalk: ";
 }
 

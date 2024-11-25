@@ -39,14 +39,15 @@ public class WalkLocationController {
 
     @MessageMapping("/api/v1/decision")
     public void decisionWalk(@RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
-        Member member = memberRepository.findByEmail("michael.brown@example.com")
+        Member member = memberRepository.findByEmail("john.doe@example.com")
                 .orElseThrow();
 
         walkLocationService.decisionWalk(member, decisionWalkRequest.toService());
     }
 
     @MessageMapping("/api/v1/walk-with")
-    public void startWalkWith(){
+    public void startWalkWith(@RequestBody @Valid StartWalkRequest startWalkRequest){
+        walkLocationService.startWalkWith("michael.brown@example.com" , startWalkRequest.toService());
 
     }
 }

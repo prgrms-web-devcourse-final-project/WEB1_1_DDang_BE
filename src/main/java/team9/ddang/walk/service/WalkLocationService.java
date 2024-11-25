@@ -12,4 +12,6 @@ public interface WalkLocationService {
     void proposalWalk(Member member, ProposalWalkServiceRequest proposalWalkServiceRequest);
 
     void decisionWalk(Member member, DecisionWalkServiceRequest service);
+
+    void startWalkWith(String email, StartWalkServiceRequest service);
 }

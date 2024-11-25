@@ -20,9 +20,11 @@ import team9.ddang.walk.service.request.StartWalkServiceRequest;
 import team9.ddang.walk.service.response.MemberNearbyInfo;
 import team9.ddang.walk.service.response.MemberNearbyResponse;
 import team9.ddang.walk.service.response.ProposalWalkResponse;
+import team9.ddang.walk.service.response.WalkWithResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static team9.ddang.walk.service.RedisKey.*;
 
@@ -49,24 +51,45 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         String otherEmail = proposalWalkServiceRequest.otherMemberEmail();
 
         if(redisTemplate.opsForValue().get(PROPOSAL_KEY + member.getEmail()) != null){
-            throw new IllegalArgumentException("이미 제안을 신청한 멤버 입니다.");
+            throw new IllegalArgumentException("이미 다른 견주분에게 산책을 제안을 하신 상태 입니다.");
         }
 
-        redisTemplate.opsForValue().set(PROPOSAL_KEY + member.getEmail(), otherEmail);
+        redisTemplate.opsForValue().set(PROPOSAL_KEY + member.getEmail(), otherEmail, 3, TimeUnit.MINUTES);
         ProposalWalkResponse response = ProposalWalkResponse.of(dog, member, proposalWalkServiceRequest.comment());
 
-        messagingTemplate.convertAndSend("/sub/walk/" + otherEmail, WebSocketResponse.ok(response));
+        sendMessageToWalkUrl(otherEmail, response);
+        sendMessageToWalkUrl(member.getEmail(), response);
     }
 
     @Override
     public void decisionWalk(Member member, DecisionWalkServiceRequest serviceRequest) {
-        if(redisTemplate.opsForValue().get(PROPOSAL_KEY + serviceRequest.otherEmail()) == null){
+        String memberEmail = (String) redisTemplate.opsForValue().get(PROPOSAL_KEY + serviceRequest.otherEmail());
+        if(memberEmail == null){
             throw new IllegalArgumentException("제안을 취소했거나 이미 강번따를 진행 중인 유저 입니다.");
+        }
+
+        if(!memberEmail.equals(member.getEmail())){
+            throw new IllegalArgumentException("제안을 한 유저와 받은 유저가 일치하지 않습니다.");
         }
         redisTemplate.delete(PROPOSAL_KEY + serviceRequest.otherEmail());
 
-        messagingTemplate.convertAndSend("/sub/walk/"+member.getEmail()+"/request", WebSocketResponse.ok(serviceRequest.decision()));
-        messagingTemplate.convertAndSend("/sub/walk/"+serviceRequest.otherEmail()+"/request",  WebSocketResponse.ok(serviceRequest.decision()));
+        redisTemplate.opsForValue().set(WITH_WALK_KEY + member.getEmail(), serviceRequest.otherEmail());
+        redisTemplate.opsForValue().set(WITH_WALK_KEY + serviceRequest.otherEmail(), member.getEmail());
+
+        sendMessagetoWalkRequestUrl(member.getEmail(), serviceRequest.decision());
+        sendMessagetoWalkRequestUrl(serviceRequest.otherEmail(), serviceRequest.decision());
+    }
+
+    @Override
+    public void startWalkWith(String email, StartWalkServiceRequest startWalkServiceRequest) {
+        saveMemberLocation(email, startWalkServiceRequest);
+        String otherMemberEmail = (String) redisTemplate.opsForValue().get(WITH_WALK_KEY + email);
+
+        if(otherMemberEmail == null){
+            throw new IllegalArgumentException("상대 이메일 정보가 존재하지 않습니다.");
+        }
+
+        sendMessageToWalkUrl(otherMemberEmail, WalkWithResponse.of(email, startWalkServiceRequest));
     }
 
     private void saveMemberLocation(String email, StartWalkServiceRequest startWalkServiceRequest){
@@ -99,7 +122,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
                 .filter(memberNearbyInfo -> memberNearbyInfo.isMatched().equals(IsMatched.TRUE))
                 .map(MemberNearbyResponse::from).toList();
 
-        messagingTemplate.convertAndSend("/sub/walk/" + email, WebSocketResponse.ok(responseList));
+        sendMessageToWalkUrl(email, responseList);
     }
 
     private Point findMemberLocation(String email){
@@ -141,5 +164,13 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         }
 
         return memberEmailList;
+    }
+
+    private void sendMessageToWalkUrl(String email, Object data){
+        messagingTemplate.convertAndSend("/sub/walk/" + email,  WebSocketResponse.ok(data));
+    }
+
+    private void sendMessagetoWalkRequestUrl(String email, Object data){
+        messagingTemplate.convertAndSend("/sub/walk/request" + email,  WebSocketResponse.ok(data));
     }
 }
