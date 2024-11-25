@@ -29,7 +29,10 @@ public record ProposalWalkResponse(
         Gender memberGender,
 
         @Schema(description = "회원 나이", example = "25")
-        long age
+        long age,
+
+        @Schema(description = "회원 이메일", example = "example@example.com")
+        String email
 ){
     public static ProposalWalkResponse of(Dog dog, Member member, String comment){
         if(comment == null){
@@ -37,6 +40,6 @@ public record ProposalWalkResponse(
         }
 
         return new ProposalWalkResponse(dog.getDogId(), dog.getName(), dog.getBreed(), dog.getProfileImg(), comment, member.getGender(),
-                ChronoUnit.YEARS.between(member.getBirthDate(), LocalDate.now())+1);
+                ChronoUnit.YEARS.between(member.getBirthDate(), LocalDate.now())+1, member.getEmail());
     }
 }

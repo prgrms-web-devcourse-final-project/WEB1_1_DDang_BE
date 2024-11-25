@@ -30,11 +30,14 @@ public record MemberNearbyResponse(
         long memberAge,
 
         @Schema(description = "회원 성별", example = "FEMALE")
-        Gender memberGender
+        Gender memberGender,
+
+        @Schema(description = "회원 이메일", example = "example@example.com")
+        String email
 ) {
     public static MemberNearbyResponse from(MemberNearbyInfo memberNearbyInfo){
         return new MemberNearbyResponse(memberNearbyInfo.dogId(), memberNearbyInfo.profileImg(), memberNearbyInfo.dogName(),
                 memberNearbyInfo.breed(), memberNearbyInfo.walkCount(), memberNearbyInfo.memberId(),
-                ChronoUnit.YEARS.between(memberNearbyInfo.birthDate(), LocalDate.now()) + 1, memberNearbyInfo.gender());
+                ChronoUnit.YEARS.between(memberNearbyInfo.birthDate(), LocalDate.now()) + 1, memberNearbyInfo.gender(), memberNearbyInfo.email());
     }
 }

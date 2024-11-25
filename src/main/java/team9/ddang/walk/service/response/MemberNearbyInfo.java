@@ -14,5 +14,6 @@ public record MemberNearbyInfo(
         Long memberId,
         LocalDate birthDate,
         Gender gender,
-        IsMatched isMatched
+        IsMatched isMatched,
+        String email
 ) { }

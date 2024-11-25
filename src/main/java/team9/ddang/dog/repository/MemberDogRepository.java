@@ -23,7 +23,7 @@ public interface MemberDogRepository extends JpaRepository<MemberDog, Long> {
 
     @Query("""
             SELECT new team9.ddang.walk.service.response.MemberNearbyInfo
-            (d.dogId, d.profileImg, d.name, d.breed, d.walkCount, m.memberId, m.birthDate, m.gender, m.isMatched) 
+            (d.dogId, d.profileImg, d.name, d.breed, d.walkCount, m.memberId, m.birthDate, m.gender, m.isMatched, m.email) 
             FROM MemberDog md  
             JOIN md.dog d  
             JOIN md.member m  
