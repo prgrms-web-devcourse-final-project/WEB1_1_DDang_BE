@@ -7,10 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
-import team9.ddang.walk.controller.request.AcceptWalkRequest;
+import team9.ddang.walk.controller.request.DecisionWalkRequest;
 import team9.ddang.walk.controller.request.ProposalWalkRequest;
 import team9.ddang.walk.controller.request.StartWalkRequest;
 import team9.ddang.walk.service.WalkLocationService;
@@ -38,11 +37,11 @@ public class WalkLocationController {
         walkLocationService.proposalWalk(member, proposalWalkRequest.toService());
     }
 
-    @MessageMapping("/api/v1/accept")
-    public void acceptWalk(@RequestBody @Valid AcceptWalkRequest acceptWalkRequest){
+    @MessageMapping("/api/v1/decision")
+    public void decisionWalk(@RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
         Member member = memberRepository.findByEmail("michael.brown@example.com")
                 .orElseThrow();
 
-        walkLocationService.acceptWalk(member, acceptWalkRequest.toService());
+        walkLocationService.decisionWalk(member, decisionWalkRequest.toService());
     }
 }

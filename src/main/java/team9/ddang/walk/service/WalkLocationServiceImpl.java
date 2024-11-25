@@ -13,7 +13,7 @@ import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
-import team9.ddang.walk.service.request.AcceptWalkServiceRequest;
+import team9.ddang.walk.service.request.DecisionWalkServiceRequest;
 import team9.ddang.walk.service.request.ProposalWalkServiceRequest;
 import team9.ddang.walk.service.request.StartWalkServiceRequest;
 import team9.ddang.walk.service.response.MemberNearbyInfo;
@@ -23,8 +23,7 @@ import team9.ddang.walk.service.response.ProposalWalkResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-import static team9.ddang.walk.service.RedisKey.LIST_KEY;
-import static team9.ddang.walk.service.RedisKey.POINT_KEY;
+import static team9.ddang.walk.service.RedisKey.*;
 
 @Service
 @RequiredArgsConstructor
@@ -46,15 +45,27 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     public void proposalWalk(Member member, ProposalWalkServiceRequest proposalWalkServiceRequest) {
         Dog dog = memberDogRepository.findMemberDogByMemberId(member.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("개가 존재하지 않습니다.")).getDog();
+        String otherEmail = proposalWalkServiceRequest.otherMemberEmail();
 
-        messagingTemplate.convertAndSend("/sub/walk/" + proposalWalkServiceRequest.otherMemberEmail(),
+        if(redisTemplate.opsForValue().get(PROPOSAL_KEY + member.getEmail()) != null){
+            throw new IllegalArgumentException("이미 제안을 신청한 멤버 입니다.");
+        }
+
+        redisTemplate.opsForValue().set(PROPOSAL_KEY + member.getEmail(), otherEmail);
+
+        messagingTemplate.convertAndSend("/sub/walk/" + otherEmail,
                 ProposalWalkResponse.of(dog, member, proposalWalkServiceRequest.comment()));
     }
 
     @Override
-    public void acceptWalk(Member member, AcceptWalkServiceRequest serviceRequest) {
-        messagingTemplate.convertAndSend("/sub/walk/"+member.getEmail()+"/request", "ACCEPTED");
-        messagingTemplate.convertAndSend("/sub/walk/"+serviceRequest.otherEmail()+"/request", "ACCEPTED");
+    public void decisionWalk(Member member, DecisionWalkServiceRequest serviceRequest) {
+        if(redisTemplate.opsForValue().get(PROPOSAL_KEY + serviceRequest.otherEmail()) == null){
+            throw new IllegalArgumentException("제안을 취소했거나 이미 강번따를 진행 중인 유저 입니다.");
+        }
+        redisTemplate.delete(PROPOSAL_KEY + serviceRequest.otherEmail());
+
+        messagingTemplate.convertAndSend("/sub/walk/"+member.getEmail()+"/request", serviceRequest.decision());
+        messagingTemplate.convertAndSend("/sub/walk/"+serviceRequest.otherEmail()+"/request",  serviceRequest.decision());
     }
 
     private void saveMemberLocation(String email, StartWalkServiceRequest startWalkServiceRequest){
