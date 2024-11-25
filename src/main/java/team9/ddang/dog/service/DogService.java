@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.dog.service.request.CreateDogServiceRequest;
-import team9.ddang.dog.dto.GetDogResponse;
+import team9.ddang.dog.service.response.CreateDogResponse;
+import team9.ddang.dog.service.response.GetDogResponse;
 import team9.ddang.dog.service.request.UpdateDogServiceRequest;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.DogRepository;
@@ -21,7 +22,7 @@ public class DogService {
     private final DogRepository dogRepository;
     //private final FamilyRepository familyRepository;
 
-    public void createDog(CreateDogServiceRequest request) {
+    public CreateDogResponse createDog(CreateDogServiceRequest request) {
         // Family 엔티티 검증
        /* Family family = familyRepository.findById(request.familyId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid family ID"));*/
@@ -39,7 +40,20 @@ public class DogService {
                 .comment(request.comment())
                 .build();
 
-        dogRepository.save(dog);
+        Dog savedDog = dogRepository.save(dog);
+
+        return new CreateDogResponse(
+                savedDog.getDogId(),
+                savedDog.getName(),
+                savedDog.getBreed(),
+                savedDog.getBirthDate(),
+                savedDog.getWeight(),
+                savedDog.getGender(),
+                savedDog.getProfileImg(),
+                savedDog.getIsNeutered(),
+                savedDog.getFamily() != null ? savedDog.getFamily().getFamilyId() : null,
+                savedDog.getComment()
+        );
     }
 
 

@@ -5,9 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.dog.controller.request.CreateDogRequest;
 import team9.ddang.dog.controller.request.UpdateDogRequest;
-import team9.ddang.dog.service.request.UpdateDogServiceRequest;
 
-import team9.ddang.dog.dto.GetDogResponse;
+import team9.ddang.dog.service.response.CreateDogResponse;
+import team9.ddang.dog.service.response.GetDogResponse;
 import team9.ddang.dog.service.DogService;
 import team9.ddang.global.api.ApiResponse;
 
@@ -21,9 +21,9 @@ public class DogController {
     private final DogService dogService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createDog(@RequestBody CreateDogRequest request) {
-        dogService.createDog(request.toServiceRequest());
-        return ResponseEntity.ok(ApiResponse.created(null)); // 데이터가 필요 없으므로 null
+    public ResponseEntity<ApiResponse<CreateDogResponse>> createDog(@RequestBody CreateDogRequest request) {
+        CreateDogResponse response = dogService.createDog(request.toServiceRequest());
+        return ResponseEntity.ok(ApiResponse.created(response)); // 생성된 강아지 정보 반환
     }
 
     @GetMapping("/{id}")

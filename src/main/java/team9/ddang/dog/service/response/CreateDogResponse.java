@@ -1,11 +1,11 @@
-package team9.ddang.dog.dto;
+package team9.ddang.dog.service.response;
 
 import team9.ddang.global.entity.Gender;
 import team9.ddang.dog.entity.IsNeutered;
 
 import java.time.LocalDate;
 
-public record GetDogResponse(
+public record CreateDogResponse(
         Long dogId,
         String name,
         String breed,
