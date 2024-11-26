@@ -58,7 +58,8 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Builder
-    private Member(String name, String email, LocalDate birthDate, Gender gender, String address, FamilyRole familyRole, Provider provider, String profileImg, IsMatched isMatched, Family family, Role role) {
+    private Member(Long memberId, String name, String email, LocalDate birthDate, Gender gender, String address, FamilyRole familyRole, Provider provider, String profileImg, IsMatched isMatched, Family family, Role role) {
+        this.memberId = memberId;
         this.name = name;
         this.email = email;
         this.birthDate = birthDate;
@@ -70,5 +71,9 @@ public class Member extends BaseEntity {
         this.isMatched = isMatched;
         this.family = family;
         this.role = role;
+    }
+
+    public void updateIsMatched(IsMatched isMatched) {
+        this.isMatched = isMatched;
     }
 }
