@@ -1,15 +1,17 @@
 package team9.ddang.walk.service;
 
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.dog.repository.MemberDogRepository;
+import team9.ddang.global.service.RedisService;
 import team9.ddang.member.entity.Member;
+import team9.ddang.member.entity.WalkWithMember;
 import team9.ddang.member.repository.MemberRepository;
+import team9.ddang.member.repository.WalkWithMemberRepository;
 import team9.ddang.walk.entity.Location;
 import team9.ddang.walk.entity.Walk;
 import team9.ddang.walk.entity.WalkDog;
@@ -17,32 +19,32 @@ import team9.ddang.walk.repository.LocationBulkRepository;
 import team9.ddang.walk.repository.WalkDogRepository;
 import team9.ddang.walk.repository.WalkRepository;
 import team9.ddang.walk.service.request.CompleteWalkServiceRequest;
-import team9.ddang.walk.service.response.CompleteWalkAloneResponse;
+import team9.ddang.walk.service.response.CompleteWalkResponse;
+import team9.ddang.walk.service.response.WalkWithDogInfo;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static java.lang.Boolean.FALSE;
-import static team9.ddang.walk.service.RedisKey.LIST_KEY;
-import static team9.ddang.walk.service.RedisKey.POINT_KEY;
+import static team9.ddang.walk.service.RedisKey.*;
 import static team9.ddang.walk.util.WalkCalculator.calculateCalorie;
 
 @Service
 @RequiredArgsConstructor
 public class WalkServiceImpl implements WalkService{
 
-    private final RedisTemplate redisTemplate;
+    private final RedisService redisService;
     private final WalkRepository walkRepository;
     private final MemberDogRepository memberDogRepository;
     private final WalkDogRepository walkDogRepository;
     private final LocationBulkRepository locationBulkRepository;
     private final MemberRepository memberRepository;
+    private final WalkWithMemberRepository walkWithMemberRepository;
 
 
     @Override
     @Transactional
-    public CompleteWalkAloneResponse completeWalk(Long memberId, CompleteWalkServiceRequest completeWalkServiceRequest) {
+    public CompleteWalkResponse completeWalk(Long memberId, CompleteWalkServiceRequest completeWalkServiceRequest) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow();
         // TODO : security로 멤버 받아올 예정
@@ -55,12 +57,13 @@ public class WalkServiceImpl implements WalkService{
 
         Walk walk = completeWalkServiceRequest.toEntity(locations, member);
         saveWalkAndLocationAndDog(locations, walk, dog);
-        removeMemberLocation(member.getEmail());
 
-        return CompleteWalkAloneResponse.of(
-                member.getName(), walk.getTotalDistance(), completeWalkServiceRequest.totalWalkTime(),
+        redisService.deleteGeoValues(POINT_KEY, member.getEmail());
+
+        return CompleteWalkResponse.of(
+                member.getName(), dog.getName(), walk.getTotalDistance(), completeWalkServiceRequest.totalWalkTime(),
                 calculateCalorie(dog.getWeight(),completeWalkServiceRequest.totalDistance()),
-                locations.stream().map(Location::getPosition).toList()
+                locations.stream().map(Location::getPosition).toList(), getWalkingFriendInfo(member)
         );
     }
 
@@ -80,12 +83,8 @@ public class WalkServiceImpl implements WalkService{
 
     private List<String> getListFromRedis(String email) {
         String key = LIST_KEY + email;
-        ListOperations<String, String> listOperations = redisTemplate.opsForList();
-        List<String> locations = listOperations.range(key, 0, -1);
-
-        if(redisTemplate.delete(key) == false){
-            throw new IllegalArgumentException("위치 정보 리스트를 삭제하지 못했습니다.");
-        }
+        List<String> locations = redisService.getStringListOpsValues(key);
+        redisService.deleteValues(key);
         return locations;
     }
 
@@ -111,10 +110,31 @@ public class WalkServiceImpl implements WalkService{
         return memberDog.getDog();
     }
 
-    private void removeMemberLocation(String email){
-        if (redisTemplate.opsForGeo().remove(POINT_KEY, email) != 1) {
-            throw new IllegalArgumentException("위치 정보를 삭제하지 못했습니다.");
+    private WalkWithDogInfo getWalkingFriendInfo(Member member){
+        String key = WALK_WITH_KEY + member.getEmail();
+        if(redisService.checkHasKey(key)){
+            String otherEmail = redisService.getValues(key);
+
+            MemberDog otherMemberDog = memberDogRepository.findMemberDogByMemberEmail(otherEmail)
+                    .orElseThrow(() -> new IllegalArgumentException("멤버가 소유하고 있는 개가 없습니다."));
+
+            saveWalkWithMember(member, otherMemberDog.getMember());
+
+            redisService.deleteValues(key);
+            return WalkWithDogInfo.of(otherMemberDog.getMember(), otherMemberDog.getDog());
         }
+
+        return null;
     }
+
+    private void saveWalkWithMember(Member member, Member otherMember){
+        WalkWithMember walkWithMember = WalkWithMember.builder()
+                .sender(member)
+                .receiver(otherMember)
+                .build();
+
+        walkWithMemberRepository.save(walkWithMember);
+    }
+
 
 }

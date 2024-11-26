@@ -32,4 +32,12 @@ public interface MemberDogRepository extends JpaRepository<MemberDog, Long> {
             """)
     List<MemberNearbyInfo> findDogsAndMembersByMemberEmails(@Param("emails") List<String> emails);
 
+    @EntityGraph(attributePaths = {"dog", "member"})
+    @Query("""
+            SELECT md
+            FROM MemberDog md
+            WHERE md.member.email = :email
+            """)
+    Optional<MemberDog> findMemberDogByMemberEmail(@Param("email") String email);
+
 }
