@@ -13,6 +13,7 @@ import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.entity.Member;
+import team9.ddang.member.oauth2.CustomOAuth2User;
 
 @RestController
 @RequestMapping("/api/v1/families")
@@ -62,13 +63,14 @@ public class FamilyController {
                     )
             }
     )
-    public ApiResponse<FamilyResponse> createFamily(@RequestBody FamilyCreateRequest request, @AuthenticationPrincipal Member currentMember) {
+    public ApiResponse<FamilyResponse> createFamily(@RequestBody FamilyCreateRequest request, @AuthenticationPrincipal CustomOAuth2User currentUser) {
+        Member currentMember = currentUser.getMember();
         FamilyResponse response = familyService.createFamily(request, currentMember);
         return ApiResponse.created(response);
     }
 
 
-    @GetMapping("/{familyId}/invite-code")
+    @GetMapping("/invite-code")
     @Operation(
             summary = "가족 초대 코드 생성",
             description = """
@@ -103,8 +105,9 @@ public class FamilyController {
                     )
             }
     )
-    public ApiResponse<InviteCodeResponse> createInviteCode(@PathVariable Long familyId) {
-        InviteCodeResponse response = familyService.createInviteCode(familyId);
+    public ApiResponse<InviteCodeResponse> createInviteCode(@AuthenticationPrincipal CustomOAuth2User currentUser) {
+        Member currentMember = currentUser.getMember();
+        InviteCodeResponse response = familyService.createInviteCode(currentMember);
         return ApiResponse.created(response);
     }
 

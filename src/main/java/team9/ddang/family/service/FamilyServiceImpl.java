@@ -62,12 +62,17 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
-    public InviteCodeResponse createInviteCode(Long familyId){
+    public InviteCodeResponse createInviteCode(Member member){
 
-        Family family = findFamilyByIdOrThrowException(familyId);
-        // TODO 맴버가 해당 패밀리에 속해있는지 검증
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        String redisKey = "invite:" + familyId;
+        if(currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        Family family = currentMember.getFamily();
+
+        String redisKey = "invite:" + family.getFamilyId();
 
         Long ttl = redisTemplate.getExpire(redisKey);
         if (ttl != null && ttl > 0) {
