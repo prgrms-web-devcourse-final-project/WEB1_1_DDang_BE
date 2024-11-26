@@ -23,8 +23,6 @@ import team9.ddang.member.service.response.MemberResponse;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -45,7 +43,7 @@ public class FamilyServiceImpl implements FamilyService {
 
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        if(currentMember.getFamily() != null) {
+        if (currentMember.getFamily() != null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_ALREADY_IN_FAMILY.getText());
         }
 
@@ -68,11 +66,11 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
-    public InviteCodeResponse createInviteCode(Member member){
+    public InviteCodeResponse createInviteCode(Member member) {
 
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        if(currentMember.getFamily() == null) {
+        if (currentMember.getFamily() == null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
 
@@ -83,20 +81,21 @@ public class FamilyServiceImpl implements FamilyService {
         Long ttl = redisTemplate.getExpire(redisKey);
         if (ttl != null && ttl > 0) {
             String existingInviteCode = redisTemplate.opsForValue().get(redisKey);
-            return new InviteCodeResponse(existingInviteCode, ttl);
+            return new InviteCodeResponse(family, existingInviteCode, ttl);
         }
 
         String newInviteCode = generateInviteCode();
-        redisTemplate.opsForValue().set(redisKey, newInviteCode, Duration.ofMinutes(5));
 
-        return new InviteCodeResponse(newInviteCode, Duration.ofMinutes(5).toSeconds());
+        String inviteCodeKey = "invite:" + newInviteCode;
+        redisTemplate.opsForValue().set(inviteCodeKey, String.valueOf(family.getFamilyId()), Duration.ofMinutes(5));
 
+        return new InviteCodeResponse(family, newInviteCode, Duration.ofMinutes(5).toSeconds());
     }
 
 
     @Override
     @Transactional
-    public FamilyResponse addMemberToFamily(String inviteCode, Member member){
+    public FamilyResponse addMemberToFamily(String inviteCode, Member member) {
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
         String familyIdStr = redisTemplate.opsForValue().get("invite:" + inviteCode);
@@ -104,7 +103,7 @@ public class FamilyServiceImpl implements FamilyService {
             throw new IllegalArgumentException(FamilyExceptionMessage.INVALID_INVITE_CODE.getText());
         }
 
-        if(currentMember.getFamily() != null) {
+        if (currentMember.getFamily() != null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_ALREADY_IN_FAMILY.getText());
         }
 
@@ -137,7 +136,7 @@ public class FamilyServiceImpl implements FamilyService {
     public FamilyDetailResponse getMyFamily(Member member) {
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        if(currentMember.getFamily() == null) {
+        if (currentMember.getFamily() == null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
 
@@ -169,10 +168,10 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional
-    public void removeMemberFromFamily(Long memberIdToRemove, Member member){
+    public void removeMemberFromFamily(Long memberIdToRemove, Member member) {
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        if(currentMember.getFamily() == null) {
+        if (currentMember.getFamily() == null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
 
@@ -217,7 +216,7 @@ public class FamilyServiceImpl implements FamilyService {
     public void deleteFamily(Member member) {
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        if(currentMember.getFamily() == null) {
+        if (currentMember.getFamily() == null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
 
