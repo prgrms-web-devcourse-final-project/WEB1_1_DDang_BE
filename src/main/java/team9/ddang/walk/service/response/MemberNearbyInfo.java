@@ -12,8 +12,8 @@ public record MemberNearbyInfo(
         String profileImg,
         int walkCount,
         Long memberId,
-        LocalDate birthDate,
-        Gender gender,
+        LocalDate dogBirthDate,
+        Gender dogGender,
         IsMatched isMatched,
         String email
 ) { }
