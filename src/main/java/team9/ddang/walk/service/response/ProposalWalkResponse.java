@@ -5,8 +5,7 @@ import team9.ddang.dog.entity.Dog;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.member.entity.Member;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import static team9.ddang.walk.util.DateCalculator.calculateAgeFromNow;
 
 @Schema(description = "산책 제안 응답 객체")
 public record ProposalWalkResponse(
@@ -25,11 +24,11 @@ public record ProposalWalkResponse(
         @Schema(description = "추가 코멘트", example = "활발한 강아지입니다!")
         String comment,
 
-        @Schema(description = "회원의 성별", example = "MALE")
-        Gender memberGender,
+        @Schema(description = "강아지 성별", example = "MALE")
+        Gender dogGender,
 
-        @Schema(description = "회원 나이", example = "25")
-        long age,
+        @Schema(description = "강아지 나이", example = "5")
+        long dogAge,
 
         @Schema(description = "회원 이메일", example = "example@example.com")
         String email
@@ -39,7 +38,7 @@ public record ProposalWalkResponse(
             // TODO : dog 엔티티 변경 시 default comment 대체 예정
         }
 
-        return new ProposalWalkResponse(dog.getDogId(), dog.getName(), dog.getBreed(), dog.getProfileImg(), comment, member.getGender(),
-                ChronoUnit.YEARS.between(member.getBirthDate(), LocalDate.now())+1, member.getEmail());
+        return new ProposalWalkResponse(dog.getDogId(), dog.getName(), dog.getBreed(), dog.getProfileImg(),
+                comment, dog.getGender(), calculateAgeFromNow(dog.getBirthDate()), member.getEmail());
     }
 }

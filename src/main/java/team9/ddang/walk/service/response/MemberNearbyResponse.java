@@ -3,8 +3,7 @@ package team9.ddang.walk.service.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.global.entity.Gender;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import static team9.ddang.walk.util.DateCalculator.calculateAgeFromNow;
 
 @Schema(description = "근처 회원 정보 응답 객체")
 public record MemberNearbyResponse(
@@ -23,21 +22,21 @@ public record MemberNearbyResponse(
         @Schema(description = "강아지와의 산책 횟수", example = "10")
         int dogWalkCount,
 
+        @Schema(description = "강아지 나이", example = "5")
+        long dogAge,
+
+        @Schema(description = "강아지 성별", example = "FEMALE")
+        Gender dogGender,
+
         @Schema(description = "회원의 고유 식별자", example = "5")
         Long memberId,
 
-        @Schema(description = "회원 나이", example = "30")
-        long memberAge,
-
-        @Schema(description = "회원 성별", example = "FEMALE")
-        Gender memberGender,
-
         @Schema(description = "회원 이메일", example = "example@example.com")
-        String email
+        String memberEmail
 ) {
     public static MemberNearbyResponse from(MemberNearbyInfo memberNearbyInfo){
         return new MemberNearbyResponse(memberNearbyInfo.dogId(), memberNearbyInfo.profileImg(), memberNearbyInfo.dogName(),
-                memberNearbyInfo.breed(), memberNearbyInfo.walkCount(), memberNearbyInfo.memberId(),
-                ChronoUnit.YEARS.between(memberNearbyInfo.birthDate(), LocalDate.now()) + 1, memberNearbyInfo.gender(), memberNearbyInfo.email());
+                memberNearbyInfo.breed(), memberNearbyInfo.walkCount(), calculateAgeFromNow(memberNearbyInfo.dogBirthDate()),
+                memberNearbyInfo.dogGender(),memberNearbyInfo.memberId(), memberNearbyInfo.email());
     }
 }
