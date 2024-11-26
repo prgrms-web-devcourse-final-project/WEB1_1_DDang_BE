@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 @Getter
-//@Setter // TEST 시 주석 해제
 @Slf4j
 public class JwtService {
 
