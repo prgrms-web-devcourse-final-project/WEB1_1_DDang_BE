@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.family.controller.request.FamilyCreateRequest;
+import team9.ddang.family.controller.request.FamilyJoinRequest;
 import team9.ddang.family.service.FamilyService;
 import team9.ddang.family.service.response.FamilyDetailResponse;
 import team9.ddang.family.service.response.FamilyResponse;
@@ -123,7 +124,7 @@ public class FamilyController {
                     description = "초대 코드 요청 데이터",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = String.class)
+                            schema = @Schema(implementation =FamilyJoinRequest.class)
                     )
             ),
             responses = {
@@ -153,10 +154,10 @@ public class FamilyController {
                     )
             }
     )
-    public ApiResponse<FamilyResponse> joinFamily(@RequestBody String inviteCode,
+    public ApiResponse<FamilyResponse> joinFamily(@RequestBody FamilyJoinRequest request,
                                                   @AuthenticationPrincipal CustomOAuth2User currentUser) {
         Member currentMember = currentUser.getMember();
-        FamilyResponse response = familyService.addMemberToFamily(inviteCode, currentMember);
+        FamilyResponse response = familyService.addMemberToFamily(request.inviteCode(), currentMember);
         return ApiResponse.ok(response);
     }
 

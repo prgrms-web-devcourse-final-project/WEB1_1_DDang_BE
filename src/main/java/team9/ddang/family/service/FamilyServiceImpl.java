@@ -23,6 +23,7 @@ import team9.ddang.member.service.response.MemberResponse;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -67,7 +68,6 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     public InviteCodeResponse createInviteCode(Member member) {
-
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
         if (currentMember.getFamily() == null) {
@@ -75,19 +75,23 @@ public class FamilyServiceImpl implements FamilyService {
         }
 
         Family family = currentMember.getFamily();
+        String redisSearchKey = "invite:";
 
-        String redisKey = "invite:" + family.getFamilyId();
-
-        Long ttl = redisTemplate.getExpire(redisKey);
-        if (ttl != null && ttl > 0) {
-            String existingInviteCode = redisTemplate.opsForValue().get(redisKey);
-            return new InviteCodeResponse(family, existingInviteCode, ttl);
+        List<String> keys = Objects.requireNonNull(redisTemplate.keys(redisSearchKey + "*")).stream().toList();
+        for (String key : keys) {
+            String familyIdStr = redisTemplate.opsForValue().get(key);
+            if (familyIdStr != null && familyIdStr.equals(String.valueOf(family.getFamilyId()))) {
+                Long ttl = redisTemplate.getExpire(key);
+                if (ttl != null && ttl > 0) {
+                    String existingInviteCode = key.replace(redisSearchKey, "");
+                    return new InviteCodeResponse(family, existingInviteCode, ttl);
+                }
+            }
         }
 
-        String newInviteCode = generateInviteCode();
-
-        String inviteCodeKey = "invite:" + newInviteCode;
-        redisTemplate.opsForValue().set(inviteCodeKey, String.valueOf(family.getFamilyId()), Duration.ofMinutes(5));
+        // 새로운 초대 코드 생성
+        String newInviteCode = generateInviteCode(family.getFamilyId());
+        redisTemplate.opsForValue().set("invite:" + newInviteCode, String.valueOf(family.getFamilyId()), Duration.ofMinutes(5));
 
         return new InviteCodeResponse(family, newInviteCode, Duration.ofMinutes(5).toSeconds());
     }
@@ -235,12 +239,12 @@ public class FamilyServiceImpl implements FamilyService {
         // TODO 나중에 walkSchedule도 삭제 처리 같이 해주기
     }
 
-    private String generateInviteCode() {
+    private String generateInviteCode(Long familyId) {
         String code;
         boolean isSet;
         do {
             code = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
-            isSet = Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent("invite:" + code, "TEMP", Duration.ofSeconds(10)));
+            isSet = Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent("invite:" + code, String.valueOf(familyId), Duration.ofMinutes(5)));
         } while (!isSet);
         return code;
     }
