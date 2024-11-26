@@ -13,9 +13,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import team9.ddang.ApiTestSupport;
 import team9.ddang.member.controller.request.JoinRequest;
 import team9.ddang.global.entity.Gender;
+import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.member.service.MemberService;
 import team9.ddang.member.service.response.MemberResponse;
+import team9.ddang.member.service.response.MyPageResponse;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -73,5 +75,40 @@ class MemberControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.data.name").value("John Doe"))
                 .andExpect(jsonPath("$.data.email").value("guest@example.com"))
                 .andExpect(jsonPath("$.data.birthDate").value("1990-01-01"));
+    }
+
+    @DisplayName("마이페이지 - 회원 정보 조회 성공")
+    @Test
+    @WithMockUser(roles = "USER")
+    void getMemberInfo() throws Exception {
+        // Given
+        Long memberId = 1L;
+
+        MyPageResponse myPageResponse = new MyPageResponse(
+                memberId,
+                "John Doe",
+                "123 Test Street",
+                Gender.MALE,
+                FamilyRole.FATHER,
+                12.5,
+                5,
+                3
+        );
+
+        when(memberService.getMemberInfo(memberId)).thenReturn(myPageResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/member/{memberId}", memberId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer test-access-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.memberId").value(memberId))
+                .andExpect(jsonPath("$.data.name").value("John Doe"))
+                .andExpect(jsonPath("$.data.address").value("123 Test Street"))
+                .andExpect(jsonPath("$.data.gender").value("MALE"))
+                .andExpect(jsonPath("$.data.familyRole").value("FATHER"))
+                .andExpect(jsonPath("$.data.totalDistance").value(12.5))
+                .andExpect(jsonPath("$.data.walkCount").value(5))
+                .andExpect(jsonPath("$.data.countWalksWithMember").value(3));
     }
 }
