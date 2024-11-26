@@ -45,11 +45,14 @@ public class Dog extends BaseEntity {
     private IsNeutered isNeutered;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "family_id", nullable = false)
+    @JoinColumn(name = "family_id", nullable = true)
     private Family family;
 
+    @Column(length = 30, nullable = false)
+    private String comment;
+
     @Builder
-    private Dog(String name, String breed, LocalDate birthDate, Gender gender, Integer weight, IsNeutered isNeutered, String profileImg, Family family) {
+    private Dog(String name, String breed, LocalDate birthDate, Gender gender, Integer weight, IsNeutered isNeutered, String profileImg, Family family, String comment) {
         this.name = name;
         this.breed = breed;
         this.birthDate = birthDate;
@@ -58,6 +61,44 @@ public class Dog extends BaseEntity {
         this.profileImg = profileImg;
         this.isNeutered = isNeutered;
         this.family = family;
+        this.comment = comment;
+    }
+
+    // 필드별 Update 메서드
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updateBreed(String breed) {
+        this.breed = breed;
+    }
+
+    public void updateBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void updateWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    public void updateGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public void updateProfileImg(String profileImg) {
+        this.profileImg = profileImg;
+    }
+
+    public void updateIsNeutered(IsNeutered isNeutered) {
+        this.isNeutered = isNeutered;
+    }
+
+    public void updateFamily(Family family) {
+        this.family = family;
+    }
+
+    public void updateComment(String comment) {
+        this.comment = comment;
     }
 
     public void doWalk(){

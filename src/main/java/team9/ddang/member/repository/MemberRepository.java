@@ -6,5 +6,7 @@ import team9.ddang.member.entity.Member;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
-    Optional<Member> findByEmail(String mail);
+
+    Optional<Member> findByEmail(String email);
+
 }

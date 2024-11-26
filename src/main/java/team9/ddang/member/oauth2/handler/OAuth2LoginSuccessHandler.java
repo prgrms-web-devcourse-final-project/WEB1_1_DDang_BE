@@ -1,0 +1,75 @@
+package team9.ddang.member.oauth2.handler;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+import team9.ddang.global.api.ApiResponse;
+import team9.ddang.member.entity.Member;
+import team9.ddang.member.entity.Provider;
+import team9.ddang.member.entity.Role;
+import team9.ddang.member.jwt.service.JwtService;
+import team9.ddang.member.oauth2.CustomOAuth2User;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
+
+    private final JwtService jwtService;
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+
+        try {
+            Member member = ((CustomOAuth2User) authentication.getPrincipal()).getMember();
+            String accessToken = jwtService.createAccessToken(member.getEmail(), member.getProvider().name());
+
+            // 최초 로그인인 경우 추가 정보 입력을 위한 회원가입 페이지로 리다이렉트
+            if (member.getRole() == Role.GUEST) {
+                handleGuestLogin(response, member);
+            } else {
+                handleUserLogin(response, accessToken, member.getEmail());
+            }
+        } catch (Exception e) {
+            log.error("OAuth2 로그인 처리 중 오류 발생: ", e);
+            throw e;
+        }
+    }
+
+    private void handleGuestLogin(HttpServletResponse response, Member member) throws IOException {
+        log.info("GUEST 상태 - 추가 정보 입력 페이지로 리디렉션");
+
+        // email과 provider 정보를 객체로 묶어서 리디렉션
+        String redirectUrl = "http://localhost:3000/register?email=" + member.getEmail() + "&provider=" + member.getProvider().name();
+        log.info("Redirecting to: {}", redirectUrl);
+
+        // 리디렉션
+        response.sendRedirect(redirectUrl);
+    }
+
+    private void handleUserLogin(HttpServletResponse response, String accessToken, String email) throws IOException {
+        log.info("USER 상태 - 로그인 성공 처리");
+
+        String refreshToken = jwtService.createRefreshToken(email);
+        jwtService.saveRefreshTokenToRedis(email, refreshToken);
+        jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
+
+        // 사용자가 로그인 성공 시 홈 페이지로 리디렉션
+        response.sendRedirect("http://localhost:3000/?accessToken=" + accessToken);
+    }
+}
+
