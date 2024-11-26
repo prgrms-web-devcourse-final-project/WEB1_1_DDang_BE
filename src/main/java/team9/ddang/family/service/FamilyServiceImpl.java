@@ -89,8 +89,32 @@ public class FamilyServiceImpl implements FamilyService {
 
 
     @Override
-    public void addMemberToFamily(String inviteCode){
+    @Transactional
+    public FamilyResponse addMemberToFamily(String inviteCode, Member member){
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
+        String familyIdStr = redisTemplate.opsForValue().get("invite:" + inviteCode);
+        if (familyIdStr == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.INVALID_INVITE_CODE.getText());
+        }
+
+        if(currentMember.getFamily() != null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_ALREADY_IN_FAMILY.getText());
+        }
+
+        boolean hasDog = memberDogRepository.existsByMember(member);
+        if (hasDog) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_DOG_FOUND.getText());
+        }
+
+        Long familyId = Long.valueOf(familyIdStr);
+
+        Family family = findFamilyByIdOrThrowException(familyId);
+
+
+        member.updateFamily(family);
+
+        return new FamilyResponse(family);
     }
 
 

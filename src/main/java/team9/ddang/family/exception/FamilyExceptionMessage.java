@@ -20,7 +20,8 @@ public enum FamilyExceptionMessage {
     DOG_NOT_FOUND("해당 강아지를 찾을 수 없습니다."),
 
     // MemberDog
-    MEMBER_DOG_NOT_FOUND("강아지가 없으면 패밀리댕을 생성할 수 없습니다.");
+    MEMBER_DOG_NOT_FOUND("강아지가 없으면 패밀리댕을 생성할 수 없습니다."),
+    MEMBER_DOG_FOUND("강아지가 있다면 패밀리댕에 가입할 수 없습니다.");
 
     private final String text;
 }

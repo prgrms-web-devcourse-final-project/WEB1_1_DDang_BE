@@ -10,7 +10,7 @@ public interface FamilyService {
 
     InviteCodeResponse createInviteCode(Member member);
 
-    void addMemberToFamily(String inviteCode);
+    FamilyResponse addMemberToFamily(String inviteCode, Member member);
 
     void deleteFamily(Long familyId);
 }

@@ -16,7 +16,7 @@ import team9.ddang.member.entity.Member;
 import team9.ddang.member.oauth2.CustomOAuth2User;
 
 @RestController
-@RequestMapping("/api/v1/families")
+@RequestMapping("/api/v1/family")
 @RequiredArgsConstructor
 @Tag(name = "Family API", description = "가족 생성, 조회 및 삭제 API")
 public class FamilyController {
@@ -111,6 +111,52 @@ public class FamilyController {
         return ApiResponse.created(response);
     }
 
-
+    @PostMapping("/join")
+    @Operation(
+            summary = "가족에 참여",
+            description = """
+                초대 코드를 입력하여 가족에 참여합니다.
+                초대 코드가 유효하지 않거나 만료되었을 경우 오류를 반환합니다.
+                """,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "초대 코드 요청 데이터",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = String.class)
+                    )
+            ),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "가족 참여 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = FamilyResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 요청 데이터 또는 초대 코드 만료",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public ApiResponse<FamilyResponse> joinFamily(@RequestBody String inviteCode,
+                                                  @AuthenticationPrincipal CustomOAuth2User currentUser) {
+        Member currentMember = currentUser.getMember();
+        FamilyResponse response = familyService.addMemberToFamily(inviteCode, currentMember);
+        return ApiResponse.ok(response);
+    }
 
 }
