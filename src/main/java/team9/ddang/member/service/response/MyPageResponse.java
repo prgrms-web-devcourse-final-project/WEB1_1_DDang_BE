@@ -3,6 +3,7 @@ package team9.ddang.member.service.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.member.entity.FamilyRole;
+import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 
 @Schema(description = "마이페이지 응답 데이터")
@@ -22,6 +23,12 @@ public record MyPageResponse(
         @Schema(description = "가족 내 역할", example = "FATHER")
         FamilyRole familyRole,
 
+        @Schema(description = "회원 프로필 이미지 URL", example = "https://example.com/profile.jpg")
+        String profileImg,
+
+        @Schema(description = "강번따 허용 여부", example = "TRUE")
+        IsMatched isMatched,
+
         @Schema(description = "총 산책 거리 (킬로미터)", example = "12.5")
         double totalDistance,
 
@@ -38,6 +45,8 @@ public record MyPageResponse(
                 member.getAddress(),
                 member.getGender(),
                 member.getFamilyRole(),
+                member.getProfileImg(),
+                member.getIsMatched(),
                 totalDistance,
                 walkCount,
                 countWalksWithMember
