@@ -117,12 +117,22 @@ public class FamilyServiceImpl implements FamilyService {
 
         Family family = findFamilyByIdOrThrowException(familyId);
 
+        currentMember.updateFamily(family);
 
-        member.updateFamily(family);
+        List<Dog> dogs = dogRepository.findAllByFamilyId(family.getFamilyId());
+
+        for (Dog dog : dogs) {
+            MemberDog memberDog = MemberDog.builder()
+                    .member(currentMember)
+                    .dog(dog)
+                    .build();
+            memberDogRepository.save(memberDog);
+        }
 
         return new FamilyResponse(family);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public FamilyDetailResponse getMyFamily(Member member) {
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
@@ -156,6 +166,33 @@ public class FamilyServiceImpl implements FamilyService {
         // TODO 나중에 강아지의 총 산책 횟수, 총 산책 거리, 소요 칼로리에 대한 정보도 추가할 것
         return new FamilyDetailResponse(family, members, dogs);
     }
+
+    @Override
+    @Transactional
+    public void removeMemberFromFamily(Long memberIdToRemove, Member member){
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+
+        if(currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        Family family = currentMember.getFamily();
+
+        if (!family.getMember().getMemberId().equals(currentMember.getMemberId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_FAMILY_BOSS.getText());
+        }
+
+        Member memberToRemove = findMemberByIdOrThrowException(memberIdToRemove);
+        if (memberToRemove.getFamily() == null ||
+                !memberToRemove.getFamily().getFamilyId().equals(family.getFamilyId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+        memberDogRepository.softDeleteByMember(memberToRemove);
+
+        memberToRemove.updateFamily(null);
+    }
+
+    
 
 
 

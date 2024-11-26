@@ -14,6 +14,7 @@ public enum FamilyExceptionMessage {
 
     // Member
     MEMBER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
+    MEMBER_NOT_FAMILY_BOSS("가족 추방 권한이 없습니다."),
 
 
     // Dog

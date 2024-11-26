@@ -199,4 +199,41 @@ public class FamilyController {
         return ApiResponse.ok(response);
     }
 
+    @DeleteMapping("/members/{memberId}")
+    @Operation(
+            summary = "가족 멤버 추방",
+            description = """
+                가족 소유자가 특정 멤버를 가족에서 추방합니다.
+                추방 권한은 가족 소유자에게만 주어집니다.
+                """,
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "멤버 추방 성공"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "권한 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "멤버 또는 가족을 찾을 수 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public void removeMember(
+            @PathVariable Long memberId,
+            @AuthenticationPrincipal CustomOAuth2User currentUser
+    ) {
+        familyService.removeMemberFromFamily(memberId, currentUser.getMember());
+    }
+
 }
