@@ -71,4 +71,8 @@ public class Member extends BaseEntity {
         this.family = family;
         this.role = role;
     }
+
+    public void updateFamily(Family family) {
+        this.family = family;
+    }
 }

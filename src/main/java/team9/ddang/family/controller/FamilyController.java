@@ -5,12 +5,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.service.FamilyService;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
 import team9.ddang.global.api.ApiResponse;
+import team9.ddang.member.entity.Member;
 
 @RestController
 @RequestMapping("/api/v1/families")
@@ -60,8 +62,8 @@ public class FamilyController {
                     )
             }
     )
-    public ApiResponse<FamilyResponse> createFamily(@RequestBody FamilyCreateRequest request) {
-        FamilyResponse response = familyService.createFamily(request);
+    public ApiResponse<FamilyResponse> createFamily(@RequestBody FamilyCreateRequest request, @AuthenticationPrincipal Member currentMember) {
+        FamilyResponse response = familyService.createFamily(request, currentMember);
         return ApiResponse.created(response);
     }
 

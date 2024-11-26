@@ -5,12 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team9.ddang.dog.entity.Dog;
+import team9.ddang.dog.entity.MemberDog;
+import team9.ddang.dog.repository.DogRepository;
+import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
+import team9.ddang.member.entity.Member;
+import team9.ddang.member.repository.MemberRepository;
 
 import java.time.Duration;
 import java.util.Set;
@@ -23,21 +29,34 @@ public class FamilyServiceImpl implements FamilyService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final FamilyRepository familyRepository;
+    private final MemberRepository memberRepository;
+    private final DogRepository dogRepository;
+    private final MemberDogRepository memberDogRepository;
 
     @Override
     @Transactional
-    public FamilyResponse createFamily(FamilyCreateRequest request) {
+    public FamilyResponse createFamily(FamilyCreateRequest request, Member member) {
 
-        // TODO : 맴버가 이미 가족이 있는지 확인
-        // TODO : 맴버의 familyID를 업데이트
-        // TODO : 맴버가 소유한 강아지들의  familyID도 업데이트
-        // TODO : 생성 요청한 맴버가 패밀리댕의 주인
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+
+        if(currentMember.getFamily() != null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_ALREADY_IN_FAMILY.getText());
+        }
+
+        // TODO : 나중에 여러 강아지를 키울 수 있게 된다면 강아지를 리스트로 받아와야 할 듯
+        Long dogId = findMemberDogByIdOrThrowException(currentMember.getMemberId()).getDog().getDogId();
+        Dog dog = findDogByIdOrThrowException(dogId);
+
 
         Family family = Family.builder()
+                .member(currentMember)
                 .familyName(request.familyName())
                 .build();
 
         family = familyRepository.save(family);
+
+        currentMember.updateFamily(family);
+        dog.updateFamily(family);
 
         return new FamilyResponse(family);
     }
@@ -95,4 +114,29 @@ public class FamilyServiceImpl implements FamilyService {
                     return new IllegalArgumentException(FamilyExceptionMessage.FAMILY_NOT_FOUND.getText());
                 });
     }
+
+    private Member findMemberByIdOrThrowException(Long id) {
+        return memberRepository.findActiveById(id)
+                .orElseThrow(() -> {
+                    log.warn(">>>> {} : {} <<<<", id, FamilyExceptionMessage.MEMBER_NOT_FOUND);
+                    return new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_FOUND.getText());
+                });
+    }
+
+    private MemberDog findMemberDogByIdOrThrowException(Long id) {
+        return memberDogRepository.findMemberDogByMemberId(id)
+                .orElseThrow(() -> {
+                    log.warn(">>>> {} : {} <<<<", id, FamilyExceptionMessage.MEMBER_DOG_NOT_FOUND);
+                    return new IllegalArgumentException(FamilyExceptionMessage.MEMBER_DOG_NOT_FOUND.getText());
+                });
+    }
+
+    private Dog findDogByIdOrThrowException(Long id) {
+        return dogRepository.findActiveById(id)
+                .orElseThrow(() -> {
+                    log.warn(">>>> {} : {} <<<<", id, FamilyExceptionMessage.DOG_NOT_FOUND);
+                    return new IllegalArgumentException(FamilyExceptionMessage.DOG_NOT_FOUND.getText());
+                });
+    }
+
 }
