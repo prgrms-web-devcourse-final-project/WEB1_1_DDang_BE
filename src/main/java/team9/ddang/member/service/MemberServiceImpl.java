@@ -26,13 +26,13 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = serviceRequest.toEntity();
 
+        memberRepository.save(member);
+
         String accessToken = jwtService.createAccessToken(member.getEmail(), member.getProvider().name());
         String refreshToken = jwtService.createRefreshToken(member.getEmail());
 
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
         jwtService.saveRefreshTokenToRedis(member.getEmail(), refreshToken);
-
-        memberRepository.save(member);
 
         return MemberResponse.from(member);
     }
