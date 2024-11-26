@@ -9,5 +9,7 @@ public interface FamilyService {
 
     InviteCodeResponse createInviteCode(Long familyId);
 
+    void addMemberToFamily(String inviteCode);
+
     void deleteFamily(Long familyId);
 }

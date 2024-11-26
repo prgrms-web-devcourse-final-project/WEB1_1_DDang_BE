@@ -63,6 +63,15 @@ public class FamilyServiceImpl implements FamilyService {
 
     }
 
+
+    @Override
+    public void addMemberToFamily(String inviteCode){
+
+    }
+
+
+
+
     @Override
     @Transactional
     public void deleteFamily(Long familyId) {

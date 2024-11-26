@@ -11,6 +11,4 @@ public interface FamilyRepository extends JpaRepository<Family, Long> {
 
     @Query("SELECT f FROM Family f WHERE f.familyId = :id AND f.isDeleted = 'FALSE'")
     Optional<Family> findActiveById(@Param("id") Long id);
-
-    boolean existsByFamilyCode(String familyCode);
 }
