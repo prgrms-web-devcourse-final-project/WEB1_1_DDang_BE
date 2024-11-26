@@ -29,7 +29,7 @@ public class MemberController {
     @PreAuthorize("hasRole('ROLE_GUEST')")
     @Operation(
             summary = "회원가입",
-            description = "OAuth2 로그인 후 /register추가 정보 기입 후 회원가입을 완료합니다.",
+            description = "OAuth2 로그인 후 /register로 리디렉션 후 추가 정보 기입 후 회원가입을 완료합니다.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "회원가입 정보",
                     required = true,
