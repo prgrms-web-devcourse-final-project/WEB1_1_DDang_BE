@@ -1,6 +1,7 @@
 package team9.ddang.family.service;
 
 import team9.ddang.family.controller.request.FamilyCreateRequest;
+import team9.ddang.family.service.response.FamilyDetailResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
 import team9.ddang.member.entity.Member;
@@ -11,6 +12,8 @@ public interface FamilyService {
     InviteCodeResponse createInviteCode(Member member);
 
     FamilyResponse addMemberToFamily(String inviteCode, Member member);
+
+    FamilyDetailResponse getMyFamily(Member member);
 
     void deleteFamily(Long familyId);
 }

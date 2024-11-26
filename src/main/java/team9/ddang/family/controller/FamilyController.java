@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.service.FamilyService;
+import team9.ddang.family.service.response.FamilyDetailResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
 import team9.ddang.global.api.ApiResponse;
@@ -22,7 +23,7 @@ import team9.ddang.member.oauth2.CustomOAuth2User;
 public class FamilyController {
     private final FamilyService familyService;
 
-    @PostMapping
+    @PostMapping("/register")
     @Operation(
             summary = "가족 생성",
             description = """
@@ -156,6 +157,45 @@ public class FamilyController {
                                                   @AuthenticationPrincipal CustomOAuth2User currentUser) {
         Member currentMember = currentUser.getMember();
         FamilyResponse response = familyService.addMemberToFamily(inviteCode, currentMember);
+        return ApiResponse.ok(response);
+    }
+
+    @GetMapping
+    @Operation(
+            summary = "내 가족 정보 조회",
+            description = """
+                로그인한 사용자가 속한 가족 정보를 조회합니다.
+                """,
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "가족 정보 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = FamilyDetailResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "가족 정보가 없습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public ApiResponse<FamilyDetailResponse> getMyFamily(@AuthenticationPrincipal CustomOAuth2User currentUser) {
+        Member currentMember = currentUser.getMember();
+        FamilyDetailResponse response = familyService.getMyFamily(currentMember);
         return ApiResponse.ok(response);
     }
 

@@ -9,18 +9,24 @@ import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.dog.repository.DogRepository;
 import team9.ddang.dog.repository.MemberDogRepository;
+import team9.ddang.dog.service.response.GetDogResponse;
 import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
+import team9.ddang.family.service.response.FamilyDetailResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
+import team9.ddang.member.service.response.MemberResponse;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -115,6 +121,40 @@ public class FamilyServiceImpl implements FamilyService {
         member.updateFamily(family);
 
         return new FamilyResponse(family);
+    }
+
+    @Transactional(readOnly = true)
+    public FamilyDetailResponse getMyFamily(Member member) {
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+
+        if(currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        Family family = currentMember.getFamily();
+        List<GetDogResponse> dogs = dogRepository.findAllByFamilyId(family.getFamilyId())
+                .stream()
+                .map(dog -> new GetDogResponse(
+                        dog.getDogId(),
+                        dog.getName(),
+                        dog.getBreed(),
+                        dog.getBirthDate(),
+                        dog.getWeight(),
+                        dog.getGender(),
+                        dog.getProfileImg(),
+                        dog.getIsNeutered(),
+                        family.getFamilyId(),
+                        dog.getComment()
+                ))
+                .collect(Collectors.toList());
+
+        List<MemberResponse> members = memberRepository.findAllByFamilyId(family.getFamilyId())
+                .stream()
+                .map(MemberResponse::from)
+                .collect(Collectors.toList());
+
+        // TODO 나중에 강아지의 총 산책 횟수, 총 산책 거리, 소요 칼로리에 대한 정보도 추가할 것
+        return new FamilyDetailResponse(family, members, dogs);
     }
 
 
