@@ -5,11 +5,13 @@ import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 import team9.ddang.member.jwt.service.JwtService;
 import team9.ddang.member.service.CookieService;
 
@@ -42,13 +44,14 @@ class JwtServiceTest {
         MockitoAnnotations.openMocks(this);
         jwtService = new JwtService(cookieService, redisTemplate);
 
-        // Set values manually
-        jwtService.setSecretKey("test-secret");
-        jwtService.setAccessTokenExpirationPeriod(600000L); // 10 minutes
-        jwtService.setRefreshTokenExpirationPeriod(1209600000L); // 14 days
-        jwtService.setAccessHeader("Authorization");
+        // Reflection을 사용해 private 필드 값 설정
+        ReflectionTestUtils.setField(jwtService, "secretKey", "test-secret");
+        ReflectionTestUtils.setField(jwtService, "accessTokenExpirationPeriod", 600000L); // 10 minutes
+        ReflectionTestUtils.setField(jwtService, "refreshTokenExpirationPeriod", 1209600000L); // 14 days
+        ReflectionTestUtils.setField(jwtService, "accessHeader", "Authorization");
     }
 
+    @DisplayName("AccessToken 생성 테스트")
     @Test
     void testCreateAccessToken() {
         // Given
@@ -65,6 +68,7 @@ class JwtServiceTest {
         assertEquals(provider, jwtService.extractProvider(accessToken).orElse(null));
     }
 
+    @DisplayName("AccessToken 추출 테스트")
     @Test
     void testExtractAccessToken() {
         // Given
@@ -79,6 +83,7 @@ class JwtServiceTest {
         assertEquals("test-token", extractedToken.get());
     }
 
+    @DisplayName("RefreshToken을 사용하여 AccessToken 재발급 테스트")
     @Test
     void testRtkToAtk() {
         // Given
