@@ -9,8 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.jwt.service.JwtService;
 import team9.ddang.member.repository.MemberRepository;
+import team9.ddang.member.repository.WalkWithMemberRepository;
 import team9.ddang.member.service.request.JoinServiceRequest;
 import team9.ddang.member.service.response.MemberResponse;
+import team9.ddang.member.service.response.MyPageResponse;
+import team9.ddang.walk.repository.WalkRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +22,8 @@ import team9.ddang.member.service.response.MemberResponse;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final WalkRepository walkRepository;
+    private final WalkWithMemberRepository walkWithMemberRepository;
     private final JwtService jwtService;
 
     @Override
@@ -80,5 +85,21 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return "Success Logout";
+    }
+
+    @Override
+    public MyPageResponse getMemberInfo(Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        int totalDistanceInMeters = walkRepository.findTotalDistanceByMemberId(memberId);
+        int countWalks = walkRepository.countWalksByMemberId(memberId);
+
+        double totalDistanceInKilometers = totalDistanceInMeters / 1000.0;
+
+        int countWalksWithMember = walkWithMemberRepository.countBySenderMemberId(memberId);
+
+        return MyPageResponse.from(member, totalDistanceInKilometers, countWalks, countWalksWithMember);
     }
 }

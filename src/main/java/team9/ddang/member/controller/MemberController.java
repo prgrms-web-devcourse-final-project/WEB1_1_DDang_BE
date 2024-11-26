@@ -10,11 +10,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.controller.request.JoinRequest;
+import team9.ddang.member.entity.Member;
+import team9.ddang.member.oauth2.CustomOAuth2User;
 import team9.ddang.member.service.MemberService;
 import team9.ddang.member.service.response.MemberResponse;
+import team9.ddang.member.service.response.MyPageResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -172,5 +176,49 @@ public class MemberController {
         log.info("logout() 메서드 진입");
         return ApiResponse.ok(memberService.logout(request));
     }
-}
 
+
+    @GetMapping("/{memberId}")
+    @Operation(
+            summary = "멤버 정보 조회",
+            description = "특정 멤버의 정보를 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "멤버 정보 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = MyPageResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "멤버 정보 조회 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "401",
+                            description = "인증 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public ApiResponse<MyPageResponse> getMemberInfo(@PathVariable Long memberId) {
+
+        return ApiResponse.ok(memberService.getMemberInfo(memberId));
+    }
+}
