@@ -9,7 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
-import team9.ddang.walk.controller.request.LocationRequest;
+import team9.ddang.walk.controller.request.DecisionWalkRequest;
+import team9.ddang.walk.controller.request.ProposalWalkRequest;
+import team9.ddang.walk.controller.request.StartWalkRequest;
 import team9.ddang.walk.service.WalkLocationService;
 
 @Slf4j
@@ -21,10 +23,31 @@ public class WalkLocationController {
     private final WalkLocationService walkLocationService;
     private final MemberRepository memberRepository;
 
-    @MessageMapping("/api/v1/location")
-    public void updateUserLocationTest(@RequestBody @Valid LocationRequest locationRequest) {
-        Member member = memberRepository.findById(1L).orElseThrow();
-        walkLocationService.startWalk(member.getEmail() , locationRequest.toService());
+    @MessageMapping("/api/v1/walk-alone")
+    public void startWalk(@RequestBody @Valid StartWalkRequest startWalkRequest) {
+        walkLocationService.startWalk("michael.brown@example.com" , startWalkRequest.toService());
     }
     // TODO : Security 적용
+
+    @MessageMapping("/api/v1/proposal")
+    public void proposalWalk(@RequestBody @Valid ProposalWalkRequest proposalWalkRequest){
+        Member member = memberRepository.findByEmail("michael.brown@example.com")
+                .orElseThrow();
+
+        walkLocationService.proposalWalk(member, proposalWalkRequest.toService());
+    }
+
+    @MessageMapping("/api/v1/decision")
+    public void decisionWalk(@RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
+        Member member = memberRepository.findByEmail("john.doe@example.com")
+                .orElseThrow();
+
+        walkLocationService.decisionWalk(member, decisionWalkRequest.toService());
+    }
+
+    @MessageMapping("/api/v1/walk-with")
+    public void startWalkWith(@RequestBody @Valid StartWalkRequest startWalkRequest){
+        walkLocationService.startWalkWith("michael.brown@example.com" , startWalkRequest.toService());
+
+    }
 }
