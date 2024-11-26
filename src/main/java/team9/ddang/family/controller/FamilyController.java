@@ -208,7 +208,7 @@ public class FamilyController {
                 """,
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "200",
+                            responseCode = "204",
                             description = "멤버 추방 성공"
                     ),
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -229,11 +229,31 @@ public class FamilyController {
                     )
             }
     )
-    public void removeMember(
+    public ApiResponse<Void> removeMember(
             @PathVariable Long memberId,
             @AuthenticationPrincipal CustomOAuth2User currentUser
     ) {
         familyService.removeMemberFromFamily(memberId, currentUser.getMember());
+        return ApiResponse.noContent();
+    }
+
+
+    @DeleteMapping
+    @Operation(
+            summary = "가족 삭제",
+            description = """
+                    가족 삭제를 수행합니다. 
+                    가족 삭제는 가족의 주인이면서 가족 구성원이 혼자인 경우에만 가능합니다.
+                    """,
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "가족 삭제 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "삭제 권한이 없거나 가족 구성원이 여러 명인 경우"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+            }
+    )
+    public ApiResponse<Void> deleteFamily(@AuthenticationPrincipal CustomOAuth2User currentUser) {
+        familyService.deleteFamily(currentUser.getMember());
+        return ApiResponse.noContent();
     }
 
 }

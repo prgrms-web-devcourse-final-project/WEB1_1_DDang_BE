@@ -192,15 +192,28 @@ public class FamilyServiceImpl implements FamilyService {
         memberToRemove.updateFamily(null);
     }
 
-    
-
-
-
-
     @Override
     @Transactional
-    public void deleteFamily(Long familyId) {
-        // TODO 생각할 점이 많다.
+    public void deleteFamily(Member member) {
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+
+        if(currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        Family family = currentMember.getFamily();
+
+        if (!family.getMember().getMemberId().equals(currentMember.getMemberId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_FAMILY_BOSS.getText());
+        }
+
+        List<Member> familyMembers = memberRepository.findAllByFamilyId(family.getFamilyId());
+        if (familyMembers.size() > 1) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.FAMILY_NOT_EMPTY.getText());
+        }
+
+        familyRepository.softDeleteFamilyById(family.getFamilyId());
+        // TODO 나중에 walkSchedule도 삭제 처리 같이 해주기
     }
 
     private String generateInviteCode() {

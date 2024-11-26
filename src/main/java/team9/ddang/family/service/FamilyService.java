@@ -17,5 +17,5 @@ public interface FamilyService {
 
     void removeMemberFromFamily(Long memberIdToRemove, Member member);
 
-    void deleteFamily(Long familyId);
+    void deleteFamily(Member member);
 }
