@@ -12,7 +12,6 @@ import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
@@ -36,8 +35,6 @@ public class RedisService {
         values.set(key, data, duration);
     }
 
-
-    @Transactional(readOnly = true)
     public String getValues(String key) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
         if (values.get(key) == null) {
@@ -91,7 +88,7 @@ public class RedisService {
     public Point getMemberPoint(String key, String id){
         List<Point> position = redisTemplate.opsForGeo().position(key, id);
 
-        if(position != null && position.isEmpty()){
+        if(position == null || position.isEmpty()){
             throw new IllegalArgumentException("위치 정보가 존재하지 않음");
         }
 

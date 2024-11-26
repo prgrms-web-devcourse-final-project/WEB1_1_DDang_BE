@@ -38,7 +38,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public void startWalk(String email, StartWalkServiceRequest startWalkServiceRequest){
         saveMemberLocation(email, startWalkServiceRequest);
         findNearbyMember(email);
