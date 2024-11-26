@@ -47,8 +47,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/login", "/css/**", "/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger/**", "/api-docs/**").permitAll()
-                        .requestMatchers("/api/v1/member/sign-up", "/api/v1/member/join", "/api/v1/member/reissue").permitAll()
-                        .requestMatchers("/api/v1/chat/**", "/api/v1/walk/**", "/api/v1/member/auth-check", "/api/v1/member/logout", "/api/v1/dogs/**").hasRole("USER")
+                        .requestMatchers("/api/v1/member/join", "/api/v1/member/reissue").permitAll()
+                        .requestMatchers("/ws").permitAll()
+                        .requestMatchers("/api/v1/chat/**", "/api/v1/walk/**", "/api/v1/member/logout", "/api/v1/dogs/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
 
