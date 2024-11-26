@@ -1,8 +1,6 @@
 package team9.ddang.walk.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +8,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import team9.ddang.chat.controller.request.ChatRoomCreateRequest;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.walk.controller.request.CompleteWalkRequest;
 import team9.ddang.walk.service.WalkService;
-import team9.ddang.walk.service.response.CompleteWalkAloneResponse;
+import team9.ddang.walk.service.response.CompleteWalkResponse;
 
 @RestController
 @RequestMapping("/api/v1/walk")
@@ -32,7 +29,7 @@ public class WalkController {
                     """
     )
     @PostMapping("/complete")
-    public ApiResponse<CompleteWalkAloneResponse> completeWalk(@RequestBody @Valid CompleteWalkRequest request){
+    public ApiResponse<CompleteWalkResponse> completeWalk(@RequestBody @Valid CompleteWalkRequest request){
 
         return ApiResponse.ok(walkService.completeWalk(4L, request.toServiceRequest()));
     }
