@@ -194,6 +194,26 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional
+    public void leaveFamily(Member member) {
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+
+        if (currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        Family family = currentMember.getFamily();
+
+        if (family.getMember().getMemberId().equals(currentMember.getMemberId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_LEAVE_OWNER.getText());
+        }
+
+        memberDogRepository.softDeleteByMember(currentMember);
+
+        currentMember.updateFamily(null);
+    }
+
+    @Override
+    @Transactional
     public void deleteFamily(Member member) {
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 

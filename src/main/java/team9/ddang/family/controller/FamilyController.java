@@ -256,4 +256,39 @@ public class FamilyController {
         return ApiResponse.noContent();
     }
 
+    @DeleteMapping("/leave")
+    @Operation(
+            summary = "가족 탈퇴",
+            description = """
+                현재 사용자가 가족에서 탈퇴합니다.
+                가족 소유자는 가족을 삭제해야 하며, 탈퇴할 수 없습니다.
+                """,
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "204",
+                            description = "가족 탈퇴 성공"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "가족 소유자는 탈퇴할 수 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "사용자가 가족에 속하지 않음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public ApiResponse<Void> leaveFamily(@AuthenticationPrincipal CustomOAuth2User currentUser) {
+        familyService.leaveFamily(currentUser.getMember());
+        return ApiResponse.noContent();
+    }
+
 }
