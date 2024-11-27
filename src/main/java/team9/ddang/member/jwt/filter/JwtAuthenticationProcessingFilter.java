@@ -26,7 +26,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDED_URLS = Arrays.asList(
             "/login", "/api/v1/member/join", "/api/v1/member/sign-up",
             "/api/v1/member/reissue", "/swagger", "/swagger-ui.html",
-            "swagger-ui/index.html", "/swagger-ui", "/v3/api-docs");
+            "swagger-ui/index.html", "/swagger-ui", "/v3/api-docs", "/ws");
 
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
