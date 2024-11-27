@@ -7,15 +7,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import team9.ddang.family.controller.request.WalkScheduleCreateRequest;
 import team9.ddang.family.service.WalkScheduleService;
 import team9.ddang.family.service.response.WalkScheduleResponse;
 import team9.ddang.member.oauth2.CustomOAuth2User;
 import team9.ddang.global.api.ApiResponse;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/walk-schedules")
@@ -72,6 +71,47 @@ public class WalkScheduleController {
     ) {
         WalkScheduleResponse response = walkScheduleService.createWalkSchedule(request.toServiceRequest(), currentUser.getMember());
         return ApiResponse.created(response);
+    }
+
+
+    @GetMapping
+    @Operation(
+            summary = "산책 일정 리스트 조회",
+            description = """
+                현재 로그인된 사용자가 소속된 Family ID에 해당하는 모든 산책 일정을 조회합니다.
+                """,
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "산책 일정 리스트 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = WalkScheduleResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "산책 일정이 존재하지 않음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public ApiResponse<List<WalkScheduleResponse>> getWalkSchedules(
+            @AuthenticationPrincipal CustomOAuth2User currentUser
+    ) {
+        List<WalkScheduleResponse> response = walkScheduleService.getWalkSchedulesByFamilyId(currentUser.getMember());
+        return ApiResponse.ok(response);
     }
 
 }

@@ -18,6 +18,9 @@ import team9.ddang.family.service.response.WalkScheduleResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -56,6 +59,24 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
 
         return WalkScheduleResponse.from(walkSchedule);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<WalkScheduleResponse> getWalkSchedulesByFamilyId(Member member) {
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+
+        if (currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        List<WalkSchedule> schedules = walkScheduleRepository.findAllByFamilyId(currentMember.getFamily().getFamilyId());
+
+        return schedules.stream()
+                .map(WalkScheduleResponse::from)
+                .collect(Collectors.toList());
+    }
+
+
 
     private void validateMembersInSameFamily(Member member1, Member member2) {
         if (member1.getFamily() == null || member2.getFamily() == null) {
