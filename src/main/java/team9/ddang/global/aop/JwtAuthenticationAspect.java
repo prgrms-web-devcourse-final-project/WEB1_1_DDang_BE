@@ -36,7 +36,11 @@ public class JwtAuthenticationAspect {
         // 이메일을 메서드 파라미터에 추가하거나, ThreadLocal 등을 사용하여 전달
         AuthenticationContext.setEmail(email);
 
-        return joinPoint.proceed();
+        try {
+            return joinPoint.proceed();
+        } finally {
+            AuthenticationContext.clear(); // ThreadLocal 정리
+        }
     }
 
     private SimpMessageHeaderAccessor findHeaderAccessor(Object[] args) {

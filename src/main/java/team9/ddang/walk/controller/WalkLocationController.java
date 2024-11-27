@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import team9.ddang.global.aop.AuthenticationContext;
 import team9.ddang.global.aop.ExtractEmail;
-import team9.ddang.member.jwt.service.JwtService;
 import team9.ddang.walk.controller.request.DecisionWalkRequest;
 import team9.ddang.walk.controller.request.ProposalWalkRequest;
 import team9.ddang.walk.controller.request.StartWalkRequest;
@@ -23,29 +22,28 @@ import team9.ddang.walk.service.WalkLocationService;
 public class WalkLocationController {
 
     private final WalkLocationService walkLocationService;
-    private final JwtService jwtService;
 
     @MessageMapping("/api/v1/walk-alone")
     @ExtractEmail
-    public void startWalk(@RequestBody @Valid StartWalkRequest startWalkRequest) {
+    public void startWalk(SimpMessageHeaderAccessor headerAccessor ,@RequestBody @Valid StartWalkRequest startWalkRequest) {
         walkLocationService.startWalk(AuthenticationContext.getEmail() , startWalkRequest.toService());
     }
 
     @MessageMapping("/api/v1/proposal")
     @ExtractEmail
-    public void proposalWalk(@RequestBody @Valid ProposalWalkRequest proposalWalkRequest){
+    public void proposalWalk(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid ProposalWalkRequest proposalWalkRequest){
         walkLocationService.proposalWalk(AuthenticationContext.getEmail(), proposalWalkRequest.toService());
     }
 
     @MessageMapping("/api/v1/decision")
     @ExtractEmail
-    public void decisionWalk(@RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
+    public void decisionWalk(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
         walkLocationService.decisionWalk(AuthenticationContext.getEmail(), decisionWalkRequest.toService());
     }
 
     @MessageMapping("/api/v1/walk-with")
     @ExtractEmail
-    public void startWalkWith(@RequestBody @Valid StartWalkRequest startWalkRequest){
+    public void startWalkWith(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid StartWalkRequest startWalkRequest){
         walkLocationService.startWalkWith(AuthenticationContext.getEmail() , startWalkRequest.toService());
     }
 }
