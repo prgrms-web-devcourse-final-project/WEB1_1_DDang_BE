@@ -37,32 +37,12 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
 
         Member walkMember = findMemberByIdOrThrowException(request.memberId());
 
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
-
-        if (walkMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
-
-        if(!currentMember.getFamily().getFamilyId().equals(walkMember.getFamily().getFamilyId())){
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_EQUAL_FAMILY.getText());
-        }
+        validateMembersInSameFamily(currentMember, walkMember);
 
         Family family = currentMember.getFamily();
 
         // TODO : 나중에 여러 강아지를 키울 수 있게 된다면 강아지를 리스트로 받아와야 할 듯
-        Long dogId = findMemberDogByIdOrThrowException(currentMember.getMemberId()).getDog().getDogId();
-
-        if(request.dogId() != dogId) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.DOG_NOT_CAST.getText());
-        }
-
-        Dog dog = findDogByIdOrThrowException(dogId);
-
-        if(!family.getFamilyId().equals(dog.getFamily().getFamilyId())){
-            throw new IllegalArgumentException(FamilyExceptionMessage.DOG_NOT_IN_FAMILY.getText());
-        }
+        Dog dog = validateAndGetDog(request.dogId(), family);
 
         WalkSchedule walkSchedule = WalkSchedule.builder()
                 .member(walkMember)
@@ -75,6 +55,23 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
         walkScheduleRepository.save(walkSchedule);
 
         return WalkScheduleResponse.from(walkSchedule);
+    }
+
+    private void validateMembersInSameFamily(Member member1, Member member2) {
+        if (member1.getFamily() == null || member2.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+        if (!member1.getFamily().getFamilyId().equals(member2.getFamily().getFamilyId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_EQUAL_FAMILY.getText());
+        }
+    }
+
+    private Dog validateAndGetDog(Long dogId, Family family) {
+        Dog dog = findDogByIdOrThrowException(dogId);
+        if (!family.getFamilyId().equals(dog.getFamily().getFamilyId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.DOG_NOT_CAST.getText());
+        }
+        return dog;
     }
 
     private Family findFamilyByIdOrThrowException(Long id) {
