@@ -36,4 +36,8 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> created(T data) {
         return of(HttpStatus.CREATED, data);
     }
+
+    public static ApiResponse<Void> noContent() {
+        return of(HttpStatus.NO_CONTENT, "No Content", null);
+    }
 }

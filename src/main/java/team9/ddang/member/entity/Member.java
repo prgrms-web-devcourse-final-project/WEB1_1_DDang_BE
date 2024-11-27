@@ -73,6 +73,11 @@ public class Member extends BaseEntity {
         this.role = role;
     }
 
+
+    public void updateFamily(Family family) {
+        this.family = family;
+    }
+
     public void updateIsMatched(IsMatched isMatched) {
         this.isMatched = isMatched;
     }
