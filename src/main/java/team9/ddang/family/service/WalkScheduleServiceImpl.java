@@ -51,6 +51,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
 
         Family family = currentMember.getFamily();
 
+        // TODO : 나중에 여러 강아지를 키울 수 있게 된다면 강아지를 리스트로 받아와야 할 듯
         Long dogId = findMemberDogByIdOrThrowException(currentMember.getMemberId()).getDog().getDogId();
 
         if(request.dogId() != dogId) {

@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FamilyServiceImpl implements FamilyService {
 
+    private static final String REDIS_INVITE_KEY_PREFIX = "invite:";
+
     private final RedisTemplate<String, String> redisTemplate;
     private final FamilyRepository familyRepository;
     private final MemberRepository memberRepository;
@@ -75,7 +77,7 @@ public class FamilyServiceImpl implements FamilyService {
         }
 
         Family family = currentMember.getFamily();
-        String redisSearchKey = "invite:";
+        String redisSearchKey = REDIS_INVITE_KEY_PREFIX;
 
         List<String> keys = Objects.requireNonNull(redisTemplate.keys(redisSearchKey + "*")).stream().toList();
         for (String key : keys) {
@@ -91,7 +93,7 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 새로운 초대 코드 생성
         String newInviteCode = generateInviteCode(family.getFamilyId());
-        redisTemplate.opsForValue().set("invite:" + newInviteCode, String.valueOf(family.getFamilyId()), Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set(REDIS_INVITE_KEY_PREFIX + newInviteCode, String.valueOf(family.getFamilyId()), Duration.ofMinutes(5));
 
         return new InviteCodeResponse(family, newInviteCode, Duration.ofMinutes(5).toSeconds());
     }
@@ -102,7 +104,7 @@ public class FamilyServiceImpl implements FamilyService {
     public FamilyResponse addMemberToFamily(String inviteCode, Member member) {
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        String familyIdStr = redisTemplate.opsForValue().get("invite:" + inviteCode);
+        String familyIdStr = redisTemplate.opsForValue().get(REDIS_INVITE_KEY_PREFIX + inviteCode);
         if (familyIdStr == null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.INVALID_INVITE_CODE.getText());
         }
@@ -244,7 +246,7 @@ public class FamilyServiceImpl implements FamilyService {
         boolean isSet;
         do {
             code = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
-            isSet = Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent("invite:" + code, String.valueOf(familyId), Duration.ofMinutes(5)));
+            isSet = Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(REDIS_INVITE_KEY_PREFIX + code, String.valueOf(familyId), Duration.ofMinutes(5)));
         } while (!isSet);
         return code;
     }
