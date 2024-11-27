@@ -114,4 +114,44 @@ public class WalkScheduleController {
         return ApiResponse.ok(response);
     }
 
+
+
+    @DeleteMapping("/{id}")
+    @Operation(
+            summary = "산책 일정 삭제",
+            description = """
+                산책 일정 ID를 기준으로 산책 일정을 삭제합니다.
+                요청 사용자가 해당 가족에 속하지 않은 경우 또는 권한이 없는 경우 삭제가 불가능합니다.
+                """,
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "204",
+                            description = "산책 일정 삭제 성공"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "산책 일정이 존재하지 않음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "삭제 권한 없음",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public ApiResponse<Void> deleteWalkSchedule(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomOAuth2User currentUser
+    ) {
+        walkScheduleService.deleteWalkSchedule(id, currentUser.getMember());
+        return ApiResponse.noContent();
+    }
+
 }

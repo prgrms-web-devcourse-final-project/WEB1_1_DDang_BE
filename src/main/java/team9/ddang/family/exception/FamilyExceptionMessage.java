@@ -27,7 +27,11 @@ public enum FamilyExceptionMessage {
 
     // MemberDog
     MEMBER_DOG_NOT_FOUND("소유한 강아지를 찾을 수 없습니다."),
-    MEMBER_DOG_FOUND("이미 강아지를 소유하고 있습니다.");
+    MEMBER_DOG_FOUND("이미 강아지를 소유하고 있습니다."),
+
+    // WalkSchedule
+    WALKSCHEDULE_NOT_FOUND("해당 산책 일정을 찾을 수 없습니다."),
+    WALKSCHEDULE_NOT_IN_FAMILY("해당 산책 일정에 대한 삭제 권한이 없습니다.");
 
     private final String text;
 }

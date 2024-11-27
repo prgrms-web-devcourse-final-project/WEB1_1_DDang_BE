@@ -10,4 +10,6 @@ public interface WalkScheduleService {
     WalkScheduleResponse createWalkSchedule(WalkScheduleCreateServiceRequest request, Member member);
 
     List<WalkScheduleResponse> getWalkSchedulesByFamilyId(Member member);
+
+    void deleteWalkSchedule(Long walkScheduleId, Member member);
 }

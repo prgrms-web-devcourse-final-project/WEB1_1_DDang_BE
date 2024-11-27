@@ -63,6 +63,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
     @Override
     @Transactional(readOnly = true)
     public List<WalkScheduleResponse> getWalkSchedulesByFamilyId(Member member) {
+
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
         if (currentMember.getFamily() == null) {
@@ -74,6 +75,25 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
         return schedules.stream()
                 .map(WalkScheduleResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteWalkSchedule(Long walkScheduleId, Member member) {
+
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+
+        if (currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        WalkSchedule walkSchedule = findWalkScheduleByIdOrThrowException(walkScheduleId);
+
+        if (!walkSchedule.getFamily().getFamilyId().equals(currentMember.getFamily().getFamilyId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.WALKSCHEDULE_NOT_IN_FAMILY.getText());
+        }
+
+        walkScheduleRepository.softDeleteById(walkScheduleId);
     }
 
 
@@ -124,6 +144,14 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
                 .orElseThrow(() -> {
                     log.warn(">>>> {} : {} <<<<", id, FamilyExceptionMessage.DOG_NOT_FOUND);
                     return new IllegalArgumentException(FamilyExceptionMessage.DOG_NOT_FOUND.getText());
+                });
+    }
+
+    private WalkSchedule findWalkScheduleByIdOrThrowException(Long id) {
+        return walkScheduleRepository.findActiveById(id)
+                .orElseThrow(() -> {
+                    log.warn(">>>> {} : {} <<<<", id, FamilyExceptionMessage.WALKSCHEDULE_NOT_FOUND);
+                    return new IllegalArgumentException(FamilyExceptionMessage.WALKSCHEDULE_NOT_FOUND.getText());
                 });
     }
 }
