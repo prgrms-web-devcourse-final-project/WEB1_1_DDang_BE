@@ -1,6 +1,5 @@
 package team9.ddang.walk.service;
 
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,11 +43,8 @@ public class WalkServiceImpl implements WalkService{
 
     @Override
     @Transactional
-    public CompleteWalkResponse completeWalk(Long memberId, CompleteWalkServiceRequest completeWalkServiceRequest) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow();
-        // TODO : security로 멤버 받아올 예정
-        Dog dog = getDogFromMemberId(memberId);
+    public CompleteWalkResponse completeWalk(Member member, CompleteWalkServiceRequest completeWalkServiceRequest) {
+        Dog dog = getDogFromMemberId(member.getMemberId());
         List<Location> locations = getLocationList(member.getEmail());
 
         if(locations.isEmpty()) {
