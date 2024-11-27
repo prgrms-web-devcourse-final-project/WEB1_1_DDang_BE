@@ -189,6 +189,11 @@ public class FamilyServiceImpl implements FamilyService {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_FAMILY_BOSS.getText());
         }
 
+        if (family.getMember().getMemberId().equals(memberIdToRemove)) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_FAMILY_BOSS.getText());
+        }
+
+
         Member memberToRemove = findMemberByIdOrThrowException(memberIdToRemove);
         if (memberToRemove.getFamily() == null ||
                 !memberToRemove.getFamily().getFamilyId().equals(family.getFamilyId())) {

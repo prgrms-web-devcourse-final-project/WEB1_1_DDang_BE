@@ -29,7 +29,7 @@ public class WalkScheduleController {
             summary = "산책 일정 생성",
             description = """
                     새로운 산책 일정을 생성합니다.
-                    요청 본문에는 산책 시간(walkTime), 요일(dayOfWeek), 강아지 ID(dogId)가 포함되어야 합니다.
+                    요청 본문에는 산책을 진행할 인원(memberId), 산책 시간(walkTime), 요일(dayOfWeek), 강아지 ID(dogId)가 포함되어야 합니다.
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "산책 일정 생성 요청 데이터",

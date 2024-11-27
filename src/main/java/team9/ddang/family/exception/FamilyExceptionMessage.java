@@ -13,6 +13,7 @@ public enum FamilyExceptionMessage {
     INVALID_INVITE_CODE("유효하지 않거나 만료된 초대 코드입니다."),
     FAMILY_NOT_EMPTY("가족 구성원이 남아 있어 삭제할 수 없습니다."),
     MEMBER_NOT_LEAVE_OWNER("가족 소유자는 가족에서 탈퇴할 수 없습니다."),
+    MEMBER_FAMILY_BOSS("패밀리댕의 주인은 추방될 수 없습니다."),
 
     // Member
     MEMBER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
