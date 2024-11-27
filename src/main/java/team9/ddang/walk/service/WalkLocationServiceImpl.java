@@ -14,6 +14,7 @@ import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.global.service.RedisService;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
+import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.walk.service.request.DecisionWalkServiceRequest;
 import team9.ddang.walk.service.request.ProposalWalkServiceRequest;
 import team9.ddang.walk.service.request.StartWalkServiceRequest;
@@ -35,6 +36,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     private final RedisService redisService;
     private final MemberDogRepository memberDogRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final MemberRepository memberRepository;
 
 
     @Override
@@ -45,7 +47,9 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     }
 
     @Override
-    public void proposalWalk(Member member, ProposalWalkServiceRequest proposalWalkServiceRequest) {
+    public void proposalWalk(String email, ProposalWalkServiceRequest proposalWalkServiceRequest) {
+        Member member = getMemberFromEmailOrElseThrow(email);
+
         Dog dog = memberDogRepository.findMemberDogByMemberId(member.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("개가 존재하지 않습니다.")).getDog();
         String otherEmail = proposalWalkServiceRequest.otherMemberEmail();
@@ -62,7 +66,8 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     }
 
     @Override
-    public void decisionWalk(Member member, DecisionWalkServiceRequest serviceRequest) {
+    public void decisionWalk(String email, DecisionWalkServiceRequest serviceRequest) {
+        Member member = getMemberFromEmailOrElseThrow(email);
         String memberEmail = redisService.getValues(PROPOSAL_KEY + serviceRequest.otherEmail());
 
         if(memberEmail == null){
@@ -78,8 +83,8 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         redisService.setValues(WALK_WITH_KEY + member.getEmail(), serviceRequest.otherEmail());
         redisService.setValues(WALK_WITH_KEY + serviceRequest.otherEmail(), member.getEmail());
 
-        sendMessagetoWalkRequestUrl(member.getEmail(), serviceRequest.decision());
-        sendMessagetoWalkRequestUrl(serviceRequest.otherEmail(), serviceRequest.decision());
+        sendMessageToWalkRequestUrl(member.getEmail(), serviceRequest.decision());
+        sendMessageToWalkRequestUrl(serviceRequest.otherEmail(), serviceRequest.decision());
     }
 
     @Override
@@ -143,7 +148,12 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         messagingTemplate.convertAndSend("/sub/walk/" + email,  WebSocketResponse.ok(data));
     }
 
-    private void sendMessagetoWalkRequestUrl(String email, Object data){
+    private void sendMessageToWalkRequestUrl(String email, Object data){
         messagingTemplate.convertAndSend("/sub/walk/request" + email,  WebSocketResponse.ok(data));
+    }
+
+    private Member getMemberFromEmailOrElseThrow(String email){
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않은 유저 입니다."));
     }
 }

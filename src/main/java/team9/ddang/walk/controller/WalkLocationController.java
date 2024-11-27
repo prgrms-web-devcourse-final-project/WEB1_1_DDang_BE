@@ -5,14 +5,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
-import team9.ddang.member.entity.Member;
-import team9.ddang.member.repository.MemberRepository;
+import team9.ddang.global.aop.AuthenticationContext;
+import team9.ddang.global.aop.ExtractEmail;
+import team9.ddang.global.exception.AuthenticationException;
+import team9.ddang.member.jwt.service.JwtService;
 import team9.ddang.walk.controller.request.DecisionWalkRequest;
 import team9.ddang.walk.controller.request.ProposalWalkRequest;
 import team9.ddang.walk.controller.request.StartWalkRequest;
 import team9.ddang.walk.service.WalkLocationService;
+
+import static team9.ddang.walk.exception.WalkExceptionMessage.TOKEN_DO_NOT_EXTRACT_EMAIL;
+import static team9.ddang.walk.exception.WalkExceptionMessage.TOKEN_NOT_FOUND;
 
 @Slf4j
 @Controller
@@ -21,33 +27,40 @@ import team9.ddang.walk.service.WalkLocationService;
 public class WalkLocationController {
 
     private final WalkLocationService walkLocationService;
-    private final MemberRepository memberRepository;
+    private final JwtService jwtService;
 
     @MessageMapping("/api/v1/walk-alone")
-    public void startWalk(@RequestBody @Valid StartWalkRequest startWalkRequest) {
-        walkLocationService.startWalk("michael.brown@example.com" , startWalkRequest.toService());
+    @ExtractEmail
+    public void startWalk(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid StartWalkRequest startWalkRequest) {
+        String email = AuthenticationContext.getEmail();
+
+        walkLocationService.startWalk(email , startWalkRequest.toService());
     }
-    // TODO : Security 적용
 
     @MessageMapping("/api/v1/proposal")
-    public void proposalWalk(@RequestBody @Valid ProposalWalkRequest proposalWalkRequest){
-        Member member = memberRepository.findByEmail("michael.brown@example.com")
-                .orElseThrow();
+    @ExtractEmail
+    public void proposalWalk(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid ProposalWalkRequest proposalWalkRequest){
+        String token = jwtService.extractAccessToken(headerAccessor).orElseThrow(() -> new AuthenticationException(TOKEN_NOT_FOUND));
+        String email = jwtService.extractEmail(token).orElseThrow(() -> new AuthenticationException(TOKEN_DO_NOT_EXTRACT_EMAIL));
 
-        walkLocationService.proposalWalk(member, proposalWalkRequest.toService());
+        walkLocationService.proposalWalk(email, proposalWalkRequest.toService());
     }
 
     @MessageMapping("/api/v1/decision")
-    public void decisionWalk(@RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
-        Member member = memberRepository.findByEmail("john.doe@example.com")
-                .orElseThrow();
+    @ExtractEmail
+    public void decisionWalk(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
+        String token = jwtService.extractAccessToken(headerAccessor).orElseThrow(() -> new AuthenticationException(TOKEN_NOT_FOUND));
+        String email = jwtService.extractEmail(token).orElseThrow(() -> new AuthenticationException(TOKEN_DO_NOT_EXTRACT_EMAIL));
 
-        walkLocationService.decisionWalk(member, decisionWalkRequest.toService());
+        walkLocationService.decisionWalk(email, decisionWalkRequest.toService());
     }
 
     @MessageMapping("/api/v1/walk-with")
-    public void startWalkWith(@RequestBody @Valid StartWalkRequest startWalkRequest){
-        walkLocationService.startWalkWith("michael.brown@example.com" , startWalkRequest.toService());
+    @ExtractEmail
+    public void startWalkWith(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid StartWalkRequest startWalkRequest){
+        String token = jwtService.extractAccessToken(headerAccessor).orElseThrow(() -> new AuthenticationException(TOKEN_NOT_FOUND));
+        String email = jwtService.extractEmail(token).orElseThrow(() -> new AuthenticationException(TOKEN_DO_NOT_EXTRACT_EMAIL));
 
+        walkLocationService.startWalkWith(email , startWalkRequest.toService());
     }
 }
