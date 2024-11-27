@@ -38,6 +38,8 @@ public class Dog extends BaseEntity {
 
     private String profileImg;
 
+    private Integer walkCount = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IsNeutered isNeutered;
@@ -97,5 +99,9 @@ public class Dog extends BaseEntity {
 
     public void updateComment(String comment) {
         this.comment = comment;
+    }
+
+    public void doWalk(){
+        this.walkCount++;
     }
 }

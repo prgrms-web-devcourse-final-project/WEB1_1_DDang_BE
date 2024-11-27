@@ -56,4 +56,17 @@ public class GlobalExceptionHandler {
                 null
         );
     }
+
+    // 이외에 잡지 못하는 모든 예외 처리
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    protected ApiResponse<Object> handleGenericException(Exception e) {
+        log.error("Unhandled Exception : {}", e.getMessage(), e);
+
+        return ApiResponse.of(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                e.getMessage(),
+                null
+        );
+    }
 }

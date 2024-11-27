@@ -1,16 +1,19 @@
 package team9.ddang.member.jwt.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.jwt.service.JwtService;
 import team9.ddang.member.oauth2.CustomOAuth2User;
@@ -50,8 +53,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         }
 
         // AccessToken이 유효하지 않으면 클라이언트에 401 응답 전송
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("AccessToken is invalid");
+        sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "AccessToken is invalid");
     }
 
     private void checkAccessTokenAndAuthentication(String accessToken, FilterChain filterChain, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -83,6 +85,19 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private boolean isExcludedUrl(String requestURI) {
         return EXCLUDED_URLS.stream().anyMatch(requestURI::startsWith);
     }
+
+
+    private void sendErrorResponse(HttpServletResponse response, HttpStatus status, String message) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        ApiResponse<Object> apiResponse = new ApiResponse<>(status, message, null);
+        String jsonResponse = new ObjectMapper().writeValueAsString(apiResponse); // JSON 변환
+
+        response.getWriter().write(jsonResponse);
+    }
+
 }
 
 
