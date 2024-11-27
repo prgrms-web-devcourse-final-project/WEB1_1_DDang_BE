@@ -1,6 +1,5 @@
 package team9.ddang.walk.service;
 
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,7 +9,6 @@ import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.global.service.RedisService;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.entity.WalkWithMember;
-import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.member.repository.WalkWithMemberRepository;
 import team9.ddang.walk.entity.Location;
 import team9.ddang.walk.entity.Walk;
@@ -26,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static team9.ddang.walk.exception.WalkExceptionMessage.*;
 import static team9.ddang.walk.service.RedisKey.*;
 import static team9.ddang.walk.util.WalkCalculator.calculateCalorie;
 
@@ -38,21 +37,17 @@ public class WalkServiceImpl implements WalkService{
     private final MemberDogRepository memberDogRepository;
     private final WalkDogRepository walkDogRepository;
     private final LocationBulkRepository locationBulkRepository;
-    private final MemberRepository memberRepository;
     private final WalkWithMemberRepository walkWithMemberRepository;
 
 
     @Override
     @Transactional
-    public CompleteWalkResponse completeWalk(Long memberId, CompleteWalkServiceRequest completeWalkServiceRequest) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow();
-        // TODO : security로 멤버 받아올 예정
-        Dog dog = getDogFromMemberId(memberId);
+    public CompleteWalkResponse completeWalk(Member member, CompleteWalkServiceRequest completeWalkServiceRequest) {
+        Dog dog = getDogFromMemberId(member.getMemberId());
         List<Location> locations = getLocationList(member.getEmail());
 
         if(locations.isEmpty()) {
-            throw new IllegalArgumentException("산책이 정상적으로 이루어지지 않았습니다.");
+            throw new IllegalArgumentException(ABNORMAL_WALK.getText());
         }
 
         Walk walk = completeWalkServiceRequest.toEntity(locations, member);
@@ -106,7 +101,7 @@ public class WalkServiceImpl implements WalkService{
 
     private Dog getDogFromMemberId(Long memberId){
         MemberDog memberDog = memberDogRepository.findMemberDogByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("멤버가 소유하고 있는 개가 없습니다!"));
+                .orElseThrow(() -> new IllegalArgumentException(DOG_NOT_FOUND.getText()));
         return memberDog.getDog();
     }
 
@@ -116,7 +111,7 @@ public class WalkServiceImpl implements WalkService{
             String otherEmail = redisService.getValues(key);
 
             MemberDog otherMemberDog = memberDogRepository.findMemberDogByMemberEmail(otherEmail)
-                    .orElseThrow(() -> new IllegalArgumentException("멤버가 소유하고 있는 개가 없습니다."));
+                    .orElseThrow(() -> new IllegalArgumentException(DOG_NOT_FOUND.getText()));
 
             saveWalkWithMember(member, otherMemberDog.getMember());
 

@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team9.ddang.global.api.ApiResponse;
+import team9.ddang.member.oauth2.CustomOAuth2User;
 import team9.ddang.walk.controller.request.CompleteWalkRequest;
 import team9.ddang.walk.service.WalkService;
 import team9.ddang.walk.service.response.CompleteWalkResponse;
@@ -29,11 +31,10 @@ public class WalkController {
                     """
     )
     @PostMapping("/complete")
-    public ApiResponse<CompleteWalkResponse> completeWalk(@RequestBody @Valid CompleteWalkRequest request){
+    public ApiResponse<CompleteWalkResponse> completeWalk(@AuthenticationPrincipal CustomOAuth2User oAuth2User,
+                                                          @RequestBody @Valid CompleteWalkRequest request){
 
-        return ApiResponse.ok(walkService.completeWalk(4L, request.toServiceRequest()));
+        return ApiResponse.ok(walkService.completeWalk(oAuth2User.getMember(), request.toServiceRequest()));
     }
-
-    // TODO : 멤버 인증 정보 추가 예정
 
 }

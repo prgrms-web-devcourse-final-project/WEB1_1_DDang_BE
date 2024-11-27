@@ -14,6 +14,7 @@ import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.global.service.RedisService;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
+import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.walk.service.request.DecisionWalkServiceRequest;
 import team9.ddang.walk.service.request.ProposalWalkServiceRequest;
 import team9.ddang.walk.service.request.StartWalkServiceRequest;
@@ -26,6 +27,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static team9.ddang.walk.exception.WalkExceptionMessage.*;
 import static team9.ddang.walk.service.RedisKey.*;
 
 @Service
@@ -35,6 +37,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     private final RedisService redisService;
     private final MemberDogRepository memberDogRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final MemberRepository memberRepository;
 
 
     @Override
@@ -45,14 +48,12 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     }
 
     @Override
-    public void proposalWalk(Member member, ProposalWalkServiceRequest proposalWalkServiceRequest) {
-        Dog dog = memberDogRepository.findMemberDogByMemberId(member.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("개가 존재하지 않습니다.")).getDog();
-        String otherEmail = proposalWalkServiceRequest.otherMemberEmail();
+    public void proposalWalk(String email, ProposalWalkServiceRequest proposalWalkServiceRequest) {
+        Member member = getMemberFromEmailOrElseThrow(email);
 
-        if(redisService.checkHasKey(PROPOSAL_KEY + member.getEmail())){
-            throw new IllegalArgumentException("이미 다른 견주분에게 산책을 제안을 하신 상태 입니다.");
-        }
+        Dog dog = getDogFromMemberId(member.getMemberId());
+        String otherEmail = proposalWalkServiceRequest.otherMemberEmail();
+        validateBeforeProposalWalk(email, otherEmail);
 
         redisService.setValues(PROPOSAL_KEY + member.getEmail(), otherEmail, Duration.ofMinutes(3));
         ProposalWalkResponse response = ProposalWalkResponse.of(dog, member, proposalWalkServiceRequest.comment());
@@ -62,24 +63,27 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     }
 
     @Override
-    public void decisionWalk(Member member, DecisionWalkServiceRequest serviceRequest) {
+    public void decisionWalk(String email, DecisionWalkServiceRequest serviceRequest) {
+        Member member = getMemberFromEmailOrElseThrow(email);
         String memberEmail = redisService.getValues(PROPOSAL_KEY + serviceRequest.otherEmail());
 
         if(memberEmail == null){
-            throw new IllegalArgumentException("제안을 취소했거나 이미 강번따를 진행 중인 유저 입니다.");
+            throw new IllegalArgumentException(NOT_EXIST_PROPOSAL.getText());
         }
 
         if(!memberEmail.equals(member.getEmail())){
-            throw new IllegalArgumentException("제안을 한 유저와 받은 유저가 일치하지 않습니다.");
+            throw new IllegalArgumentException(NOT_MATCHED_MEMBER.getText());
         }
 
         redisService.deleteValues(PROPOSAL_KEY + serviceRequest.otherEmail());
 
-        redisService.setValues(WALK_WITH_KEY + member.getEmail(), serviceRequest.otherEmail());
-        redisService.setValues(WALK_WITH_KEY + serviceRequest.otherEmail(), member.getEmail());
+        if(serviceRequest.decision().equals("ACCEPT")){
+            redisService.setValues(WALK_WITH_KEY + member.getEmail(), serviceRequest.otherEmail());
+            redisService.setValues(WALK_WITH_KEY + serviceRequest.otherEmail(), member.getEmail());
+        }
 
-        sendMessagetoWalkRequestUrl(member.getEmail(), serviceRequest.decision());
-        sendMessagetoWalkRequestUrl(serviceRequest.otherEmail(), serviceRequest.decision());
+        sendMessageToWalkUrl(member.getEmail(), serviceRequest.decision());
+        sendMessageToWalkUrl(serviceRequest.otherEmail(), serviceRequest.decision());
     }
 
     @Override
@@ -88,7 +92,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         String otherMemberEmail = redisService.getValues(WALK_WITH_KEY + email);
 
         if(otherMemberEmail == null){
-            throw new IllegalArgumentException("상대 이메일 정보가 존재하지 않습니다.");
+            throw new IllegalArgumentException(EMAIL_NOT_FOUND.getText());
         }
 
         sendMessageToWalkUrl(otherMemberEmail, WalkWithResponse.of(email, startWalkServiceRequest));
@@ -131,7 +135,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
             RedisGeoCommands.GeoLocation<String> location = result.getContent();
             String memberNearbyEmail = location.getName();
 
-            if(!memberNearbyEmail.equals(email)){
+            if(!memberNearbyEmail.equals(email) && !redisService.checkHasKey(WALK_WITH_KEY + memberNearbyEmail)){
                 memberEmailList.add(memberNearbyEmail);
             }
         }
@@ -143,7 +147,24 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         messagingTemplate.convertAndSend("/sub/walk/" + email,  WebSocketResponse.ok(data));
     }
 
-    private void sendMessagetoWalkRequestUrl(String email, Object data){
-        messagingTemplate.convertAndSend("/sub/walk/request" + email,  WebSocketResponse.ok(data));
+    private Member getMemberFromEmailOrElseThrow(String email){
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(MEMBER_NOT_FOUND.getText()));
+    }
+
+    private Dog getDogFromMemberId(Long memberId){
+        return memberDogRepository.findMemberDogByMemberId(memberId)
+                .orElseThrow(() -> new IllegalArgumentException(DOG_NOT_FOUND.getText())).getDog();
+    }
+
+    private void validateBeforeProposalWalk(String email, String otherEmail){
+        if(redisService.checkHasKey(PROPOSAL_KEY + email)){
+            throw new IllegalArgumentException(ALREADY_PROPOSAL.getText());
+        }
+
+        if(redisService.checkHasKey(WALK_WITH_KEY + email) || redisService.checkHasKey(WALK_WITH_KEY + otherEmail)){
+            throw new IllegalArgumentException(ALREADY_MATCHED_MEMBER.getText());
+        }
+
     }
 }

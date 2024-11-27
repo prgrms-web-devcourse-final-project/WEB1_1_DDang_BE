@@ -5,10 +5,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
-import team9.ddang.member.entity.Member;
-import team9.ddang.member.repository.MemberRepository;
+import team9.ddang.global.aop.AuthenticationContext;
+import team9.ddang.global.aop.ExtractEmail;
 import team9.ddang.walk.controller.request.DecisionWalkRequest;
 import team9.ddang.walk.controller.request.ProposalWalkRequest;
 import team9.ddang.walk.controller.request.StartWalkRequest;
@@ -21,33 +22,28 @@ import team9.ddang.walk.service.WalkLocationService;
 public class WalkLocationController {
 
     private final WalkLocationService walkLocationService;
-    private final MemberRepository memberRepository;
 
     @MessageMapping("/api/v1/walk-alone")
-    public void startWalk(@RequestBody @Valid StartWalkRequest startWalkRequest) {
-        walkLocationService.startWalk("michael.brown@example.com" , startWalkRequest.toService());
+    @ExtractEmail
+    public void startWalk(SimpMessageHeaderAccessor headerAccessor ,@RequestBody @Valid StartWalkRequest startWalkRequest) {
+        walkLocationService.startWalk(AuthenticationContext.getEmail() , startWalkRequest.toService());
     }
-    // TODO : Security 적용
 
     @MessageMapping("/api/v1/proposal")
-    public void proposalWalk(@RequestBody @Valid ProposalWalkRequest proposalWalkRequest){
-        Member member = memberRepository.findByEmail("michael.brown@example.com")
-                .orElseThrow();
-
-        walkLocationService.proposalWalk(member, proposalWalkRequest.toService());
+    @ExtractEmail
+    public void proposalWalk(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid ProposalWalkRequest proposalWalkRequest){
+        walkLocationService.proposalWalk(AuthenticationContext.getEmail(), proposalWalkRequest.toService());
     }
 
     @MessageMapping("/api/v1/decision")
-    public void decisionWalk(@RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
-        Member member = memberRepository.findByEmail("john.doe@example.com")
-                .orElseThrow();
-
-        walkLocationService.decisionWalk(member, decisionWalkRequest.toService());
+    @ExtractEmail
+    public void decisionWalk(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid DecisionWalkRequest decisionWalkRequest){
+        walkLocationService.decisionWalk(AuthenticationContext.getEmail(), decisionWalkRequest.toService());
     }
 
     @MessageMapping("/api/v1/walk-with")
-    public void startWalkWith(@RequestBody @Valid StartWalkRequest startWalkRequest){
-        walkLocationService.startWalkWith("michael.brown@example.com" , startWalkRequest.toService());
-
+    @ExtractEmail
+    public void startWalkWith(SimpMessageHeaderAccessor headerAccessor, @RequestBody @Valid StartWalkRequest startWalkRequest){
+        walkLocationService.startWalkWith(AuthenticationContext.getEmail() , startWalkRequest.toService());
     }
 }

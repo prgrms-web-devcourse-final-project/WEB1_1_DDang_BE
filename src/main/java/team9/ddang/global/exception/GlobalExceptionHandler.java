@@ -57,6 +57,19 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(AuthenticationException.class)
+    public ApiResponse<Object> handleHandlerAuthenticationException(AuthenticationException e) {
+        String message = e.getMessage();
+        log.error("AuthenticationException : {}", e.getMessage());
+
+        return ApiResponse.of(
+                HttpStatus.UNAUTHORIZED,
+                message,
+                null
+        );
+    }
+
     // 이외에 잡지 못하는 모든 예외 처리
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
