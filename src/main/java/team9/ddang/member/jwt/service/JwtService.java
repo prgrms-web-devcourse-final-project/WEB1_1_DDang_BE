@@ -104,7 +104,6 @@ public class JwtService {
      */
     public Optional<String> extractAccessToken(SimpMessageHeaderAccessor headerAccessor) {
         return Optional.ofNullable(headerAccessor.getFirstNativeHeader(accessHeader))
-                .filter(accessToken -> accessToken.startsWith(BEARER))
                 .map(accessToken -> accessToken.replace(BEARER, ""));
     }
 
