@@ -49,7 +49,7 @@ class ChatRepositoryTest extends IntegrationTestSupport {
                 .gender(Gender.MALE)
                 .provider(Provider.GOOGLE)
 //                .role(Role.ROLE_USER)
-                .comment("안녕하세요")
+//                .comment("안녕하세요")
                 .isMatched(IsMatched.TRUE)
                 .build());
 
@@ -90,7 +90,7 @@ class ChatRepositoryTest extends IntegrationTestSupport {
                 .gender(Gender.MALE)
                 .provider(Provider.GOOGLE)
 //                .role(Role.ROLE_USER)
-                .comment("안녕하세요")
+//                .comment("안녕하세요")
                 .isMatched(IsMatched.TRUE)
                 .build());
 
