@@ -14,6 +14,7 @@ import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
+import team9.ddang.family.repository.WalkScheduleRepository;
 import team9.ddang.family.service.response.FamilyDetailResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
@@ -35,6 +36,7 @@ public class FamilyServiceImpl implements FamilyService {
     private static final String REDIS_INVITE_KEY_PREFIX = "invite:";
 
     private final RedisTemplate<String, String> redisTemplate;
+    private final WalkScheduleRepository walkScheduleRepository;
     private final FamilyRepository familyRepository;
     private final MemberRepository memberRepository;
     private final DogRepository dogRepository;
@@ -192,6 +194,9 @@ public class FamilyServiceImpl implements FamilyService {
                 !memberToRemove.getFamily().getFamilyId().equals(family.getFamilyId())) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
+
+        walkScheduleRepository.softDeleteByMemberId(memberToRemove.getMemberId());
+
         memberDogRepository.softDeleteByMember(memberToRemove);
 
         memberToRemove.updateFamily(null);
@@ -211,6 +216,8 @@ public class FamilyServiceImpl implements FamilyService {
         if (family.getMember().getMemberId().equals(currentMember.getMemberId())) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_LEAVE_OWNER.getText());
         }
+
+        walkScheduleRepository.softDeleteByMemberId(currentMember.getMemberId());
 
         memberDogRepository.softDeleteByMember(currentMember);
 
@@ -237,8 +244,9 @@ public class FamilyServiceImpl implements FamilyService {
             throw new IllegalArgumentException(FamilyExceptionMessage.FAMILY_NOT_EMPTY.getText());
         }
 
+        walkScheduleRepository.softDeleteByFamilyId(family.getFamilyId());
+
         familyRepository.softDeleteFamilyById(family.getFamilyId());
-        // TODO 나중에 walkSchedule도 삭제 처리 같이 해주기
     }
 
     private String generateInviteCode(Long familyId) {
