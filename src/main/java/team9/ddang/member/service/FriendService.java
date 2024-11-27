@@ -1,6 +1,5 @@
 package team9.ddang.member.service;
 
-import jakarta.validation.Valid;
 import team9.ddang.member.controller.request.AddFriendRequest;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.service.response.FriendListResponse;
@@ -10,7 +9,7 @@ import team9.ddang.member.service.response.MemberResponse;
 import java.util.List;
 
 public interface FriendService {
-    MemberResponse addFriend(Member member, @Valid AddFriendRequest addFriendRequest);
+    MemberResponse addFriend(Member member, AddFriendRequest addFriendRequest);
 
     List<FriendListResponse> getFriendList(Member member);
 

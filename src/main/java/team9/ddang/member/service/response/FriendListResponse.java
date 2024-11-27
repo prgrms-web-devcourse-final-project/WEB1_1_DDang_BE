@@ -11,7 +11,7 @@ public record FriendListResponse(
         Long memberId,
 
         @Schema(description = "회원 성별", example = "MALE")
-        Gender memberGender,
+        Gender gender,
 
         @Schema(description = "가족 내 역할", example = "FATHER")
         FamilyRole familyRole
