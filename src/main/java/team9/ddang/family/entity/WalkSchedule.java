@@ -35,11 +35,16 @@ public class WalkSchedule extends BaseEntity {
     @JoinColumn(name = "dog_id",nullable = false)
     private Dog dog;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "family_id",nullable = false)
+    private Family family;
+
     @Builder
-    private WalkSchedule(Member member, Dog dog, DayOfWeek dayOfWeek, LocalTime walkTime) {
+    private WalkSchedule(Member member, Dog dog, DayOfWeek dayOfWeek, LocalTime walkTime, Family family) {
         this.member = member;
         this.dog = dog;
         this.dayOfWeek = dayOfWeek;
         this.walkTime = walkTime;
+        this.family = family;
     }
 }

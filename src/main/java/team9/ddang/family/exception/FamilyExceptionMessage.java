@@ -17,14 +17,17 @@ public enum FamilyExceptionMessage {
     // Member
     MEMBER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
     MEMBER_NOT_FAMILY_BOSS("패밀리댕의 주인이 아닙니다."),
+    MEMBER_NOT_EQUAL_FAMILY("다른 패밀리댕에 속한 맴버입니다."),
 
 
     // Dog
     DOG_NOT_FOUND("해당 강아지를 찾을 수 없습니다."),
+    DOG_NOT_IN_FAMILY("해당 강아지는 패밀리댕 소속이 아닙니다."),
+    DOG_NOT_CAST("본인이 소유한 강아지만 지정할 수 있습니다."),
 
     // MemberDog
-    MEMBER_DOG_NOT_FOUND("강아지가 없으면 패밀리댕을 생성할 수 없습니다."),
-    MEMBER_DOG_FOUND("강아지가 있다면 패밀리댕에 가입할 수 없습니다.");
+    MEMBER_DOG_NOT_FOUND("소유한 강아지를 찾을 수 없습니다."),
+    MEMBER_DOG_FOUND("이미 강아지를 소유하고 있습니다.");
 
     private final String text;
 }

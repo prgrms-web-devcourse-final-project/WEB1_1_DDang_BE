@@ -20,6 +20,7 @@ public interface MemberDogRepository extends JpaRepository<MemberDog, Long> {
             SELECT md
             FROM MemberDog md 
             WHERE md.member.memberId = :memberId
+            AND md.isDeleted = 'FALSE'
             """)
     Optional<MemberDog> findMemberDogByMemberId(Long memberId);
 
