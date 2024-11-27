@@ -77,11 +77,13 @@ public class WalkLocationServiceImpl implements WalkLocationService {
 
         redisService.deleteValues(PROPOSAL_KEY + serviceRequest.otherEmail());
 
-        redisService.setValues(WALK_WITH_KEY + member.getEmail(), serviceRequest.otherEmail());
-        redisService.setValues(WALK_WITH_KEY + serviceRequest.otherEmail(), member.getEmail());
+        if(serviceRequest.decision().equals("ACCEPT")){
+            redisService.setValues(WALK_WITH_KEY + member.getEmail(), serviceRequest.otherEmail());
+            redisService.setValues(WALK_WITH_KEY + serviceRequest.otherEmail(), member.getEmail());
+        }
 
-        sendMessageToWalkRequestUrl(member.getEmail(), serviceRequest.decision());
-        sendMessageToWalkRequestUrl(serviceRequest.otherEmail(), serviceRequest.decision());
+        sendMessageToWalkUrl(member.getEmail(), serviceRequest.decision());
+        sendMessageToWalkUrl(serviceRequest.otherEmail(), serviceRequest.decision());
     }
 
     @Override
@@ -143,10 +145,6 @@ public class WalkLocationServiceImpl implements WalkLocationService {
 
     private void sendMessageToWalkUrl(String email, Object data){
         messagingTemplate.convertAndSend("/sub/walk/" + email,  WebSocketResponse.ok(data));
-    }
-
-    private void sendMessageToWalkRequestUrl(String email, Object data){
-        messagingTemplate.convertAndSend("/sub/walk/request" + email,  WebSocketResponse.ok(data));
     }
 
     private Member getMemberFromEmailOrElseThrow(String email){
