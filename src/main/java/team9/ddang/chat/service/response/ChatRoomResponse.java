@@ -2,6 +2,10 @@ package team9.ddang.chat.service.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.chat.entity.ChatRoom;
+import team9.ddang.member.entity.Member;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Schema(description = "채팅방 응답 데이터")
 public record ChatRoomResponse(
@@ -13,18 +17,19 @@ public record ChatRoomResponse(
         @Schema(description = "마지막 메시지", example = "안녕하세요!")
         String lastMessage,
         @Schema(description = "읽지 않은 메시지 개수", example = "3")
-        Long unreadMessageCount
-//        List<MemberResponse> members
+        Long unreadMessageCount,
+        @Schema(description = "채팅방 참여자")
+        List<ChatMemberInfo> members
 ) {
-    public ChatRoomResponse(ChatRoom chatRoom, String lastMessage, Long unreadMessageCount) {
+    public ChatRoomResponse(ChatRoom chatRoom, String lastMessage, Long unreadMessageCount, List<Member> members) {
         this(
                 chatRoom.getChatroomId(),
                 chatRoom.getName(),
                 lastMessage,
-                unreadMessageCount
-//                members.stream()
-//                        .map(MemberResponse::new)
-//                        .collect(Collectors.toList())
+                unreadMessageCount,
+                members.stream()
+                        .map(ChatMemberInfo::new)
+                        .collect(Collectors.toList())
         );
     }
 }

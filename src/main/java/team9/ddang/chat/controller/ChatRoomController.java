@@ -5,11 +5,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.chat.controller.request.ChatRoomCreateRequest;
 import team9.ddang.chat.service.ChatRoomService;
 import team9.ddang.chat.service.response.ChatRoomResponse;
 import team9.ddang.global.api.ApiResponse;
+import team9.ddang.member.oauth2.CustomOAuth2User;
 
 import java.util.List;
 
@@ -72,9 +74,10 @@ public class ChatRoomController {
             }
     )
     public ApiResponse<ChatRoomResponse> createChatRoom(
-            @RequestBody ChatRoomCreateRequest request
+            @RequestBody ChatRoomCreateRequest request,
+            @AuthenticationPrincipal CustomOAuth2User currentUser
     ) {
-        ChatRoomResponse response = chatRoomService.createChatRoom(request.toServiceRequest());
+        ChatRoomResponse response = chatRoomService.createChatRoom(request.toServiceRequest(), currentUser.getMember());
         return ApiResponse.ok(response);
     }
 
@@ -113,8 +116,8 @@ public class ChatRoomController {
                     )
             }
     )
-    public ApiResponse<List<ChatRoomResponse>> getChatRooms() {
-        List<ChatRoomResponse> chatRooms = chatRoomService.getChatRoomsForAuthenticatedMember();
+    public ApiResponse<List<ChatRoomResponse>> getChatRooms(@AuthenticationPrincipal CustomOAuth2User currentUser) {
+        List<ChatRoomResponse> chatRooms = chatRoomService.getChatRoomsForAuthenticatedMember(currentUser.getMember());
         return ApiResponse.ok(chatRooms);
     }
 }

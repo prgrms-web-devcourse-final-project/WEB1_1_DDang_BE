@@ -24,7 +24,7 @@ public class ChatConsumer {
         try {
             ChatRequest chatRequest = objectMapper.readValue(message, ChatRequest.class);
 
-            ChatResponse chatResponse = chatService.saveChat(chatRequest.chatRoomId(), chatRequest.memberId(), chatRequest.message());
+            ChatResponse chatResponse = chatService.saveChat(chatRequest.chatRoomId(), 2L, chatRequest.message());
 
             String destination = "/sub/chat/" + chatRequest.chatRoomId();
             webSocketMessageService.broadcastMessage(destination, chatResponse);
