@@ -13,6 +13,7 @@ import team9.ddang.dog.service.response.GetDogResponse;
 import team9.ddang.dog.service.request.UpdateDogServiceRequest;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.DogRepository;
+import team9.ddang.global.entity.IsDeleted;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
@@ -95,7 +96,12 @@ public class DogService {
         );
     }
 
-    public void updateDog(UpdateDogServiceRequest request) {
+    public void updateDog(UpdateDogServiceRequest request, Long memberId) {
+
+        // 1. 소유권 검증
+        memberDogRepository.findByDogIdAndMemberId(request.dogId(), memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 강아지의 소유자가 아닙니다."));
+
         // 기존 데이터 조회
         Dog dog = dogRepository.findById(request.dogId())
                 .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + request.dogId()));
@@ -116,12 +122,23 @@ public class DogService {
         if (request.comment() != null) dog.updateComment(request.comment());
     }
 
-    public void deleteDog(Long dogId) {
-        if (!dogRepository.existsById(dogId)) {
-            throw new IllegalArgumentException("Dog not found with id: " + dogId);
-        }
-        dogRepository.deleteById(dogId);
+    public void deleteDog(Long dogId, Long memberId) {
+        // 1. 소유권 검증
+        MemberDog memberDog = memberDogRepository.findByDogIdAndMemberId(dogId, memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 강아지의 소유자가 아닙니다."));
+
+        // 2. Dog 엔티티 가져오기
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + dogId));
+
+        // 3. MemberDog 소프트 삭제
+        memberDog.setIsDeleted(IsDeleted.TRUE);
+
+        // 4. Dog 소프트 삭제
+        dog.setIsDeleted(IsDeleted.TRUE);
     }
+
+
 }
 
 

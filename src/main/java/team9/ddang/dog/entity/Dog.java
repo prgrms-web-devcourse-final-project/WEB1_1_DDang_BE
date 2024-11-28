@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import team9.ddang.family.entity.Family;
 import team9.ddang.global.entity.BaseEntity;
 import team9.ddang.global.entity.Gender;
+import team9.ddang.global.entity.IsDeleted;
 
 import java.time.LocalDate;
 
@@ -48,6 +49,9 @@ public class Dog extends BaseEntity {
 
     @Column(length = 30, nullable = false)
     private String comment;
+
+    @Enumerated(EnumType.STRING)
+    private IsDeleted isDeleted = IsDeleted.FALSE;
 
     @Builder
     private Dog(String name, String breed, LocalDate birthDate, Gender gender, Integer weight, IsNeutered isNeutered, String profileImg, Family family, String comment) {
@@ -97,5 +101,10 @@ public class Dog extends BaseEntity {
 
     public void updateComment(String comment) {
         this.comment = comment;
+    }
+
+    //소프트 삭제
+    public void setIsDeleted(IsDeleted isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

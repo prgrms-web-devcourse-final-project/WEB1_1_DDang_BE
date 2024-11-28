@@ -13,4 +13,7 @@ public interface MemberDogRepository extends JpaRepository<MemberDog, Long> {
     @Query("select md from MemberDog md WHERE md.member.memberId = :memberId")
     Optional<MemberDog> findMemberDogByMemberId(Long memberId);
 
+    @Query("SELECT md FROM MemberDog md WHERE md.dog.dogId = :dogId AND md.member.memberId = :memberId")
+    Optional<MemberDog> findByDogIdAndMemberId(Long dogId, Long memberId);
+
 }

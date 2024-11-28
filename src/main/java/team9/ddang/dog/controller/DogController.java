@@ -24,32 +24,39 @@ public class DogController {
     private final DogService dogService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreateDogResponse>> createDog(@RequestBody @Valid CreateDogRequest request,
-                                                                    @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+    public ApiResponse<CreateDogResponse> createDog(
+            @RequestBody @Valid CreateDogRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
         Long memberId = customOAuth2User.getMember().getMemberId();
         CreateDogResponse response = dogService.createDog(request.toServiceRequest(), memberId);
-        return ResponseEntity.ok(ApiResponse.created(response)); // 생성된 강아지 정보 반환
+        return ApiResponse.created(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<GetDogResponse>> getDogById(@PathVariable Long id) {
+    public ApiResponse<GetDogResponse> getDogById(@PathVariable Long id) {
         GetDogResponse response = dogService.getDogById(id);
-        return ResponseEntity.ok(ApiResponse.ok(response));
+        return ApiResponse.ok(response);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> updateDog(
+    public ApiResponse<Void> updateDog(
             @PathVariable Long id,
-            @RequestBody @Valid UpdateDogRequest request
-    ) {
-        dogService.updateDog(request.toServiceRequest(id));
-        return ResponseEntity.ok(ApiResponse.ok(null)); // 성공 시 메시지만 반환
+            @RequestBody @Valid UpdateDogRequest request,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+
+        Long memberId = customOAuth2User.getMember().getMemberId();
+        dogService.updateDog(request.toServiceRequest(id), memberId);
+        return ApiResponse.ok(null);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteDog(@PathVariable Long id) {
-        dogService.deleteDog(id);
-        return ResponseEntity.ok(ApiResponse.ok(null)); // 성공 메시지만 반환
+    public ApiResponse<Void> deleteDog(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+
+        Long memberId = customOAuth2User.getMember().getMemberId();
+        dogService.deleteDog(id, memberId);
+        return ApiResponse.ok(null);
     }
 }
 
