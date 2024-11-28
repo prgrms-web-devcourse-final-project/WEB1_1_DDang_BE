@@ -1,8 +1,8 @@
-package team9.ddang.walk.controller.request;
+package team9.ddang.walk.controller.request.walk;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import team9.ddang.walk.service.request.CompleteWalkServiceRequest;
+import team9.ddang.walk.service.request.walk.CompleteWalkServiceRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

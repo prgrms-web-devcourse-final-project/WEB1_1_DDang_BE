@@ -1,6 +1,6 @@
-package team9.ddang.walk.service.response;
+package team9.ddang.walk.service.response.walk;
 
-import team9.ddang.walk.service.request.StartWalkServiceRequest;
+import team9.ddang.walk.service.request.walk.StartWalkServiceRequest;
 
 public record WalkWithResponse(
         String email,

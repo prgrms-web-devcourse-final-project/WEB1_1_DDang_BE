@@ -1,8 +1,8 @@
 package team9.ddang.walk.service;
 
-import team9.ddang.walk.service.request.DecisionWalkServiceRequest;
-import team9.ddang.walk.service.request.ProposalWalkServiceRequest;
-import team9.ddang.walk.service.request.StartWalkServiceRequest;
+import team9.ddang.walk.service.request.walk.DecisionWalkServiceRequest;
+import team9.ddang.walk.service.request.walk.ProposalWalkServiceRequest;
+import team9.ddang.walk.service.request.walk.StartWalkServiceRequest;
 
 public interface WalkLocationService {
 

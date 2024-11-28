@@ -1,4 +1,4 @@
-package team9.ddang.walk.service.request;
+package team9.ddang.walk.service.request.walk;
 
 import team9.ddang.member.entity.Member;
 import team9.ddang.walk.entity.Location;

@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.global.controller.response.WebSocketErrorResponse;
-import team9.ddang.walk.controller.request.DecisionWalkRequest;
-import team9.ddang.walk.controller.request.ProposalWalkRequest;
-import team9.ddang.walk.controller.request.StartWalkRequest;
-import team9.ddang.walk.service.response.MemberNearbyResponse;
-import team9.ddang.walk.service.response.ProposalWalkResponse;
+import team9.ddang.walk.controller.request.walk.DecisionWalkRequest;
+import team9.ddang.walk.controller.request.walk.ProposalWalkRequest;
+import team9.ddang.walk.controller.request.walk.StartWalkRequest;
+import team9.ddang.walk.service.response.walk.MemberNearbyResponse;
+import team9.ddang.walk.service.response.walk.ProposalWalkResponse;
 
 @Tag(name = "WebSocket Walk API", description = "WebSocket을 통한 산책 관련 명세")
 @RestController

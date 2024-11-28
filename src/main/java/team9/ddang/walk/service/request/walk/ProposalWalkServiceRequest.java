@@ -1,4 +1,4 @@
-package team9.ddang.walk.service.request;
+package team9.ddang.walk.service.request.walk;
 
 public record ProposalWalkServiceRequest(
         String otherMemberEmail,

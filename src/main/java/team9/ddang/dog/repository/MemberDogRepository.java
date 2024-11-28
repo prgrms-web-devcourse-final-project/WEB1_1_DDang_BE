@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.member.entity.Member;
-import team9.ddang.walk.service.response.MemberNearbyInfo;
-import team9.ddang.walk.service.response.MemberNearbyResponse;
+import team9.ddang.walk.service.response.walk.MemberNearbyInfo;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,8 +35,8 @@ public interface MemberDogRepository extends JpaRepository<MemberDog, Long> {
     void softDeleteByMember(@Param("member") Member member);
            
     @Query("""
-            SELECT new team9.ddang.walk.service.response.MemberNearbyInfo
-            (d.dogId, d.profileImg, d.name, d.breed, d.walkCount, m.memberId, d.birthDate, d.gender, m.isMatched, m.email) 
+            SELECT new team9.ddang.walk.service.response.walk.MemberNearbyInfo
+            (d.dogId, d.breed, d.name,d.profileImg, d.walkCount, m.memberId, d.birthDate, d.gender, m.isMatched, m.email) 
             FROM MemberDog md  
             JOIN md.dog d  
             JOIN md.member m  
