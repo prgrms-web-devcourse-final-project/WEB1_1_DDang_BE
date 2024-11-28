@@ -29,8 +29,9 @@ public class Report extends BaseEntity {
     private String reason;
 
     @Builder
-    private Report(Member sender, Member receiver) {
+    private Report(Member sender, Member receiver, String reason) {
         this.sender = sender;
         this.receiver = receiver;
+        this.reason = reason;
     }
 }
