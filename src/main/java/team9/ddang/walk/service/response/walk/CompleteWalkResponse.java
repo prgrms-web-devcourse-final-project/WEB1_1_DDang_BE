@@ -18,7 +18,7 @@ public record CompleteWalkResponse(
         String dogName,
 
         @Schema(description = "총 이동 거리 (미터)", example = "1200")
-        int totalDistance,
+        int totalDistanceMeter,
 
         @Schema(description = "총 이동 시간 (초)", example = "1800")
         long totalMinute,
