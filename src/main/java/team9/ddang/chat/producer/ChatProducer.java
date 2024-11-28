@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.event.MessageReadEvent;
 import team9.ddang.chat.exception.ChatExceptionMessage;
+import team9.ddang.chat.service.request.ChatReadServiceRequest;
 import team9.ddang.chat.service.request.ChatServiceRequest;
 
 @Service
@@ -25,9 +26,9 @@ public class ChatProducer {
         }
     }
 
-    public void sendReadEvent(String topic, MessageReadEvent readEvent) {
+    public void sendReadEvent(String topic, ChatReadServiceRequest chatReadServiceRequest) {
         try {
-            String message = objectMapper.writeValueAsString(readEvent);
+            String message = objectMapper.writeValueAsString(chatReadServiceRequest);
             kafkaTemplate.send(topic, message);
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to send MessageReadEvent", e);

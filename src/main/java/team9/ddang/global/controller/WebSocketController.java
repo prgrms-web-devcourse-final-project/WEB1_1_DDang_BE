@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import team9.ddang.chat.controller.request.ChatReadRequest;
 import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.event.MessageReadEvent;
+import team9.ddang.chat.service.response.ChatReadResponse;
 import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.global.controller.response.WebSocketErrorResponse;
 
@@ -66,7 +67,7 @@ public class WebSocketController {
                             description = "Kafka를 통해 브로드캐스트된 읽음 상태",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = MessageReadEvent.class)
+                                    schema = @Schema(implementation = ChatReadResponse.class)
                             )
                     ),
                     @ApiResponse(

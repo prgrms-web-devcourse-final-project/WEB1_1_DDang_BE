@@ -15,7 +15,9 @@ import team9.ddang.chat.producer.ChatProducer;
 import team9.ddang.chat.repository.ChatMemberRepository;
 import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.chat.repository.ChatRoomRepository;
+import team9.ddang.chat.service.request.ChatReadServiceRequest;
 import team9.ddang.chat.service.request.ChatServiceRequest;
+import team9.ddang.chat.service.response.ChatReadResponse;
 import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.member.entity.Member;
@@ -42,6 +44,10 @@ public class ChatServiceImpl implements ChatService {
 
         Member member = findMemberByEmailOrThrowException(email);
 
+        if(!chatMemberRepository.existsByChatRoomIdAndMemberId(chatRoomId, member.getMemberId())){
+            throw new IllegalArgumentException(ChatExceptionMessage.CHATMEMBER_NOT_IN_CHATROOM.getText());
+        }
+
         Chat chat = Chat.builder()
                 .chatRoom(chatRoom)
                 .member(member)
@@ -57,57 +63,44 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     public Slice<ChatResponse> findChatsByRoom(Long chatRoomId, Pageable pageable, Member member) {
 
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        findChatRoomByIdOrThrowException(chatRoomId);
-
-        if(!chatMemberRepository.existsByChatRoomIdAndMemberId(chatRoomId, currentMember.getMemberId())){
-            throw new IllegalArgumentException(ChatExceptionMessage.CHATMEMBER_NOT_IN_CHATROOM.getText());
-        }
+        Member currentMember = checkValidate(chatRoomId, member.getEmail());
 
         Slice<Chat> chats = chatRepository.findByChatRoomId(chatRoomId, pageable);
 
-        List<Chat> unreadChats = chatRepository.findUnreadMessagesByChatRoomIdAndMemberId(chatRoomId, currentMember.getMemberId());
-
-        if (unreadChats.isEmpty()) {
-            return chats.map(ChatResponse::new);
-        }
-
-        unreadChats.forEach(Chat::markAsRead);
-
         String topic = "topic-chat-" + chatRoomId;
-        MessageReadEvent readEvent = new MessageReadEvent(chatRoomId, currentMember.getMemberId(), null);
-        chatProducer.sendReadEvent(topic, readEvent);
+        chatProducer.sendReadEvent(topic, new ChatReadServiceRequest(chatRoomId, currentMember.getEmail(), null));
 
         return chats.map(ChatResponse::new);
     }
 
     @Override
     @Transactional
-    public void updateMessageReadStatus(Long chatRoomId) {
-        // TODO 나중에는 SpringSequrity에서 맴버 객체 받아서 사용할 예정
-        Long memberId = 2L;
+    public ChatReadResponse updateMessageReadStatus(Long chatRoomId, String email) {
 
-        // TODO 나중에 Member가 해당 채팅방에 속해있는지 검증 필요
-        findChatRoomByIdOrThrowException(chatRoomId);
+        Member member = checkValidate(chatRoomId, email);
 
-        List<Chat> unreadChats = chatRepository.findUnreadMessagesByChatRoomIdAndMemberId(chatRoomId, memberId);
-
-        if (unreadChats.isEmpty()) {
-            return;
-        }
+        List<Chat> unreadChats = chatRepository.findUnreadMessagesByChatRoomIdAndMemberId(chatRoomId, member.getMemberId());
 
         unreadChats.forEach(Chat::markAsRead);
 
-        MessageReadEvent readEvent = new MessageReadEvent(chatRoomId, memberId, null);
-
-        String topicName = "topic-chat-" + chatRoomId;
-        chatProducer.sendReadEvent(topicName, readEvent);
+        return new ChatReadResponse(chatRoomId, email, null);
     }
 
     public void checkChat(ChatServiceRequest request){
         findChatRoomByIdOrThrowException(request.chatRoomId());
         findMemberByEmailOrThrowException(request.email());
+    }
+
+    private Member checkValidate(Long chatRoomId, String email){
+        findChatRoomByIdOrThrowException(chatRoomId);
+
+        Member member = findMemberByEmailOrThrowException(email);
+
+        if(!chatMemberRepository.existsByChatRoomIdAndMemberId(chatRoomId, member.getMemberId())){
+            throw new IllegalArgumentException(ChatExceptionMessage.CHATMEMBER_NOT_IN_CHATROOM.getText());
+        }
+
+        return member;
     }
 
     private ChatRoom findChatRoomByIdOrThrowException(Long id) {

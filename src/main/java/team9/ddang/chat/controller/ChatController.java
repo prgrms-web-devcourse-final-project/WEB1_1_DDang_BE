@@ -18,6 +18,7 @@ import team9.ddang.chat.controller.request.ChatReadRequest;
 import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.producer.ChatProducer;
 import team9.ddang.chat.service.ChatService;
+import team9.ddang.chat.service.request.ChatReadServiceRequest;
 import team9.ddang.chat.service.request.ChatServiceRequest;
 import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.chat.service.response.SliceResponse;
@@ -46,10 +47,13 @@ public class ChatController {
         chatProducer.sendMessage("topic-chat-" + chatRequest.chatRoomId(), chatServiceRequest);
     }
 
-    @MessageMapping("/api/v1/chat/ack/{chatRoomId}")
-    public void handleMessageAck(@Valid ChatReadRequest chatReadRequest) {
+    @MessageMapping("/api/v1/chat/ack")
+    @ExtractEmail
+    public void handleMessageAck(SimpMessageHeaderAccessor headerAccessor, @Valid ChatReadRequest chatReadRequest) {
 
-        chatService.updateMessageReadStatus(chatReadRequest.chatRoomId());
+        ChatReadServiceRequest chatReadServiceRequest = chatReadRequest.toServiceRequest(AuthenticationContext.getEmail());
+
+        chatProducer.sendReadEvent("topic-chat-"+ chatReadRequest.chatRoomId(), chatReadServiceRequest);
     }
 
     @GetMapping("/{chatRoomId}")
