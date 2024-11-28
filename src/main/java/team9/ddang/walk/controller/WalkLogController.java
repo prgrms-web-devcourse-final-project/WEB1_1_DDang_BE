@@ -14,6 +14,7 @@ import team9.ddang.walk.controller.request.log.GetLogByDateRequest;
 import team9.ddang.walk.service.WalkLogService;
 import team9.ddang.walk.service.response.log.WalkLogByFamilyResponse;
 import team9.ddang.walk.service.response.log.WalkLogResponse;
+import team9.ddang.walk.service.response.log.WalkStaticsResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -51,14 +52,16 @@ public class WalkLogController {
         return ApiResponse.ok(response);
     }
 
-//    @GetMapping("/total")
-//    public ApiResponse<?> getTotalWalkLog(){
-//
-//    }
-//
-//    @GetMapping("/month/stats")
-//    public getMontlyWalkStats(){
-//
-//    }
+    @GetMapping("/total")
+    public ApiResponse<WalkStaticsResponse> getTotalWalkLog(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+        WalkStaticsResponse response = walkLogService.getTotalWalkLog(customOAuth2User.getMember());
+        return ApiResponse.ok(response);
+    }
+
+    @GetMapping("/total/month")
+    public ApiResponse<WalkStaticsResponse> getMonthlyTotalWalk(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+        WalkStaticsResponse response = walkLogService.getMonthlyTotalWalk(customOAuth2User.getMember());
+        return ApiResponse.ok(response);
+    }
 
 }

@@ -2,6 +2,7 @@ package team9.ddang.walk.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.member.entity.Member;
@@ -15,10 +16,12 @@ import team9.ddang.walk.repository.WalkRepository;
 import team9.ddang.walk.service.request.log.GetLogByDateServiceRequest;
 import team9.ddang.walk.service.response.log.WalkLogByFamilyResponse;
 import team9.ddang.walk.service.response.log.WalkLogResponse;
+import team9.ddang.walk.service.response.log.WalkStaticsResponse;
 import team9.ddang.walk.util.WalkCalculator;
 
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ public class WalkLogServiceImpl implements WalkLogService{
     private final LocationRepository locationRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<LocalDate> getWalkLogs(Member member) {
         Dog dog = getDogFromMemberId(member.getMemberId());
         List<WalkDog> walkList = walkDogRepository.findAllByDog_DogId(dog.getDogId());
@@ -43,6 +47,7 @@ public class WalkLogServiceImpl implements WalkLogService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WalkLogResponse> getWalkLogByDate(Member member, GetLogByDateServiceRequest service) {
         List<Walk> walks = walkRepository.findAllByMemberAndDate(member.getMemberId(), service.date());
         Dog dog  = getDogFromMemberId(member.getMemberId());
@@ -53,6 +58,7 @@ public class WalkLogServiceImpl implements WalkLogService{
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Integer> getYearlyWalkLog(Member member) {
         Dog dog = getDogFromMemberId(member.getMemberId());
@@ -67,6 +73,7 @@ public class WalkLogServiceImpl implements WalkLogService{
         return list;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<WalkLogByFamilyResponse> getYearlyWalkLogByFamily(Member member) {
         List<Member> familyMemberList = memberRepository.findFamilyMembersByMemberId(member.getMemberId());
@@ -89,6 +96,35 @@ public class WalkLogServiceImpl implements WalkLogService{
         return responseList;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public WalkStaticsResponse getTotalWalkLog(Member member) {
+        List<Walk> walkList = walkDogRepository.findWalksByDogIdFromMemberId(member.getMemberId());
+        long totalSeconds = 0;
+        int totalDistanceMeter = 0;
+        int totalWalkCount = walkList.size();
+        for(Walk walk : walkList){
+            totalSeconds += ChronoUnit.SECONDS.between(walk.getStartTime(), walk.getEndTime());
+            totalDistanceMeter += walk.getTotalDistance();
+        }
+
+        return WalkStaticsResponse.of(totalSeconds, totalWalkCount, totalDistanceMeter/1000);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public WalkStaticsResponse getMonthlyTotalWalk(Member member) {
+        List<Walk> walkList = walkDogRepository.findWalksByDogIdAndMonthFromMemberId(member.getMemberId(), LocalDate.now().getMonthValue());
+        long totalSeconds = 0;
+        int totalDistanceMeter = 0;
+        int totalWalkCount = walkList.size();
+        for(Walk walk : walkList){
+            totalSeconds += ChronoUnit.SECONDS.between(walk.getStartTime(), walk.getEndTime());
+            totalDistanceMeter += walk.getTotalDistance();
+        }
+
+        return WalkStaticsResponse.of(totalSeconds, totalWalkCount, totalDistanceMeter/1000);
+    }
 
     private Dog getDogFromMemberId(Long memberId){
         return memberDogRepository.findMemberDogByMemberId(memberId)
