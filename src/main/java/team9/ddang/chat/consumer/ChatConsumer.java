@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import team9.ddang.chat.controller.request.ChatRequest;
-import team9.ddang.chat.event.MessageReadEvent;
 import team9.ddang.chat.service.ChatService;
 import team9.ddang.chat.service.WebSocketMessageService;
+import team9.ddang.chat.service.request.ChatReadServiceRequest;
+import team9.ddang.chat.service.request.ChatServiceRequest;
+import team9.ddang.chat.service.response.ChatReadResponse;
 import team9.ddang.chat.service.response.ChatResponse;
+import team9.ddang.global.api.WebSocketResponse;
 
 
 @Slf4j
@@ -22,12 +24,12 @@ public class ChatConsumer {
 
     public void consumeMessage(String topic, String message) {
         try {
-            ChatRequest chatRequest = objectMapper.readValue(message, ChatRequest.class);
+            ChatServiceRequest chatServiceRequest = objectMapper.readValue(message, ChatServiceRequest.class);
 
-            ChatResponse chatResponse = chatService.saveChat(chatRequest.chatRoomId(), chatRequest.memberId(), chatRequest.message());
+            ChatResponse chatResponse = chatService.saveChat(chatServiceRequest.chatRoomId(), chatServiceRequest.email(), chatServiceRequest.message());
 
-            String destination = "/sub/chat/" + chatRequest.chatRoomId();
-            webSocketMessageService.broadcastMessage(destination, chatResponse);
+            String destination = "/sub/chat/" + chatServiceRequest.chatRoomId();
+            webSocketMessageService.broadcastMessage(destination, WebSocketResponse.ok(chatResponse));
 
             log.info("Message broadcasted to WebSocket: {}", destination);
         } catch (Exception e) {
@@ -37,10 +39,12 @@ public class ChatConsumer {
 
     public void consumeReadEvent(String topic, String message) {
         try {
-            MessageReadEvent readEvent = objectMapper.readValue(message, MessageReadEvent.class);
+            ChatReadServiceRequest chatReadServiceRequest = objectMapper.readValue(message, ChatReadServiceRequest.class);
 
-            String destination = "/sub/chat/" + readEvent.chatRoomId();
-            webSocketMessageService.broadcastMessage(destination, readEvent);
+            ChatReadResponse chatReadResponse = chatService.updateMessageReadStatus(chatReadServiceRequest.chatRoomId(), chatReadServiceRequest.email());
+
+            String destination = "/sub/chat/" + chatReadServiceRequest.chatRoomId();
+            webSocketMessageService.broadcastMessage(destination, WebSocketResponse.ok(chatReadResponse));
 
             log.info("Read event broadcasted to WebSocket: {}", destination);
         } catch (Exception e) {

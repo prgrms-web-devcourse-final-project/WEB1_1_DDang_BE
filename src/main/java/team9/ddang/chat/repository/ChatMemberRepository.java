@@ -21,4 +21,8 @@ public interface ChatMemberRepository extends JpaRepository<ChatMember, Long> {
     @Query("SELECT COUNT(cm) > 0 FROM ChatMember cm " +
             "WHERE cm.chatRoom.chatroomId = :chatRoomId AND cm.member.memberId = :memberId AND cm.isDeleted = 'FALSE'")
     boolean existsByChatRoomIdAndMemberId(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
+
+    @Query("SELECT COUNT(cm) > 0 FROM ChatMember cm " +
+            "WHERE cm.chatRoom.chatroomId = :chatRoomId AND cm.member.email = :email AND cm.isDeleted = 'FALSE'")
+    boolean existsByChatRoomIdAndEmail(@Param("chatRoomId") Long chatRoomId, @Param("email") String email);
 }

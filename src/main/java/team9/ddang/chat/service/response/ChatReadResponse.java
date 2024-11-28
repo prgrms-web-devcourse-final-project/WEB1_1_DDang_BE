@@ -1,11 +1,11 @@
-package team9.ddang.chat.event;
+package team9.ddang.chat.service.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
 @Schema(description = "메시지 읽음 이벤트 데이터")
-public record MessageReadEvent(
+public record ChatReadResponse(
 
         @Schema(description = "채팅방 ID", example = "1")
         Long chatRoomId,
