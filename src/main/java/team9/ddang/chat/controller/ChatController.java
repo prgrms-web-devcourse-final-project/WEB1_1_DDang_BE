@@ -2,8 +2,6 @@ package team9.ddang.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import team9.ddang.chat.service.ChatService;
 import team9.ddang.chat.service.request.ChatReadServiceRequest;
 import team9.ddang.chat.service.request.ChatServiceRequest;
 import team9.ddang.chat.service.response.ChatResponse;
-import team9.ddang.chat.service.response.SliceResponse;
 import team9.ddang.global.aop.AuthenticationContext;
 import team9.ddang.global.aop.ExtractEmail;
 import team9.ddang.global.api.ApiResponse;
@@ -53,42 +50,16 @@ public class ChatController {
 
         ChatReadServiceRequest chatReadServiceRequest = chatReadRequest.toServiceRequest(AuthenticationContext.getEmail());
 
-        chatProducer.sendReadEvent("topic-chat-"+ chatReadRequest.chatRoomId(), chatReadServiceRequest);
+        chatProducer.sendReadEvent("topic-chat-" + chatReadRequest.chatRoomId(), chatReadServiceRequest);
     }
 
     @GetMapping("/{chatRoomId}")
     @Operation(
             summary = "채팅방 메시지 조회",
-            description = "특정 채팅방의 메시지를 페이징 형태로 조회합니다.",
+            description = "특정 채팅방의 메시지를 페이징 형태로 조회합니다. 또한, 채팅방 입장으로 간주하여, /sub/chat/{chatRoomId} 구독 경로로 메세지 읽음 여부를 broadcast 합니다.",
             parameters = {
                     @Parameter(name = "chatRoomId", description = "조회할 채팅방 ID", required = true, example = "1"),
                     @Parameter(name = "page", description = "페이지 번호 (기본값: 0)", example = "0")
-            },
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "200",
-                            description = "채팅방 메시지 조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = SliceResponse.class)
-                            )
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "400",
-                            description = "잘못된 요청 데이터",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
-                            )
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
-                            )
-                    )
             }
     )
     public ApiResponse<Slice<ChatResponse>> getChatMessages(

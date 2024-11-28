@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import team9.ddang.chat.controller.request.ChatRequest;
-import team9.ddang.chat.event.MessageReadEvent;
 import team9.ddang.chat.service.ChatService;
 import team9.ddang.chat.service.WebSocketMessageService;
 import team9.ddang.chat.service.request.ChatReadServiceRequest;
 import team9.ddang.chat.service.request.ChatServiceRequest;
 import team9.ddang.chat.service.response.ChatReadResponse;
 import team9.ddang.chat.service.response.ChatResponse;
+import team9.ddang.global.api.WebSocketResponse;
 
 
 @Slf4j
@@ -30,7 +29,7 @@ public class ChatConsumer {
             ChatResponse chatResponse = chatService.saveChat(chatServiceRequest.chatRoomId(), chatServiceRequest.email(), chatServiceRequest.message());
 
             String destination = "/sub/chat/" + chatServiceRequest.chatRoomId();
-            webSocketMessageService.broadcastMessage(destination, chatResponse);
+            webSocketMessageService.broadcastMessage(destination, WebSocketResponse.ok(chatResponse));
 
             log.info("Message broadcasted to WebSocket: {}", destination);
         } catch (Exception e) {
@@ -42,10 +41,10 @@ public class ChatConsumer {
         try {
             ChatReadServiceRequest chatReadServiceRequest = objectMapper.readValue(message, ChatReadServiceRequest.class);
 
-            ChatReadResponse chatReadResponse = chatService.updateMessageReadStatus(chatReadServiceRequest.chatRoomId(),chatReadServiceRequest.email());
+            ChatReadResponse chatReadResponse = chatService.updateMessageReadStatus(chatReadServiceRequest.chatRoomId(), chatReadServiceRequest.email());
 
             String destination = "/sub/chat/" + chatReadServiceRequest.chatRoomId();
-            webSocketMessageService.broadcastMessage(destination, chatReadResponse);
+            webSocketMessageService.broadcastMessage(destination, WebSocketResponse.ok(chatReadResponse));
 
             log.info("Read event broadcasted to WebSocket: {}", destination);
         } catch (Exception e) {

@@ -1,6 +1,7 @@
 package team9.ddang.global.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,7 +46,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ApiResponse<Object> handleHandlerMethodValidationException(HandlerMethodValidationException e) {
         String message = e.getAllErrors().stream()
-                .map(error -> error.getDefaultMessage())
+                .map(MessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining(", "));
 
         log.error("HandlerMethodValidationException : {}", e.getMessage());
