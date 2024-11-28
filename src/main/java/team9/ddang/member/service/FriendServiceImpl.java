@@ -84,22 +84,15 @@ public class FriendServiceImpl implements FriendService{
         }
 
         friendRepository.deleteBySenderAndReceiver(member, otherMember);
-        friendRepository.deleteBySenderAndReceiver(otherMember, member);
     }
 
     private void saveFriend(Member member, Member otherMember){
-        Friend friend = Friend.builder()
-                .sender(member)
-                .receiver(otherMember)
-                .build();
+        List<Friend> friends = List.of(
+                Friend.builder().sender(member).receiver(otherMember).build(),
+                Friend.builder().sender(otherMember).receiver(member).build()
+        );
 
-        Friend friend2 = Friend.builder()
-                .sender(otherMember)
-                .receiver(member)
-                .build();
-
-        friendRepository.save(friend);
-        friendRepository.save(friend2);
+        friendRepository.saveAll(friends);
         friendRequestRepository.deleteByReceiver(member);
     }
 
