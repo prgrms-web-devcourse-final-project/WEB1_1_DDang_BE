@@ -14,6 +14,7 @@ import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
+import team9.ddang.family.repository.WalkScheduleRepository;
 import team9.ddang.family.service.response.FamilyDetailResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
@@ -32,7 +33,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FamilyServiceImpl implements FamilyService {
 
+    private static final String REDIS_INVITE_KEY_PREFIX = "invite:";
+
     private final RedisTemplate<String, String> redisTemplate;
+    private final WalkScheduleRepository walkScheduleRepository;
     private final FamilyRepository familyRepository;
     private final MemberRepository memberRepository;
     private final DogRepository dogRepository;
@@ -75,7 +79,7 @@ public class FamilyServiceImpl implements FamilyService {
         }
 
         Family family = currentMember.getFamily();
-        String redisSearchKey = "invite:";
+        String redisSearchKey = REDIS_INVITE_KEY_PREFIX;
 
         List<String> keys = Objects.requireNonNull(redisTemplate.keys(redisSearchKey + "*")).stream().toList();
         for (String key : keys) {
@@ -91,7 +95,7 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 새로운 초대 코드 생성
         String newInviteCode = generateInviteCode(family.getFamilyId());
-        redisTemplate.opsForValue().set("invite:" + newInviteCode, String.valueOf(family.getFamilyId()), Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set(REDIS_INVITE_KEY_PREFIX + newInviteCode, String.valueOf(family.getFamilyId()), Duration.ofMinutes(5));
 
         return new InviteCodeResponse(family, newInviteCode, Duration.ofMinutes(5).toSeconds());
     }
@@ -102,7 +106,7 @@ public class FamilyServiceImpl implements FamilyService {
     public FamilyResponse addMemberToFamily(String inviteCode, Member member) {
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        String familyIdStr = redisTemplate.opsForValue().get("invite:" + inviteCode);
+        String familyIdStr = redisTemplate.opsForValue().get(REDIS_INVITE_KEY_PREFIX + inviteCode);
         if (familyIdStr == null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.INVALID_INVITE_CODE.getText());
         }
@@ -185,11 +189,19 @@ public class FamilyServiceImpl implements FamilyService {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_FAMILY_BOSS.getText());
         }
 
+        if (family.getMember().getMemberId().equals(memberIdToRemove)) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_FAMILY_BOSS.getText());
+        }
+
+
         Member memberToRemove = findMemberByIdOrThrowException(memberIdToRemove);
         if (memberToRemove.getFamily() == null ||
                 !memberToRemove.getFamily().getFamilyId().equals(family.getFamilyId())) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
+
+        walkScheduleRepository.softDeleteByMemberId(memberToRemove.getMemberId());
+
         memberDogRepository.softDeleteByMember(memberToRemove);
 
         memberToRemove.updateFamily(null);
@@ -209,6 +221,8 @@ public class FamilyServiceImpl implements FamilyService {
         if (family.getMember().getMemberId().equals(currentMember.getMemberId())) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_LEAVE_OWNER.getText());
         }
+
+        walkScheduleRepository.softDeleteByMemberId(currentMember.getMemberId());
 
         memberDogRepository.softDeleteByMember(currentMember);
 
@@ -235,8 +249,9 @@ public class FamilyServiceImpl implements FamilyService {
             throw new IllegalArgumentException(FamilyExceptionMessage.FAMILY_NOT_EMPTY.getText());
         }
 
+        walkScheduleRepository.softDeleteByFamilyId(family.getFamilyId());
+
         familyRepository.softDeleteFamilyById(family.getFamilyId());
-        // TODO 나중에 walkSchedule도 삭제 처리 같이 해주기
     }
 
     private String generateInviteCode(Long familyId) {
@@ -244,7 +259,7 @@ public class FamilyServiceImpl implements FamilyService {
         boolean isSet;
         do {
             code = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
-            isSet = Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent("invite:" + code, String.valueOf(familyId), Duration.ofMinutes(5)));
+            isSet = Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(REDIS_INVITE_KEY_PREFIX + code, String.valueOf(familyId), Duration.ofMinutes(5)));
         } while (!isSet);
         return code;
     }
