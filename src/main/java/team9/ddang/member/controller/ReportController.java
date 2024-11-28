@@ -1,5 +1,6 @@
 package team9.ddang.member.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,13 @@ public class ReportController {
     private final ReportService reportService;
 
     @PostMapping
+    @Operation(
+            summary = "신고 생성",
+            description = """
+                    특정 회원에 대한 신고를 생성합니다.
+                    본인은 신고할 수 없습니다.
+                    """
+    )
     public ApiResponse<Void> createReport(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @RequestBody ReportRequest reportRequest
