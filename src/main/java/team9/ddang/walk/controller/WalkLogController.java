@@ -12,6 +12,7 @@ import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.oauth2.CustomOAuth2User;
 import team9.ddang.walk.controller.request.log.GetLogByDateRequest;
 import team9.ddang.walk.service.WalkLogService;
+import team9.ddang.walk.service.response.log.WalkLogByFamilyResponse;
 import team9.ddang.walk.service.response.log.WalkLogResponse;
 
 import java.time.LocalDate;
@@ -38,16 +39,18 @@ public class WalkLogController {
         return ApiResponse.ok(response);
     }
 
-//    @GetMapping("/year")
-//    public ApiResponse<?> getYearlyWalkLog(){
-//
-//    }
-//
-//    @GetMapping("/year/family")
-//    public ApiResponse<?> getYearlyWalkLogByFamily(){
-//
-//    }
-//
+    @GetMapping("/year")
+    public ApiResponse<List<Integer>> getYearlyWalkLog(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+        List<Integer> response = walkLogService.getYearlyWalkLog(customOAuth2User.getMember());
+        return ApiResponse.ok(response);
+    }
+
+    @GetMapping("/year/family")
+    public ApiResponse<List<WalkLogByFamilyResponse>> getYearlyWalkLogByFamily(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+        List<WalkLogByFamilyResponse> response = walkLogService.getYearlyWalkLogByFamily(customOAuth2User.getMember());
+        return ApiResponse.ok(response);
+    }
+
 //    @GetMapping("/total")
 //    public ApiResponse<?> getTotalWalkLog(){
 //

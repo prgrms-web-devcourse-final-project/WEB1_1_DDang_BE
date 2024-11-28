@@ -1,5 +1,6 @@
 package team9.ddang.walk.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,5 +33,15 @@ public interface WalkRepository extends JpaRepository<Walk, Long> {
         AND DATE(created_at) = :date
        """, nativeQuery = true)
     List<Walk> findAllByMemberAndDate(@Param("memberId") Long memberId, @Param("date") LocalDate date);
+
+    @EntityGraph(attributePaths = {"member"})
+    @Query(value = """
+        SELECT w
+        FROM Walk w
+        WHERE w.member IN :members
+        AND YEAR(w.createdAt) = :year
+       """)
+    List<Walk> findAllByMembersAndDate(@Param("members") List<Member> members, @Param("year") int year);
+
 
 }
