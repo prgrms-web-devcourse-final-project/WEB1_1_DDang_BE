@@ -10,12 +10,7 @@ import team9.ddang.walk.entity.WalkDog;
 import java.util.List;
 
 public interface WalkDogRepository extends JpaRepository<WalkDog, Long> {
-    @EntityGraph(attributePaths = {"walk"})
-    @Query("""
-    SELECT wd.walk
-    FROM WalkDog wd
-    WHERE wd.dog = :dog
-    """)
-    List<Walk> findAllWalksByDog(Dog dog);
+
+    List<WalkDog> findAllByDog_DogId(Long dogId);
 
 }
