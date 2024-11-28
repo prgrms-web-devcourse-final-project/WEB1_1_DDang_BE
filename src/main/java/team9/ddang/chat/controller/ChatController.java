@@ -11,14 +11,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.chat.controller.request.ChatReadRequest;
 import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.producer.ChatProducer;
 import team9.ddang.chat.service.ChatService;
+import team9.ddang.chat.service.request.ChatServiceRequest;
 import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.chat.service.response.SliceResponse;
+import team9.ddang.global.aop.AuthenticationContext;
+import team9.ddang.global.aop.ExtractEmail;
 import team9.ddang.global.api.ApiResponse;
+import team9.ddang.member.oauth2.CustomOAuth2User;
 
 @RestController
 @RequestMapping("/api/v1/chat/message")
@@ -30,13 +36,14 @@ public class ChatController {
 
     private final ChatProducer chatProducer;
 
-    // TODO websocket 명세용 깡통 컨트롤러가 필요할듯?
     @MessageMapping("/api/v1/chat/message")
-    public void sendMessage(@Valid ChatRequest chatRequest) {
+    @ExtractEmail
+    public void sendMessage(SimpMessageHeaderAccessor headerAccessor, @Valid ChatRequest chatRequest) {
 
-        chatService.checkChat(chatRequest.chatRoomId());
+        ChatServiceRequest chatServiceRequest = chatRequest.toServiceRequest(AuthenticationContext.getEmail());
+        chatService.checkChat(chatServiceRequest);
 
-        chatProducer.sendMessage("topic-chat-" + chatRequest.chatRoomId(), chatRequest);
+        chatProducer.sendMessage("topic-chat-" + chatRequest.chatRoomId(), chatServiceRequest);
     }
 
     @MessageMapping("/api/v1/chat/ack/{chatRoomId}")
@@ -82,13 +89,14 @@ public class ChatController {
     )
     public ApiResponse<Slice<ChatResponse>> getChatMessages(
             @PathVariable Long chatRoomId,
-            @RequestParam(defaultValue = "0") int page
+            @RequestParam(defaultValue = "0") int page,
+            @AuthenticationPrincipal CustomOAuth2User currentUser
     ) {
         if (page < 0) {
             throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
         }
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("createdAt").ascending());
-        Slice<ChatResponse> chats = chatService.findChatsByRoom(chatRoomId, pageRequest);
+        Slice<ChatResponse> chats = chatService.findChatsByRoom(chatRoomId, pageRequest, currentUser.getMember());
         return ApiResponse.ok(chats);
     }
 }

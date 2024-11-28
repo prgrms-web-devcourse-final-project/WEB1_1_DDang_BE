@@ -8,6 +8,7 @@ import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.event.MessageReadEvent;
 import team9.ddang.chat.service.ChatService;
 import team9.ddang.chat.service.WebSocketMessageService;
+import team9.ddang.chat.service.request.ChatServiceRequest;
 import team9.ddang.chat.service.response.ChatResponse;
 
 
@@ -22,11 +23,11 @@ public class ChatConsumer {
 
     public void consumeMessage(String topic, String message) {
         try {
-            ChatRequest chatRequest = objectMapper.readValue(message, ChatRequest.class);
+            ChatServiceRequest chatServiceRequest = objectMapper.readValue(message, ChatServiceRequest.class);
 
-            ChatResponse chatResponse = chatService.saveChat(chatRequest.chatRoomId(), 2L, chatRequest.message());
+            ChatResponse chatResponse = chatService.saveChat(chatServiceRequest.chatRoomId(), chatServiceRequest.email(), chatServiceRequest.message());
 
-            String destination = "/sub/chat/" + chatRequest.chatRoomId();
+            String destination = "/sub/chat/" + chatServiceRequest.chatRoomId();
             webSocketMessageService.broadcastMessage(destination, chatResponse);
 
             log.info("Message broadcasted to WebSocket: {}", destination);

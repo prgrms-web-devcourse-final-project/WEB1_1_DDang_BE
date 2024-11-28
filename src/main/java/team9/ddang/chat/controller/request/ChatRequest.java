@@ -16,7 +16,7 @@ public record ChatRequest(
         @NotBlank(message = "채팅 메세지는 필수입니다.")
         String message
 ) {
-    public ChatServiceRequest toServiceRequest() {
-        return new ChatServiceRequest(chatRoomId, message);
+    public ChatServiceRequest toServiceRequest(String email) {
+        return new ChatServiceRequest(chatRoomId, email, message);
     }
 }
