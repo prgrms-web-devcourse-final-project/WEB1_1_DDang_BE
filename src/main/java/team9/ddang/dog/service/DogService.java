@@ -78,10 +78,13 @@ public class DogService {
     }
 
 
-    public GetDogResponse getDogById(Long dogId) {
-        Dog dog = dogRepository.findById(dogId)
-                .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + dogId));
+    public GetDogResponse getDogByMemberId(Long memberId) {
+        // 1. MemberDog 조회
+        MemberDog memberDog = memberDogRepository.findOneByMemberIdAndNotDeleted(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("강아지를 소유하고 있지 않습니다."));
 
+        // 2. 강아지 정보 반환
+        Dog dog = memberDog.getDog();
         return new GetDogResponse(
                 dog.getDogId(),
                 dog.getName(),

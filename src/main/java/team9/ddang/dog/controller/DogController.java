@@ -33,8 +33,16 @@ public class DogController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<GetDogResponse> getDogById(@PathVariable Long id) {
-        GetDogResponse response = dogService.getDogById(id);
+    public ApiResponse<GetDogResponse> getMyDog(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+
+        // 로그인된 사용자 ID 가져오기
+        Long memberId = customOAuth2User.getMember().getMemberId();
+
+        // 서비스 호출
+        GetDogResponse response = dogService.getDogByMemberId(memberId);
+
+        // ApiResponse로 바로 반환
         return ApiResponse.ok(response);
     }
 
@@ -46,7 +54,7 @@ public class DogController {
 
         Long memberId = customOAuth2User.getMember().getMemberId();
         dogService.updateDog(request.toServiceRequest(id), memberId);
-        return ApiResponse.ok(null);
+        return ApiResponse.noContent();
     }
 
     @DeleteMapping("/{id}")
@@ -56,7 +64,7 @@ public class DogController {
 
         Long memberId = customOAuth2User.getMember().getMemberId();
         dogService.deleteDog(id, memberId);
-        return ApiResponse.ok(null);
+        return ApiResponse.noContent();
     }
 }
 
