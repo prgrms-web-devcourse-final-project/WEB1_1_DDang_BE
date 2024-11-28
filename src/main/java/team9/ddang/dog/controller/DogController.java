@@ -3,6 +3,7 @@ package team9.ddang.dog.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.dog.controller.request.CreateDogRequest;
 import team9.ddang.dog.controller.request.UpdateDogRequest;
@@ -11,6 +12,7 @@ import team9.ddang.dog.service.response.CreateDogResponse;
 import team9.ddang.dog.service.response.GetDogResponse;
 import team9.ddang.dog.service.DogService;
 import team9.ddang.global.api.ApiResponse;
+import team9.ddang.member.oauth2.CustomOAuth2User;
 
 //import javax.validation.Valid;
 
@@ -22,8 +24,10 @@ public class DogController {
     private final DogService dogService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreateDogResponse>> createDog(@RequestBody @Valid CreateDogRequest request) {
-        CreateDogResponse response = dogService.createDog(request.toServiceRequest());
+    public ResponseEntity<ApiResponse<CreateDogResponse>> createDog(@RequestBody @Valid CreateDogRequest request,
+                                                                    @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        Long memberId = customOAuth2User.getMember().getMemberId();
+        CreateDogResponse response = dogService.createDog(request.toServiceRequest(), memberId);
         return ResponseEntity.ok(ApiResponse.created(response)); // 생성된 강아지 정보 반환
     }
 
