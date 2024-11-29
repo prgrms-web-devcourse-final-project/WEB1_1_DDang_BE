@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.member.entity.Member;
 import team9.ddang.walk.service.response.walk.MemberNearbyInfo;
