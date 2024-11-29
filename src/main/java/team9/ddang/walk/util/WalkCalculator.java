@@ -14,7 +14,7 @@ public class WalkCalculator {
     private WalkCalculator() {}
 
     public static int calculateCalorie(int weight, long totalDistance){
-        return (int) (0.75 * weight * totalDistance);
+        return (int) (0.75 * weight * totalDistance / 1000);
     }
 
     public static long calculateTime(List<Location> locations){

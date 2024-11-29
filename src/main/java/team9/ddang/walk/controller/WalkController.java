@@ -28,6 +28,7 @@ public class WalkController {
             description = """
                     산책을 완료해 DB에 저장하고 관련한 소모 칼로리와 위도, 경도를 반환합니다.
                     요청 본문에 산책 시간 및 거리를 포함해야 합니다.
+                    응답 값에 같이 산책한 유저가 없으면 walkWithDogInfo 값이 null 입니다.
                     """
     )
     @PostMapping("/complete")
