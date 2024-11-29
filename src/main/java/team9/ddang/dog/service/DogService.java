@@ -17,6 +17,7 @@ import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.DogRepository;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
+import team9.ddang.family.repository.WalkScheduleRepository;
 import team9.ddang.global.entity.IsDeleted;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
@@ -37,6 +38,7 @@ public class DogService {
     private final MemberRepository memberRepository;
     private final MemberDogRepository memberDogRepository; // MemberDog 저장
     private final FamilyRepository familyRepository;
+    private final WalkScheduleRepository walkScheduleRepository;
 
     public CreateDogResponse createDog(CreateDogServiceRequest request, Long memberId) {
 
@@ -145,7 +147,7 @@ public class DogService {
 
         Member member = findMemberByIdOrThrowException(memberId);
 
-        Dog dog = findDogByIdOrThrowException(dogId);
+        findDogByIdOrThrowException(dogId);
 
         memberDogRepository.findByDogIdAndMemberId(dogId, memberId)
                 .orElseThrow(() -> new IllegalArgumentException(DogExceptionMessage.MEMBER_NOT_HAVE_DOG.getText()));
@@ -160,7 +162,9 @@ public class DogService {
         // 4. Dog 소프트 삭제
         dogRepository.softDeleteById(dogId);
 
-        // TODO 강아지 삭제하면 산책 일정도 모두 삭제하기
+        walkScheduleRepository.softDeleteByDogId(dogId);
+
+        // TODO 산책 내역 삭제하기
     }
 
     public GetDogResponse getDogByMemberId(Long memberId) {
