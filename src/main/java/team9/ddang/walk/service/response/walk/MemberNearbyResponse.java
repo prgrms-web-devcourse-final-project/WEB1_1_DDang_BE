@@ -1,4 +1,4 @@
-package team9.ddang.walk.service.response;
+package team9.ddang.walk.service.response.walk;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.global.entity.Gender;

@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.oauth2.CustomOAuth2User;
-import team9.ddang.walk.controller.request.CompleteWalkRequest;
+import team9.ddang.walk.controller.request.walk.CompleteWalkRequest;
 import team9.ddang.walk.service.WalkService;
-import team9.ddang.walk.service.response.CompleteWalkResponse;
+import team9.ddang.walk.service.response.walk.CompleteWalkResponse;
 
 @RestController
 @RequestMapping("/api/v1/walk")

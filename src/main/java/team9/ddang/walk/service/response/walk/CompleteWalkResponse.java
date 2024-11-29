@@ -1,7 +1,8 @@
-package team9.ddang.walk.service.response;
+package team9.ddang.walk.service.response.walk;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.walk.entity.Position;
+import team9.ddang.walk.service.response.TimeDuration;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,10 +19,9 @@ public record CompleteWalkResponse(
         String dogName,
 
         @Schema(description = "총 이동 거리 (미터)", example = "1200")
-        int totalDistance,
+        int totalDistanceMeter,
 
-        @Schema(description = "총 이동 시간 (초)", example = "1800")
-        long totalMinute,
+        TimeDuration timeDuration,
 
         @Schema(description = "총 소비 칼로리", example = "300")
         int totalCalorie,
@@ -34,7 +34,7 @@ public record CompleteWalkResponse(
 ) {
 
     public static CompleteWalkResponse of(String memberName, String dogName, int totalDistance,
-                                          long totalMinute, int totalCalorie, List<Position> points, WalkWithDogInfo info){
-        return new CompleteWalkResponse(LocalDate.now(), memberName,dogName, totalDistance, totalMinute, totalCalorie, points, info);
+                                          long totalSecond, int totalCalorie, List<Position> points, WalkWithDogInfo info){
+        return new CompleteWalkResponse(LocalDate.now(), memberName,dogName, totalDistance, TimeDuration.from(totalSecond), totalCalorie, points, info);
     }
 }

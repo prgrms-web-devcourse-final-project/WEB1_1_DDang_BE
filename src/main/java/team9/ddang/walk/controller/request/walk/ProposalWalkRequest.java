@@ -1,9 +1,9 @@
-package team9.ddang.walk.controller.request;
+package team9.ddang.walk.controller.request.walk;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import team9.ddang.walk.service.request.ProposalWalkServiceRequest;
+import team9.ddang.walk.service.request.walk.ProposalWalkServiceRequest;
 
 public record ProposalWalkRequest(
         @NotNull(message = "상대 이메일은 입력해주셔야 해요")

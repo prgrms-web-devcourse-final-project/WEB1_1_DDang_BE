@@ -1,4 +1,4 @@
-package team9.ddang.walk.service.response;
+package team9.ddang.walk.service.response.walk;
 
 import team9.ddang.global.entity.Gender;
 import team9.ddang.member.entity.IsMatched;
