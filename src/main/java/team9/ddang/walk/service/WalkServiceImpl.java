@@ -16,9 +16,9 @@ import team9.ddang.walk.entity.WalkDog;
 import team9.ddang.walk.repository.LocationBulkRepository;
 import team9.ddang.walk.repository.WalkDogRepository;
 import team9.ddang.walk.repository.WalkRepository;
-import team9.ddang.walk.service.request.CompleteWalkServiceRequest;
-import team9.ddang.walk.service.response.CompleteWalkResponse;
-import team9.ddang.walk.service.response.WalkWithDogInfo;
+import team9.ddang.walk.service.request.walk.CompleteWalkServiceRequest;
+import team9.ddang.walk.service.response.walk.CompleteWalkResponse;
+import team9.ddang.walk.service.response.walk.WalkWithDogInfo;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

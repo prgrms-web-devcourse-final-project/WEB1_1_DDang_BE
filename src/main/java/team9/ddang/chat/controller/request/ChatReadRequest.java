@@ -2,6 +2,7 @@ package team9.ddang.chat.controller.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import team9.ddang.chat.service.request.ChatReadServiceRequest;
 
 import java.util.List;
 
@@ -15,4 +16,7 @@ public record ChatReadRequest(
         @Schema(description = "읽음 처리된 메시지 ID 목록, 확장성을 고려하여 만든 것으로, 최종 제출까지는 null", example = "null")
         List<Long> readMessageIds
 ) {
+        public ChatReadServiceRequest toServiceRequest(String email) {
+                return new ChatReadServiceRequest(chatRoomId, email, readMessageIds);
+        }
 }

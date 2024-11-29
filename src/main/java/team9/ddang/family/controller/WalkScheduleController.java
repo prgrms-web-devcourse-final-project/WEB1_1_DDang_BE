@@ -37,33 +37,7 @@ public class WalkScheduleController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = WalkScheduleCreateRequest.class)
                     )
-            ),
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "201",
-                            description = "산책 일정 생성 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = WalkScheduleResponse.class)
-                            )
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "400",
-                            description = "잘못된 요청 데이터",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
-                            )
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
-                            )
-                    )
-            }
+            )
     )
     public ApiResponse<WalkScheduleResponse> createWalkSchedule(
             @Valid @RequestBody WalkScheduleCreateRequest request,
@@ -79,33 +53,7 @@ public class WalkScheduleController {
             summary = "산책 일정 리스트 조회",
             description = """
                 현재 로그인된 사용자가 소속된 Family ID에 해당하는 모든 산책 일정을 조회합니다.
-                """,
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "200",
-                            description = "산책 일정 리스트 조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = WalkScheduleResponse.class)
-                            )
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "404",
-                            description = "산책 일정이 존재하지 않음",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
-                            )
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "500",
-                            description = "서버 오류",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
-                            )
-                    )
-            }
+                """
     )
     public ApiResponse<List<WalkScheduleResponse>> getWalkSchedules(
             @AuthenticationPrincipal CustomOAuth2User currentUser
@@ -122,29 +70,7 @@ public class WalkScheduleController {
             description = """
                 산책 일정 ID를 기준으로 산책 일정을 삭제합니다.
                 요청 사용자가 해당 가족에 속하지 않은 경우 또는 권한이 없는 경우 삭제가 불가능합니다.
-                """,
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "204",
-                            description = "산책 일정 삭제 성공"
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "404",
-                            description = "산책 일정이 존재하지 않음",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
-                            )
-                    ),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                            responseCode = "400",
-                            description = "삭제 권한 없음",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)
-                            )
-                    )
-            }
+                """
     )
     public ApiResponse<Void> deleteWalkSchedule(
             @PathVariable Long id,

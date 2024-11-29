@@ -1,9 +1,9 @@
-package team9.ddang.walk.controller.request;
+package team9.ddang.walk.controller.request.walk;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import team9.ddang.walk.service.request.StartWalkServiceRequest;
+import team9.ddang.walk.service.request.walk.StartWalkServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "위치 요청 DTO")

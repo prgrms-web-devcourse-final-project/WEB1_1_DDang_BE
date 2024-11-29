@@ -10,9 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import team9.ddang.global.aop.AuthenticationContext;
 import team9.ddang.global.aop.ExtractEmail;
-import team9.ddang.walk.controller.request.DecisionWalkRequest;
-import team9.ddang.walk.controller.request.ProposalWalkRequest;
-import team9.ddang.walk.controller.request.StartWalkRequest;
+import team9.ddang.walk.controller.request.walk.DecisionWalkRequest;
+import team9.ddang.walk.controller.request.walk.ProposalWalkRequest;
+import team9.ddang.walk.controller.request.walk.StartWalkRequest;
 import team9.ddang.walk.service.WalkLocationService;
 
 @Slf4j
