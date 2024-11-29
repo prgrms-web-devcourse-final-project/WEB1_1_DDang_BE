@@ -1,5 +1,6 @@
 package team9.ddang.family.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +16,10 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
 
     @Query("SELECT w FROM WalkSchedule w WHERE w.walkScheduleId = :id AND w.isDeleted = 'FALSE'")
     Optional<WalkSchedule> findActiveById(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {"member"})
+    @Query("SELECT w FROM WalkSchedule w WHERE w.dog.dogId = :dogId AND w.isDeleted = 'FALSE'")
+    List<WalkSchedule> findAllByDogId(@Param("dogId") Long dogId);
 
     @Modifying
     @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.walkScheduleId = :id")
