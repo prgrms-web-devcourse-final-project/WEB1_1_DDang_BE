@@ -25,7 +25,7 @@ public record MainResponse(
         @Schema(description = "총 이동 거리 (미터 단위)", example = "1000")
         int totalDistanceMeter,
 
-        @Schema(description = "총 소비 칼로리", example = "50000")
+        @Schema(description = "총 소비 칼로리", example = "50")
         int totalCalorie
 ) {
     public static MainResponse of(Member member, Dog dog, long totalSeconds, int totalDistanceMeter){

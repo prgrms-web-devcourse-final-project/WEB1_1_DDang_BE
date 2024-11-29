@@ -21,7 +21,7 @@ public record ProposalWalkResponse(
         @Schema(description = "강아지 프로필 이미지 URL", example = "https://example.com/dog/profile.jpg")
         String dogProfileImg,
 
-        @Schema(description = "추가 코멘트", example = "활발한 강아지입니다!")
+        @Schema(description = "추가 코멘트", example = "같이 산책 해요 :)")
         String comment,
 
         @Schema(description = "강아지 성별", example = "MALE")
