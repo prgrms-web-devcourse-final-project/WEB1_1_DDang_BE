@@ -1,13 +1,13 @@
-package team9.ddang.walk.controller.request;
+package team9.ddang.walk.controller.request.walk;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import team9.ddang.walk.service.request.LocationServiceRequest;
+import team9.ddang.walk.service.request.walk.StartWalkServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "위치 요청 DTO")
-public record LocationRequest(
+public record StartWalkRequest(
 
         @Schema(description = "위도 (-90.0 ~ 90.0)", example = "37.5665")
         @NotNull(message = "위도는 필수입니다.")
@@ -22,8 +22,8 @@ public record LocationRequest(
         Double longitude
 ) {
 
-    public LocationServiceRequest toService() {
-        return new LocationServiceRequest(latitude, longitude);
+    public StartWalkServiceRequest toService() {
+        return new StartWalkServiceRequest(latitude, longitude);
     }
 }
 

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team9.ddang.global.entity.BaseEntity;
+import team9.ddang.member.entity.Member;
 
 @Entity
 @Getter
@@ -19,13 +20,14 @@ public class Family extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String familyName;
 
-    @Column(nullable = false, length = 50)
-    private String familyCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Builder
-    private Family(String familyName, String familyCode) {
+    private Family(String familyName, Member member) {
         this.familyName = familyName;
-        this.familyCode = familyCode;
+        this.member = member;
     }
 }
 // TODO : 나중에 더 추가할 예정

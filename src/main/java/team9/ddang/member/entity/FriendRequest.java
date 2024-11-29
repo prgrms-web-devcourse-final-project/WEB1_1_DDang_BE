@@ -18,15 +18,15 @@ public class FriendRequest extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
-    private Member senderId;
+    private Member sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
-    private Member receiverId;
+    private Member receiver;
 
     @Builder
-    private FriendRequest(Member senderId, Member receiverId) {
-        this.senderId = senderId;
-        this.receiverId = receiverId;
+    private FriendRequest(Member sender, Member receiver) {
+        this.sender = sender;
+        this.receiver = receiver;
     }
 }

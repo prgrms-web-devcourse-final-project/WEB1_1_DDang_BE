@@ -1,9 +1,10 @@
 package team9.ddang.walk.service;
 
-import team9.ddang.walk.service.request.CompleteWalkServiceRequest;
-import team9.ddang.walk.service.response.CompleteWalkAloneResponse;
+import team9.ddang.member.entity.Member;
+import team9.ddang.walk.service.request.walk.CompleteWalkServiceRequest;
+import team9.ddang.walk.service.response.walk.CompleteWalkResponse;
 
 public interface WalkService {
 
-    CompleteWalkAloneResponse completeWalk(Long number, CompleteWalkServiceRequest completeWalkServiceRequest);
+    CompleteWalkResponse completeWalk(Member member, CompleteWalkServiceRequest completeWalkServiceRequest);
 }

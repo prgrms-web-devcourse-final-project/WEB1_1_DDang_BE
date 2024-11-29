@@ -10,11 +10,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.controller.request.JoinRequest;
+import team9.ddang.member.entity.IsMatched;
+import team9.ddang.member.entity.Member;
+import team9.ddang.member.oauth2.CustomOAuth2User;
 import team9.ddang.member.service.MemberService;
 import team9.ddang.member.service.response.MemberResponse;
+import team9.ddang.member.service.response.MyPageResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -172,5 +177,106 @@ public class MemberController {
         log.info("logout() 메서드 진입");
         return ApiResponse.ok(memberService.logout(request));
     }
-}
 
+
+    @GetMapping("/mypage")
+    @Operation(
+            summary = "회원 정보 조회",
+            description = "회원 정보를 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "회원 정보 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = MyPageResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "회원 정보 조회 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "401",
+                            description = "인증 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public ApiResponse<MyPageResponse> getMemberInfo(@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+
+        Long memberId = customOAuth2User.getMember().getMemberId();
+        return ApiResponse.ok(memberService.getMemberInfo(memberId));
+    }
+
+    @PatchMapping
+    @Operation(
+            summary = "강번따 허용 여부 수정",
+            description = "강번따 허용 여부를 수정합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "강번따 허용 여부",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = IsMatched.class)
+                    )
+            ),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "강번따 허용 여부 수정 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "강번따 허용 여부 수정 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "401",
+                            description = "인증 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "서버 오류",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    public ApiResponse<IsMatched> updateIsMatched(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+            @RequestParam IsMatched isMatched) {
+
+        Long memberId = customOAuth2User.getMember().getMemberId();
+        IsMatched updatedIsMatched = memberService.updateIsMatched(memberId, isMatched);
+        return ApiResponse.ok(updatedIsMatched);
+    }
+}

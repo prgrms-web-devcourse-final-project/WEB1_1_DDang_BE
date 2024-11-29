@@ -13,6 +13,9 @@ public enum ChatExceptionMessage {
     // ChatRoom
     CHATROOM_NOT_FOUND("해당 채팅방을 찾을 수 없습니다."),
 
+    // MEMBER
+    MEMBER_NOT_FOUND("해당 맴버를 찾을 수 없습니다."),
+
     // ChatMember
     CHATMEMBER_NOT_IN_CHATROOM("해당 회원을 채팅방에서 찾을 수 없습니다.");
 

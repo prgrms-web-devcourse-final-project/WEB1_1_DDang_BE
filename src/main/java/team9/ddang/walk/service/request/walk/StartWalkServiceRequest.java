@@ -1,8 +1,8 @@
-package team9.ddang.walk.service.request;
+package team9.ddang.walk.service.request.walk;
 
 import java.time.LocalDateTime;
 
-public record LocationServiceRequest(
+public record StartWalkServiceRequest(
         double latitude,
         double longitude
 )
