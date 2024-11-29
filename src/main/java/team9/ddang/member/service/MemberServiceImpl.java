@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team9.ddang.dog.service.DogService;
+import team9.ddang.dog.service.response.GetDogResponse;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.jwt.service.JwtService;
@@ -25,6 +27,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final WalkRepository walkRepository;
     private final WalkWithMemberRepository walkWithMemberRepository;
+    private final DogService dogService;
     private final JwtService jwtService;
 
     @Override
@@ -99,10 +102,11 @@ public class MemberServiceImpl implements MemberService {
         int countWalks = walkRepository.countWalksByMemberId(memberId);
 
         double totalDistanceInKilometers = totalDistanceInMeters / 1000.0;
-
         int countWalksWithMember = walkWithMemberRepository.countBySenderMemberId(memberId);
 
-        return MyPageResponse.from(member, totalDistanceInKilometers, countWalks, countWalksWithMember);
+        GetDogResponse dogResponse = dogService.getDogByMemberId(memberId);
+
+        return MyPageResponse.from(member, totalDistanceInKilometers, countWalks, countWalksWithMember, dogResponse);
     }
 
     @Override

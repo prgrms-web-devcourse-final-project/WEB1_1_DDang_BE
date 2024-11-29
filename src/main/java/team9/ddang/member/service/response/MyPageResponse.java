@@ -1,6 +1,7 @@
 package team9.ddang.member.service.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import team9.ddang.dog.service.response.GetDogResponse;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.entity.IsMatched;
@@ -36,9 +37,13 @@ public record MyPageResponse(
         int walkCount,
 
         @Schema(description = "강번따 횟수", example = "3")
-        int countWalksWithMember
+        int countWalksWithMember,
+
+        @Schema(description = "강아지 정보")
+        GetDogResponse dog
+
 ) {
-    public static MyPageResponse from(Member member, double totalDistance, int walkCount, int countWalksWithMember) {
+    public static MyPageResponse from(Member member, double totalDistance, int walkCount, int countWalksWithMember, GetDogResponse dog) {
         return new MyPageResponse(
                 member.getMemberId(),
                 member.getName(),
@@ -49,7 +54,8 @@ public record MyPageResponse(
                 member.getIsMatched(),
                 totalDistance,
                 walkCount,
-                countWalksWithMember
+                countWalksWithMember,
+                dog
         );
     }
 }
