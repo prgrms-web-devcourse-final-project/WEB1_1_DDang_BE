@@ -43,5 +43,17 @@ public interface WalkRepository extends JpaRepository<Walk, Long> {
        """)
     List<Walk> findAllByMembersAndDate(@Param("members") List<Member> members, @Param("year") int year);
 
+    @Query("""
+        SELECT COALESCE(SUM(w.totalDistance), 0)
+        FROM Walk w
+        WHERE w.member.family.familyId = :familyId
+        """)
+    int findTotalDistanceByFamilyId(@Param("familyId") Long familyId);
 
+    @Query("""
+        SELECT COALESCE(COUNT(w), 0)
+        FROM Walk w
+        WHERE w.member.family.familyId = :familyId
+        """)
+    int countWalksByFamilyId(@Param("familyId") Long familyId);
 }
