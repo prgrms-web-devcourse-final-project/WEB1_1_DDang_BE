@@ -23,15 +23,28 @@ public record FamilyDetailResponse(
         List<MemberResponse> members,
 
         @Schema(description = "가족의 강아지 목록")
-        List<GetDogResponse> dogs
+        List<GetDogResponse> dogs,
+
+        @Schema(description = "강아지의 총 산책 횟수", example = "10")
+        int totalWalkCount,
+
+        @Schema(description = "강아지의 총 산책 거리 (킬로미터)", example = "5000")
+        double totalDistanceInKilometers,
+
+        @Schema(description = "강아지의 총 소요 칼로리", example = "1200")
+        int totalCalorie
 ) {
-    public FamilyDetailResponse(Family family, List<MemberResponse> members, List<GetDogResponse> dogs) {
+    public FamilyDetailResponse(Family family, List<MemberResponse> members, List<GetDogResponse> dogs,
+                                int totalWalkCount, double totalDistanceInKilometers, int totalCalorie) {
         this(
                 family.getFamilyId(),
                 family.getMember().getMemberId(),
                 family.getFamilyName(),
                 members,
-                dogs
+                dogs,
+                totalWalkCount,
+                totalDistanceInKilometers,
+                totalCalorie
         );
     }
 }

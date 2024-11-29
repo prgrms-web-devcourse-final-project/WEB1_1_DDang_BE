@@ -21,12 +21,15 @@ import team9.ddang.family.service.response.InviteCodeResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.member.service.response.MemberResponse;
+import team9.ddang.walk.repository.WalkRepository;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static team9.ddang.walk.util.WalkCalculator.calculateCalorie;
 
 @Slf4j
 @Service
@@ -41,6 +44,7 @@ public class FamilyServiceImpl implements FamilyService {
     private final MemberRepository memberRepository;
     private final DogRepository dogRepository;
     private final MemberDogRepository memberDogRepository;
+    private final WalkRepository walkRepository;
 
     @Override
     @Transactional
@@ -170,8 +174,13 @@ public class FamilyServiceImpl implements FamilyService {
                 .map(MemberResponse::from)
                 .collect(Collectors.toList());
 
+        int totalWalkCount = walkRepository.countWalksByFamilyId(family.getFamilyId()); // 산책 횟수
+        int totalDistanceInMeters = walkRepository.findTotalDistanceByFamilyId(family.getFamilyId()); // 총 산책 거리
+        double totalDistanceInKilometers = totalDistanceInMeters / 1000.0;
+        int totalCalorie = calculateCalorie(totalWalkCount, totalDistanceInMeters);
+
         // TODO 나중에 강아지의 총 산책 횟수, 총 산책 거리, 소요 칼로리에 대한 정보도 추가할 것
-        return new FamilyDetailResponse(family, members, dogs);
+        return new FamilyDetailResponse(family, members, dogs, totalWalkCount, totalDistanceInKilometers, totalCalorie);
     }
 
     @Override
