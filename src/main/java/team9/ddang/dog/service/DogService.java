@@ -22,6 +22,7 @@ import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 //import team9.ddang.family.entity.Family;
 //import team9.ddang.family.repository.FamilyRepository;
@@ -48,7 +49,7 @@ public class DogService {
             throw new IllegalArgumentException(DogExceptionMessage.DOG_ONLY_ONE.getText());
         }
 
-        if(member.getFamily() != null && memberId.equals(member.getFamily().getMember().getMemberId())){
+        if(member.getFamily() != null && !memberId.equals(member.getFamily().getMember().getMemberId())){
             throw new IllegalArgumentException(DogExceptionMessage.ONLY_FAMILY_OWNER_CREATE.getText());
         }
 
@@ -62,7 +63,7 @@ public class DogService {
                 .gender(request.gender())
                 .isNeutered(request.isNeutered())
                 .profileImg(request.profileImg())
-                .family(null)
+                .family(member.getFamily())
                 .comment(request.comment())
                 .build();
 
@@ -70,11 +71,22 @@ public class DogService {
         dogRepository.save(dog);
 
         // 5. MemberDog 엔티티 생성 및 저장
-        MemberDog memberDog = MemberDog.builder()
-                .member(member)
-                .dog(dog)
-                .build();
-        memberDogRepository.save(memberDog);
+        if(member.getFamily() != null){
+            List<Member> members = memberRepository.findAllByFamilyId(member.getFamily().getFamilyId());
+            List<MemberDog> memberDoges = members.stream()
+                    .map(familyMember -> MemberDog.builder()
+                            .member(familyMember)
+                            .dog(dog)
+                            .build())
+                    .collect(Collectors.toList());
+            memberDogRepository.saveAll(memberDoges);
+        }else {
+            MemberDog memberDog = MemberDog.builder()
+                    .member(member)
+                    .dog(dog)
+                    .build();
+            memberDogRepository.save(memberDog);
+        }
 
         // 6. CreateDogResponse 반환
         return new CreateDogResponse(
@@ -113,7 +125,7 @@ public class DogService {
 
         // 1. 소유권 검증
         memberDogRepository.findByDogIdAndMemberId(request.dogId(), memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 강아지의 소유자가 아닙니다."));
+                .orElseThrow(() -> new IllegalArgumentException(DogExceptionMessage.MEMBER_NOT_HAVE_DOG.getText()));
 
         // 기존 데이터 조회
         Dog dog = findDogByIdOrThrowException(request.dogId());
@@ -130,22 +142,46 @@ public class DogService {
     }
 
     public void deleteDog(Long dogId, Long memberId) {
-        // 1. 소유권 검증
-        memberDogRepository.findByDogIdAndMemberId(dogId, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 강아지의 소유자가 아닙니다."));
 
-        if(member.getFamily() != null && memberId.equals(member.getFamily().getMember().getMemberId())){
-            throw new IllegalArgumentException(DogExceptionMessage.ONLY_FAMILY_OWNER_CREATE.getText());
-        }
+        Member member = findMemberByIdOrThrowException(memberId);
 
-        // 2. Dog 엔티티 가져오기
         Dog dog = findDogByIdOrThrowException(dogId);
 
+        memberDogRepository.findByDogIdAndMemberId(dogId, memberId)
+                .orElseThrow(() -> new IllegalArgumentException(DogExceptionMessage.MEMBER_NOT_HAVE_DOG.getText()));
+
+        if(member.getFamily() != null && !memberId.equals(member.getFamily().getMember().getMemberId())){
+            throw new IllegalArgumentException(DogExceptionMessage.ONLY_FAMILY_OWNER_DELETE.getText());
+        }
+
         // 3. MemberDog 소프트 삭제
-        memberDogRepository.softDeleteByDogIdAndMemberId(dogId, memberId);
+        memberDogRepository.softDeleteByDogId(dogId);
 
         // 4. Dog 소프트 삭제
         dogRepository.softDeleteById(dogId);
+
+        // TODO 강아지 삭제하면 산책 일정도 모두 삭제하기
+    }
+
+    public GetDogResponse getDogByMemberId(Long memberId) {
+        // 1. MemberDog 조회
+        MemberDog memberDog = memberDogRepository.findOneByMemberIdAndNotDeleted(memberId)
+                .orElseThrow(() -> new IllegalArgumentException(DogExceptionMessage.MEMBER_NOT_HAVE_DOG.getText()));
+
+        // 2. 강아지 정보 반환
+        Dog dog = memberDog.getDog();
+        return new GetDogResponse(
+                dog.getDogId(),
+                dog.getName(),
+                dog.getBreed(),
+                dog.getBirthDate(),
+                dog.getWeight(),
+                dog.getGender(),
+                dog.getProfileImg(),
+                dog.getIsNeutered(),
+                dog.getFamily() != null ? dog.getFamily().getFamilyId() : null,
+                dog.getComment()
+        );
     }
 
 
