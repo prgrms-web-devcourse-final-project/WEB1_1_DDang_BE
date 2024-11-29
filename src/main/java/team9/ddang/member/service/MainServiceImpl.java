@@ -2,6 +2,7 @@ package team9.ddang.member.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.family.entity.WalkSchedule;
@@ -27,9 +28,10 @@ public class MainServiceImpl implements MainService{
     private final WalkDogRepository walkDogRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public MainResponse getMain(Member member) {
         Dog dog = getDogFromMemberId(member.getMemberId());
-        Member walkMember = getToadayWalkMemberByDogId(dog.getDogId());
+        Member walkMember = getTodayWalkMemberByDogId(dog.getDogId());
         Map<String, Long> walkSummary = calculateWalkSummary(dog.getDogId());
 
         long totalSeconds = walkSummary.get("totalSeconds");
@@ -70,7 +72,7 @@ public class MainServiceImpl implements MainService{
         return walkDogRepository.findWalksByDogIdAndToday(dogId, startOfDay, endOfDay);
     }
 
-    private Member getToadayWalkMemberByDogId(long dogId){
+    private Member getTodayWalkMemberByDogId(long dogId){
         Member walkMember = null;
         String today = LocalDate.now().getDayOfWeek().name();
 
