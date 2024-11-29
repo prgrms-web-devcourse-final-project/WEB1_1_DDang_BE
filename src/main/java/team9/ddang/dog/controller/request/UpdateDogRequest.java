@@ -1,9 +1,6 @@
 package team9.ddang.dog.controller.request;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import team9.ddang.dog.service.request.UpdateDogServiceRequest;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.dog.entity.IsNeutered;
@@ -12,36 +9,45 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public record UpdateDogRequest(
-        Optional<String> name,
+        @NotBlank(message = "이름은 비워둘 수 없습니다.")
+        @Size(max = 100, message = "이름은 최대 100자까지 입력 가능합니다.")
+        String name,
 
-        Optional<String> breed,
+        @NotBlank(message = "품종은 비워둘 수 없습니다.")
+        @Size(max = 100, message = "품종은 최대 100자까지 입력 가능합니다.")
+        String breed,
 
-        Optional<LocalDate> birthDate,
+        @Past(message = "생년월일은 과거 날짜여야 합니다.")
+        LocalDate birthDate,
 
-        Optional<Integer> weight,
+        @Min(value = 1, message = "몸무게는 최소 1kg 이상이어야 합니다.")
+        @Max(value = 100, message = "몸무게는 최대 100kg 이하여야 합니다.")
+        Integer weight,
 
-        Optional<Gender> gender,
+        @NotNull(message = "성별은 반드시 입력해야 합니다.")
+        Gender gender,
 
-        Optional<String> profileImg,
+        String profileImg,
 
-        Optional<IsNeutered> isNeutered,
+        IsNeutered isNeutered,
 
-        Optional<Long> familyId,
+        Long familyId,
 
-        Optional<String> comment
+        @Size(max = 30, message = "코멘트는 최대 30자까지 입력 가능합니다.")
+        String comment
 ) {
     public UpdateDogServiceRequest toServiceRequest(Long dogId) {
         return new UpdateDogServiceRequest(
                 dogId,
-                name.orElse(null),
-                breed.orElse(null),
-                birthDate.orElse(null),
-                weight.orElse(null),
-                gender.orElse(null),
-                profileImg.orElse(null),
-                isNeutered.orElse(null),
-                familyId.orElse(null),
-                comment.orElse(null)
+                name,
+                breed,
+                birthDate,
+                weight,
+                gender,
+                profileImg,
+                isNeutered,
+                familyId,
+                comment
         );
     }
 }
