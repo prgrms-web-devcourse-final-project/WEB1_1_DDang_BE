@@ -34,8 +34,6 @@ public record UpdateDogRequest(
         @NotNull(message = "중성화 여부는 반드시 입력해야 합니다.")
         IsNeutered isNeutered,
 
-        Long familyId,
-
         @Size(max = 30, message = "코멘트는 최대 30자까지 입력 가능합니다.")
         String comment
 ) {
@@ -49,7 +47,6 @@ public record UpdateDogRequest(
                 gender,
                 profileImg,
                 isNeutered,
-                familyId,
                 comment
         );
     }

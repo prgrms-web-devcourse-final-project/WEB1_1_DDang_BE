@@ -2,6 +2,7 @@ package team9.ddang.walk.util;
 
 import team9.ddang.walk.entity.Location;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,8 +14,8 @@ public class WalkCalculator {
 
     private WalkCalculator() {}
 
-    public static int calculateCalorie(int weight, long totalDistance){
-        return (int) (0.75 * weight * totalDistance / 1000);
+    public static int calculateCalorie(BigDecimal weight, long totalDistance){
+        return (int) (0.75 * weight.doubleValue() * totalDistance / 1000);
     }
 
     public static long calculateTime(List<Location> locations){

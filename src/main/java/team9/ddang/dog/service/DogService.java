@@ -92,13 +92,9 @@ public class DogService {
     }
 
 
-    public GetDogResponse getDogByMemberId(Long memberId) {
-        // 1. MemberDog 조회
-        MemberDog memberDog = memberDogRepository.findOneByMemberIdAndNotDeleted(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("강아지를 소유하고 있지 않습니다."));
+    public GetDogResponse getDogByDogId(Long dogId) {
 
-        // 2. 강아지 정보 반환
-        Dog dog = memberDog.getDog();
+        Dog dog = findDogByIdOrThrowException(dogId);
         return new GetDogResponse(
                 dog.getDogId(),
                 dog.getName(),
@@ -120,8 +116,7 @@ public class DogService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 강아지의 소유자가 아닙니다."));
 
         // 기존 데이터 조회
-        Dog dog = dogRepository.findById(request.dogId())
-                .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + request.dogId()));
+        Dog dog = findDogByIdOrThrowException(request.dogId());
 
         // 필드별 업데이트 로직
         if (request.name() != null) dog.updateName(request.name());
@@ -131,22 +126,20 @@ public class DogService {
         if (request.gender() != null) dog.updateGender(request.gender());
         if (request.profileImg() != null) dog.updateProfileImg(request.profileImg());
         if (request.isNeutered() != null) dog.updateIsNeutered(request.isNeutered());
-        if (request.familyId() != null) {
-            /*Family family = familyRepository.findById(request.familyId())
-                    .orElseThrow(() -> new IllegalArgumentException("Family not found with id: " + request.familyId()));*/
-            dog.updateFamily(null);
-        }
         if (request.comment() != null) dog.updateComment(request.comment());
     }
 
     public void deleteDog(Long dogId, Long memberId) {
         // 1. 소유권 검증
-        MemberDog memberDog = memberDogRepository.findByDogIdAndMemberId(dogId, memberId)
+        memberDogRepository.findByDogIdAndMemberId(dogId, memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 강아지의 소유자가 아닙니다."));
 
+        if(member.getFamily() != null && memberId.equals(member.getFamily().getMember().getMemberId())){
+            throw new IllegalArgumentException(DogExceptionMessage.ONLY_FAMILY_OWNER_CREATE.getText());
+        }
+
         // 2. Dog 엔티티 가져오기
-        Dog dog = dogRepository.findById(dogId)
-                .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + dogId));
+        Dog dog = findDogByIdOrThrowException(dogId);
 
         // 3. MemberDog 소프트 삭제
         memberDogRepository.softDeleteByDogIdAndMemberId(dogId, memberId);

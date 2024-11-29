@@ -15,7 +15,6 @@ public record UpdateDogServiceRequest(
         Gender gender,
         String profileImg,
         IsNeutered isNeutered,
-        Long familyId,
         String comment
 ) {}
 
