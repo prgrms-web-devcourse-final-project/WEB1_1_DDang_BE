@@ -50,8 +50,6 @@ public class Dog extends BaseEntity {
     @Column(length = 30, nullable = false)
     private String comment;
 
-    @Enumerated(EnumType.STRING)
-    private IsDeleted isDeleted = IsDeleted.FALSE;
 
     @Builder
     private Dog(String name, String breed, LocalDate birthDate, Gender gender, Integer weight, IsNeutered isNeutered, String profileImg, Family family, String comment) {
@@ -103,8 +101,4 @@ public class Dog extends BaseEntity {
         this.comment = comment;
     }
 
-    //소프트 삭제
-    public void setIsDeleted(IsDeleted isDeleted) {
-        this.isDeleted = isDeleted;
-    }
 }

@@ -135,10 +135,10 @@ public class DogService {
                 .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + dogId));
 
         // 3. MemberDog 소프트 삭제
-        memberDog.setIsDeleted(IsDeleted.TRUE);
+        memberDogRepository.softDeleteByDogIdAndMemberId(dogId, memberId);
 
         // 4. Dog 소프트 삭제
-        dog.setIsDeleted(IsDeleted.TRUE);
+        dogRepository.softDeleteById(dogId);
     }
 
 
