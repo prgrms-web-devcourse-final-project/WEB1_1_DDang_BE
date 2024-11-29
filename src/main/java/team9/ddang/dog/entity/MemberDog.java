@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team9.ddang.global.entity.BaseEntity;
+import team9.ddang.global.entity.IsDeleted;
 import team9.ddang.member.entity.Member;
 
 @Entity

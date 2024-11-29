@@ -5,12 +5,18 @@ package team9.ddang.dog.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team9.ddang.dog.entity.MemberDog;
+import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.dog.service.request.CreateDogServiceRequest;
 import team9.ddang.dog.service.response.CreateDogResponse;
 import team9.ddang.dog.service.response.GetDogResponse;
 import team9.ddang.dog.service.request.UpdateDogServiceRequest;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.DogRepository;
+import team9.ddang.global.entity.IsDeleted;
+import team9.ddang.member.entity.Member;
+import team9.ddang.member.repository.MemberRepository;
+
 //import team9.ddang.family.entity.Family;
 //import team9.ddang.family.repository.FamilyRepository;
 
@@ -20,12 +26,18 @@ import team9.ddang.dog.repository.DogRepository;
 public class DogService {
 
     private final DogRepository dogRepository;
+    private final MemberRepository memberRepository;
+    private final MemberDogRepository memberDogRepository; // MemberDog 저장
     //private final FamilyRepository familyRepository;
 
-    public CreateDogResponse createDog(CreateDogServiceRequest request) {
+    public CreateDogResponse createDog(CreateDogServiceRequest request, Long memberId) {
         // Family 엔티티 검증
        /* Family family = familyRepository.findById(request.familyId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid family ID"));*/
+
+        //  memberId로 Member 객체 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
 
         // Dog 엔티티 생성 및 저장
         Dog dog = Dog.builder()
@@ -40,27 +52,39 @@ public class DogService {
                 .comment(request.comment())
                 .build();
 
-        Dog savedDog = dogRepository.save(dog);
+        // 4. Dog 저장
+        dogRepository.save(dog);
 
+        // 5. MemberDog 엔티티 생성 및 저장
+        MemberDog memberDog = MemberDog.builder()
+                .member(member)
+                .dog(dog)
+                .build();
+        memberDogRepository.save(memberDog);
+
+        // 6. CreateDogResponse 반환
         return new CreateDogResponse(
-                savedDog.getDogId(),
-                savedDog.getName(),
-                savedDog.getBreed(),
-                savedDog.getBirthDate(),
-                savedDog.getWeight(),
-                savedDog.getGender(),
-                savedDog.getProfileImg(),
-                savedDog.getIsNeutered(),
-                savedDog.getFamily() != null ? savedDog.getFamily().getFamilyId() : null,
-                savedDog.getComment()
+                dog.getDogId(),
+                dog.getName(),
+                dog.getBreed(),
+                dog.getBirthDate(),
+                dog.getWeight(),
+                dog.getGender(),
+                dog.getProfileImg(),
+                dog.getIsNeutered(),
+                dog.getFamily() != null ? dog.getFamily().getFamilyId() : null,
+                dog.getComment()
         );
     }
 
 
-    public GetDogResponse getDogById(Long dogId) {
-        Dog dog = dogRepository.findById(dogId)
-                .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + dogId));
+    public GetDogResponse getDogByMemberId(Long memberId) {
+        // 1. MemberDog 조회
+        MemberDog memberDog = memberDogRepository.findOneByMemberIdAndNotDeleted(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("강아지를 소유하고 있지 않습니다."));
 
+        // 2. 강아지 정보 반환
+        Dog dog = memberDog.getDog();
         return new GetDogResponse(
                 dog.getDogId(),
                 dog.getName(),
@@ -75,7 +99,12 @@ public class DogService {
         );
     }
 
-    public void updateDog(UpdateDogServiceRequest request) {
+    public void updateDog(UpdateDogServiceRequest request, Long memberId) {
+
+        // 1. 소유권 검증
+        memberDogRepository.findByDogIdAndMemberId(request.dogId(), memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 강아지의 소유자가 아닙니다."));
+
         // 기존 데이터 조회
         Dog dog = dogRepository.findById(request.dogId())
                 .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + request.dogId()));
@@ -96,12 +125,23 @@ public class DogService {
         if (request.comment() != null) dog.updateComment(request.comment());
     }
 
-    public void deleteDog(Long dogId) {
-        if (!dogRepository.existsById(dogId)) {
-            throw new IllegalArgumentException("Dog not found with id: " + dogId);
-        }
-        dogRepository.deleteById(dogId);
+    public void deleteDog(Long dogId, Long memberId) {
+        // 1. 소유권 검증
+        MemberDog memberDog = memberDogRepository.findByDogIdAndMemberId(dogId, memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 강아지의 소유자가 아닙니다."));
+
+        // 2. Dog 엔티티 가져오기
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() -> new IllegalArgumentException("Dog not found with id: " + dogId));
+
+        // 3. MemberDog 소프트 삭제
+        memberDogRepository.softDeleteByDogIdAndMemberId(dogId, memberId);
+
+        // 4. Dog 소프트 삭제
+        dogRepository.softDeleteById(dogId);
     }
+
+
 }
 
 
