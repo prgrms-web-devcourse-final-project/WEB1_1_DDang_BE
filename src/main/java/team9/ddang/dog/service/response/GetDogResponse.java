@@ -3,6 +3,7 @@ package team9.ddang.dog.service.response;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.dog.entity.IsNeutered;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record GetDogResponse(
@@ -10,7 +11,7 @@ public record GetDogResponse(
         String name,
         String breed,
         LocalDate birthDate,
-        Integer weight,
+        BigDecimal weight,
         Gender gender,
         String profileImg,
         IsNeutered isNeutered,

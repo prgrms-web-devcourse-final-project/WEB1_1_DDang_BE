@@ -52,13 +52,10 @@ public class DogController {
             description = "반려견을 조회합니다."
     )
     public ApiResponse<GetDogResponse> getMyDog(
-            @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-
-        // 로그인된 사용자 ID 가져오기
-        Long memberId = customOAuth2User.getMember().getMemberId();
+            @PathVariable Long id) {
 
         // 서비스 호출
-        GetDogResponse response = dogService.getDogByMemberId(memberId);
+        GetDogResponse response = dogService.getDogByDogId(id);
 
         // ApiResponse로 바로 반환
         return ApiResponse.ok(response);

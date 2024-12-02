@@ -8,6 +8,8 @@ import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.entity.Member;
 import team9.ddang.walk.util.DateCalculator;
 
+import java.math.BigDecimal;
+
 public record FriendResponse(
         @Schema(description = "회원 ID", example = "1")
         Long memberId,
@@ -49,7 +51,7 @@ public record FriendResponse(
         long dogAge,
 
         @Schema(description = "강아지 무게 (킬로그램)", example = "30")
-        Integer dogWeight,
+        BigDecimal dogWeight,
 
         @Schema(description = "강아지 성별", example = "MALE")
         Gender dogGender,
