@@ -101,4 +101,14 @@ public class WebSocketController {
         List<WebSocketChatInfoResponse> webSocketChatInfoResponse = null;
         return WebSocketResponse.ok(webSocketChatInfoResponse);
     }
+
+    @Operation(
+            summary = "채팅 url",
+            description = " 해당 url을 구독하면, 해당 채팅방의 채팅을 수신할 수 있습니다. 또한 다른 member 의 메세지 읽음 여부도 수신할 수 있습니다."
+    )
+    @PostMapping("/sub/chat/{chatRoomId}")
+    public WebSocketResponse<ChatResponse> recieveMessage() {
+        ChatResponse chatResponse = null;
+        return WebSocketResponse.ok(chatResponse);
+    }
 }
