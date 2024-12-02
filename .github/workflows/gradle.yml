@@ -9,7 +9,7 @@ name: ddang CD
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "fix/#61-github-action-fix" ]
 
 permissions: write-all
 
