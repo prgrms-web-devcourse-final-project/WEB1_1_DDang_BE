@@ -1,9 +1,11 @@
 package team9.ddang.global.config.websocket;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -11,19 +13,30 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import team9.ddang.chat.repository.ChatMemberRepository;
+import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.chat.repository.ChatRoomRepository;
+import team9.ddang.global.api.WebSocketResponse;
+import team9.ddang.global.event.WebSocketMessageEvent;
 import team9.ddang.member.jwt.service.JwtService;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
 public class StompHandler implements ChannelInterceptor {
 
-    private final ChatRoomRepository chatRoomRepository;
     private final ChatMemberRepository chatMemberRepository;
+    private final ChatRepository chatRepository;
     private final JwtService jwtService;
+    private final ApplicationEventPublisher eventPublisher;
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -86,7 +99,36 @@ public class StompHandler implements ChannelInterceptor {
             if (!isParticipant) {
                 throw new IllegalArgumentException("해당 채팅방에 접근할 권한이 없습니다.");
             }
+        } else if (destination != null && destination.startsWith("/sub/message/")) {
+            handleMessageSubscription(destination, email);
         }
+    }
+
+    private void handleMessageSubscription(String destination, String authenticatedEmail) {
+        String targetEmail = extractEmailFromDestination(destination);
+
+        if (!authenticatedEmail.equals(targetEmail)) {
+            throw new IllegalArgumentException("해당 메시지 경로를 구독할 권한이 없습니다.");
+        }
+
+        scheduler.schedule(() -> {
+            List<Object[]> unreadCounts = chatRepository.countUnreadMessagesByMemberEmail(targetEmail);
+
+            List<Map<String, Object>> responseData = unreadCounts.stream()
+                    .map(result -> Map.of(
+                            "chatRoomId", result[0],
+                            "unreadCount", result[1]
+                    ))
+                    .toList();
+
+            eventPublisher.publishEvent(
+                    new WebSocketMessageEvent(
+                            this,
+                            destination,
+                            WebSocketResponse.ok(responseData) // 데이터를 WebSocket 응답 형태로 래핑
+                    )
+            );
+        }, 100, TimeUnit.MILLISECONDS); // 100ms 대기
     }
 
     private Long extractChatRoomId(String destination) {
@@ -98,6 +140,13 @@ public class StompHandler implements ChannelInterceptor {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("채팅방 ID를 파싱할 수 없습니다: " + destination, e);
         }
+    }
+
+    private String extractEmailFromDestination(String destination) {
+        if (destination == null || !destination.startsWith("/sub/message/")) {
+            throw new IllegalArgumentException("잘못된 메시지 구독 경로입니다: " + destination);
+        }
+        return destination.substring("/sub/message/".length());
     }
 
     private String extractToken(SimpMessageHeaderAccessor accessor) {
