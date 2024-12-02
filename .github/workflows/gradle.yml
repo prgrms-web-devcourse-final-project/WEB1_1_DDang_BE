@@ -33,38 +33,28 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-    
-    # - name: Set YML
-    #   uses: microsoft/variable-substitution@v1
-    #   with:
-    #     files: ./src/main/resources/application-prod.yml
-    #   env:
-    #     spring.datasource.url: ${{ secrets.DB_URL }}
-    #     spring.datasource.username: ${{ secrets.DB_USERNAME }}
-    #     spring.datasource.password: ${{ secrets.DB_PASSWORD }}
-    #     spring.data.redis.port: ${{ secrets.REDIS_PORT }}
-    #     spring.data.redis.host: ${{ secrets.REDIS_HOST }}
-    #     spring.mail.username: ${{ secrets.MAIL_USERNAME }}
-    #     spring.mail.password: ${{ secrets.MAIL_PASSWORD }}
-    #     jwt.secret: ${{ secrets.JWT_SECRET_KEY }}
 
-    - name: Make application.yml
+    - name: Make application.yaml
       run: |
+        mkdir -p ./src/main/resources
         cd ./src/main/resources
-        touch ./application.yml
-        touch ./application-oauth.yml
-        touch ./application-jwt.yml
-        touch ./application-dep.yml
+        touch ./application.yaml
+        echo "${{ secrets.APPLICATION_YML }}" > ./application.yaml
         
-        echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
-        echo "${{ secrets.APPLICATION_DEP_YML }}" > ./application-dep.yml
-        echo "${{ secrets.APPLICATION_JWT_YML }}" > ./application-jwt.yml
+        touch ./application-dep.yaml
+        echo "${{ secrets.APPLICATION_DEP_YML }}" > ./application-dep.yaml
+        
+        touch ./application-jwt.yaml
+        echo "${{ secrets.APPLICATION_JWT_YML }}" > ./application-jwt.yaml
+        
+        touch ./application-oauth.yml
         echo "${{ secrets.APPLICATION_OAUTH_YML }}" > ./application-oauth.yml
+
       shell: bash
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a # v3.0.0
-      
+
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
 
@@ -76,7 +66,7 @@ jobs:
         docker login -u ${{ secrets.DOCKER_ID }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/ddang .
         docker push ${{ secrets.DOCKER_REPO }}/ddang
-   
+
    #docker-compose 파일을 ec2 서버에 배포
     - name: Deploy to Prod
       uses: appleboy/ssh-action@master
@@ -87,8 +77,9 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: GITHUB_SHA
           script: |
-             docker stop ddang
-             docker rm ddang
-             sudo docker pull ${{ secrets.DOCKER_REPO }}/ddang
-             docker run -d --name ddang -p 8080:8080 ${{ secrets.DOCKER_REPO }}/ddang
-             docker rmi -f $(docker images -f "dangling=true" -q)
+            docker stop ddang
+            docker rm ddang
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/ddang
+            docker run -d --name ddang -p 8080:8080 ${{ secrets.DOCKER_REPO }}/ddang
+            docker rmi -f $(docker images -f "dangling=true" -q)
+
