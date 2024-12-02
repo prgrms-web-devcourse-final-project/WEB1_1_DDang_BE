@@ -48,22 +48,19 @@ jobs:
     #     spring.mail.password: ${{ secrets.MAIL_PASSWORD }}
     #     jwt.secret: ${{ secrets.JWT_SECRET_KEY }}
 
-    - name: Make application.yml
+    - name: Make application.yaml
       run: |
         mkdir -p ./src/main/resources
         cd ./src/main/resources
-        touch ./application.yml
-        echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
+        touch ./application.yaml
+        echo "${{ secrets.APPLICATION_YML }}" > ./application.yaml
         
-        cd ./src/main/resources
-        touch ./application-dep.yml
-        echo "${{ secrets.APPLICATION_DEP_YML }}" > ./application-dep.yml
+        touch ./application-dep.yaml
+        echo "${{ secrets.APPLICATION_DEP_YML }}" > ./application-dep.yaml
         
-        cd ./src/main/resources
-        touch ./application-jwt.yml
-        echo "${{ secrets.APPLICATION_JWT_YML }}" > ./application-jwt.yml
+        touch ./application-jwt.yaml
+        echo "${{ secrets.APPLICATION_JWT_YML }}" > ./application-jwt.yaml
         
-        cd ./src/main/resources
         touch ./application-oauth.yml
         echo "${{ secrets.APPLICATION_OAUTH_YML }}" > ./application-oauth.yml
 
