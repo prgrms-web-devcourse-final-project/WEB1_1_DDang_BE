@@ -54,6 +54,16 @@ jobs:
         cd ./src/main/resources
         touch ./application.yml
         echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
+        
+        touch ./application-dep.yml
+        echo "${{ secrets.APPLICATION_DEP_YML }}" > ./application-dep.yml
+        
+        touch ./application-jwt.yml
+        echo "${{ secrets.APPLICATION_JWT_YML }}" > ./application-jwt.yml
+        
+        touch ./application-oauth.yml
+        echo "${{ secrets.APPLICATION_OAUTH_YML }}" > ./application-oauth.yml
+
       shell: bash
 
     - name: Setup Gradle
