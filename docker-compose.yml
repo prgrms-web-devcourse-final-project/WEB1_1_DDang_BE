@@ -1,17 +1,17 @@
 version: '3.8'
 services:
-  database:
-    container_name: ddang_mysql
-    image: mysql:latest
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_DATABASE: ddang
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - ./mysql/data:/var/lib/mysql
+#  database:
+#    container_name: ddang_mysql
+#    image: mysql:latest
+#    ports:
+#      - "3307:3306"
+#    environment:
+#      MYSQL_DATABASE: ddang
+#      MYSQL_USER: ${DB_USER}
+#      MYSQL_PASSWORD: ${DB_PASSWORD}
+#      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+#    volumes:
+#      - ./mysql/data:/var/lib/mysql
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -48,14 +48,14 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://ddang_mysql:3306/ddang
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: dep
+#      SPRING_DATASOURCE_URL: jdbc:mysql://ddang_mysql:3306/ddang
+#      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+#      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_DATA_REDIS_HOST: ddang_redis
       SPRING_DATA_REDIS_PORT: 6379
     depends_on:
-      - database
+#      - database
       - zookeeper
       - kafka
       - redis

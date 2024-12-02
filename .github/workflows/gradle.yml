@@ -88,8 +88,8 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: GITHUB_SHA
           script: |
-             docker stop ddang
-             docker rm ddang
+#             docker stop ddang
+#             docker rm ddang
              sudo docker pull ${{ secrets.DOCKER_REPO }}/ddang
              docker run -d --name ddang -p 8080:8080 ${{ secrets.DOCKER_REPO }}/ddang
-             docker rmi -f $(docker images -f "dangling=true" -q)
+#             docker rmi -f $(docker images -f "dangling=true" -q)
