@@ -30,6 +30,7 @@ public class ChatRoomController {
                     새로운 채팅방을 생성하고, 채팅방 정보를 반환합니다.
                     이미 동일한 맴버와의 채팅방이 있다면, 해당 채팅방을 반환합니다.
                     요청 본문에 상대방의 회원 ID(opponentMemberId)를 포함해야 합니다.
+                    새로운 채팅방이 생성된다면, "/sub/chatroom/{opponentMemberEmail} 구독 경로로 채팅방이 생성되었음을 알립니다.
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "채팅방 생성 요청 데이터",
