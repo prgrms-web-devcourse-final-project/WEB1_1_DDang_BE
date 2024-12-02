@@ -53,14 +53,7 @@ jobs:
         mkdir -p ./src/main/resources
         cd ./src/main/resources
         touch ./application.yml
-        touch ./application-oauth.yml
-        touch ./application-jwt.yml
-        touch ./application-dep.yml
-        
         echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
-        echo "${{ secrets.APPLICATION_DEP_YML }}" > ./application-dep.yml
-        echo "${{ secrets.APPLICATION_JWT_YML }}" > ./application-jwt.yml
-        echo "${{ secrets.APPLICATION_OAUTH_YML }}" > ./application-oauth.yml
       shell: bash
 
     - name: Setup Gradle
