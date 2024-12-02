@@ -177,9 +177,12 @@ public class FamilyServiceImpl implements FamilyService {
         int totalWalkCount = walkRepository.countWalksByFamilyId(family.getFamilyId()); // 산책 횟수
         int totalDistanceInMeters = walkRepository.findTotalDistanceByFamilyId(family.getFamilyId()); // 총 산책 거리
         double totalDistanceInKilometers = totalDistanceInMeters / 1000.0;
-        int totalCalorie = calculateCalorie(totalWalkCount, totalDistanceInMeters);
+        int totalCalorie = 0;
+        if(!dogs.isEmpty()){
+            totalCalorie = calculateCalorie(dogs.get(0).weight(), totalDistanceInMeters);
+        }
 
-        // TODO 나중에 강아지의 총 산책 횟수, 총 산책 거리, 소요 칼로리에 대한 정보도 추가할 것
+        // TODO 강아지 유효성 검사 다시 한 번 생각해볼 것
         return new FamilyDetailResponse(family, members, dogs, totalWalkCount, totalDistanceInKilometers, totalCalorie);
     }
 
