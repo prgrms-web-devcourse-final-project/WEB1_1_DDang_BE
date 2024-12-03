@@ -13,7 +13,6 @@ import team9.ddang.walk.entity.WalkDog;
 import team9.ddang.walk.repository.LocationRepository;
 import team9.ddang.walk.repository.WalkDogRepository;
 import team9.ddang.walk.repository.WalkRepository;
-import team9.ddang.walk.service.request.log.GetLogByDateServiceRequest;
 import team9.ddang.walk.service.response.log.WalkLogByFamilyResponse;
 import team9.ddang.walk.service.response.log.WalkLogResponse;
 import team9.ddang.walk.service.response.log.WalkStaticsResponse;
@@ -48,8 +47,8 @@ public class WalkLogServiceImpl implements WalkLogService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<WalkLogResponse> getWalkLogByDate(Member member, GetLogByDateServiceRequest service) {
-        List<Walk> walks = walkRepository.findAllByMemberAndDate(member.getMemberId(), service.date());
+    public List<WalkLogResponse> getWalkLogByDate(Member member, LocalDate date) {
+        List<Walk> walks = walkRepository.findAllByMemberAndDate(member.getMemberId(), date);
         Dog dog  = getDogFromMemberId(member.getMemberId());
 
         return walks.stream().map(walk ->
