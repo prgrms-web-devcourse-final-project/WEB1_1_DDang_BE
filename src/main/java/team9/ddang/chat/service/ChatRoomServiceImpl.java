@@ -41,8 +41,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         Member opponentMember = findMemberByIdOrThrowException(request.opponentMemberId());
 
         List<Member> members = new ArrayList<>();
-        members.add(currentMember);
         members.add(opponentMember);
+
+        List<Member> curmembers = new ArrayList<>();
+        members.add(currentMember);
 
         Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(currentMember, opponentMember);
         if (existingChatRoom.isPresent()) {
@@ -66,11 +68,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .build());
 
 
+
         kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
 
         ChatRoomResponse chatRoomResponse = new ChatRoomResponse(chatRoom, null, 0L, members);
 
-        sendMessageToUser(opponentMember.getEmail(), chatRoomResponse);
+        sendMessageToUser(opponentMember.getEmail(), new ChatRoomResponse(chatRoom, null, 0L, curmembers));
 
         return chatRoomResponse;
     }
@@ -85,9 +88,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRooms.stream()
                 .map(chatRoom -> {
                     String lastMessage = chatRepository.findLastMessageByChatRoom(chatRoom.getChatroomId());
-                    List<Member> members = chatMemberRepository.findMembersByChatRoom(chatRoom);
+                    List<Member> allMembers = chatMemberRepository.findMembersByChatRoom(chatRoom);
+                    List<Member> otherMembers = allMembers.stream()
+                            .filter(m -> !m.getMemberId().equals(currentMember.getMemberId()))
+                            .toList();
                     Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(chatRoom.getChatroomId(), currentMember.getMemberId());
-                    return new ChatRoomResponse(chatRoom, lastMessage, unreadCount, members);
+                    return new ChatRoomResponse(chatRoom, lastMessage, unreadCount, otherMembers);
                 })
                 .toList();
     }
