@@ -5,6 +5,7 @@ import team9.ddang.dog.service.request.CreateDogServiceRequest;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.dog.entity.IsNeutered;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record CreateDogRequest(
@@ -19,15 +20,17 @@ public record CreateDogRequest(
         @Past(message = "생년월일은 과거 날짜여야 합니다.")
         LocalDate birthDate,
 
-        @Min(value = 1, message = "몸무게는 최소 1kg 이상이어야 합니다.")
-        @Max(value = 100, message = "몸무게는 최대 100kg 이하여야 합니다.")
-        Integer weight,
+        @DecimalMin(value = "1.00", message = "몸무게는 최소 1kg 이상이어야 합니다.")
+        @DecimalMax(value = "100.00", message = "몸무게는 최대 100kg 이하여야 합니다.")
+        @Digits(integer = 3, fraction = 2, message = "몸무게는 소수점 둘째 자리까지만 가능합니다.")
+        BigDecimal weight,
 
         @NotNull(message = "성별은 반드시 입력해야 합니다.")
         Gender gender,
 
         String profileImg,
 
+        @NotNull(message = "중성화 여부는 반드시 입력해야 합니다.")
         IsNeutered isNeutered,
 
         Long familyId,

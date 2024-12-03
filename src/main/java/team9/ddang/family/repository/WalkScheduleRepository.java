@@ -33,6 +33,7 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
     @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.family.familyId = :familyId")
     void softDeleteByFamilyId(@Param("familyId") Long familyId);
 
+
     @Query("""
     SELECT w 
     FROM WalkSchedule w
@@ -41,4 +42,9 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
     WHERE w.family.familyId = :familyId AND w.isDeleted = 'FALSE'
 """)
     List<WalkSchedule> findAllByFamilyIdWithDetails(@Param("familyId") Long familyId);
+
+    @Modifying
+    @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.dog.dogId = :dogId")
+    void softDeleteByDogId(@Param("dogId") Long dogId);
+
 }
