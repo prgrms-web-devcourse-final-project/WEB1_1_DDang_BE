@@ -20,6 +20,7 @@ import team9.ddang.member.service.response.FriendListResponse;
 import team9.ddang.member.service.response.FriendResponse;
 import team9.ddang.member.service.response.MemberResponse;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -203,7 +204,7 @@ class FriendControllerTest extends ApiTestSupport {
                 .breed("말티즈")
                 .birthDate(LocalDate.of(2023,1,1))
                 .name("쪼꼬")
-                .weight(3)
+                .weight(BigDecimal.valueOf(3.0))
                 .isNeutered(IsNeutered.TRUE)
                 .profileImg("profile")
                 .gender(Gender.MALE)
@@ -290,5 +291,56 @@ class FriendControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.status").value("NO_CONTENT"))
                 .andExpect(jsonPath("$.message").value("No Content"))
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("친구를 추가시 memberId는 필수 입니다.")
+    @WithMockUser
+    void addFriendWhenMemberIdIsNullThenThrowException() throws Exception {
+        //given
+        AddFriendRequest request = new AddFriendRequest(null);
+
+        Member member = Member.builder()
+                .memberId(1L)
+                .birthDate(LocalDate.of(1999,9,3))
+                .name("mjk")
+                .email("user@example.com")
+                .role(Role.USER)
+                .address("Incheon")
+                .isMatched(IsMatched.TRUE)
+                .gender(Gender.MALE)
+                .provider(Provider.GOOGLE)
+                .profileImg("profileImg1.png")
+                .familyRole(FamilyRole.BROTHER)
+                .build();
+
+        // Mock된 사용자 설정
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(
+                Collections.emptySet(),
+                Map.of("email", "user@example.com"),
+                "email",
+                member
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities())
+        );
+        MemberResponse response = MemberResponse.from(member);
+        String accessToken = jwtService.createAccessToken(member.getEmail(), "GOOGLE");
+
+        //when
+        given(friendService.addFriend(any(Member.class), eq(request)))
+                .willReturn(response);
+
+        //then
+        mockMvc.perform(post("/api/v1/friend")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("memberId 는 필수 값 입니다."));
     }
 }
