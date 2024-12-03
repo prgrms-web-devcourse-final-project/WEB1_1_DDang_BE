@@ -17,7 +17,7 @@ public record FamilyDetailResponse(
         Long memberId,
 
         @Schema(description = "가족 구성원 목록")
-        List<MemberResponse> members,
+        List<MemberInfo> members,
 
         @Schema(description = "가족의 강아지 목록")
         List<GetDogResponse> dogs,
@@ -31,7 +31,7 @@ public record FamilyDetailResponse(
         @Schema(description = "강아지의 총 소요 칼로리", example = "1200")
         int totalCalorie
 ) {
-    public FamilyDetailResponse(Family family, List<MemberResponse> members, List<GetDogResponse> dogs,
+    public FamilyDetailResponse(Family family, List<MemberInfo> members, List<GetDogResponse> dogs,
                                 int totalWalkCount, double totalDistanceInKilometers, int totalCalorie) {
         this(
                 family.getFamilyId(),
