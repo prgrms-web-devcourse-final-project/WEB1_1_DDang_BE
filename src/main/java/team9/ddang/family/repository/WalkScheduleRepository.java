@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import team9.ddang.family.entity.DayOfWeek;
 import team9.ddang.family.entity.WalkSchedule;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,4 +34,6 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
     @Modifying
     @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.family.familyId = :familyId")
     void softDeleteByFamilyId(@Param("familyId") Long familyId);
+
+    List<WalkSchedule> findByDayOfWeekAndWalkTime(DayOfWeek dayOfWeek, LocalTime walkTime);
 }
