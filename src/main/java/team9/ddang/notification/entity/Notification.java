@@ -17,6 +17,10 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Type type;
+
     @Column(nullable = false)
     private String content;
 
@@ -24,19 +28,15 @@ public class Notification extends BaseEntity {
     @Column(nullable = false)
     private IsRead isRead;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Type type;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id",nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Builder
-    private Notification(String content, IsRead isRead, Type type, Member member) {
+    private Notification(Type type, String content, IsRead isRead, Member member) {
+        this.type = type;
         this.content = content;
         this.isRead = isRead;
-        this.type = type;
         this.member = member;
     }
 }
