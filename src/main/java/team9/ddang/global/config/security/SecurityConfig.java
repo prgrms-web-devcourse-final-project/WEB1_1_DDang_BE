@@ -45,13 +45,14 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/css/**", "/js/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger/**", "/api-docs/**").permitAll()
-                        .requestMatchers("/api/v1/member/join", "/api/v1/member/reissue").permitAll()
-                        .requestMatchers("/ws", "/ws/**").permitAll()
-                        //.requestMatchers("/api/v1/chat/**", "/api/v1/walk/**", "/api/v1/member/logout", "/api/v1/dogs/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().authenticated()
+                                .requestMatchers("/login", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger/**", "/api-docs/**").permitAll()
+                                .requestMatchers("/api/v1/member/join", "/api/v1/member/reissue").permitAll()
+                                //.requestMatchers("/api/v1/notification-settings/**", "/api/v1/notification/**").hasRole("USER")
+                                //.requestMatchers("/api/v1/chat/**", "/api/v1/walk/**", "/api/v1/member/logout", "/api/v1/dogs/**").hasRole("USER")
+                                .requestMatchers("/ws", "/ws/**").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .anyRequest().authenticated()
                 )
 
                 .oauth2Login(oauth2 -> oauth2

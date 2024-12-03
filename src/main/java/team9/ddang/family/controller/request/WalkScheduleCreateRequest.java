@@ -17,7 +17,7 @@ public record WalkScheduleCreateRequest(
         @NotNull(message = "산책 시간을 입력해주세요.")
         LocalTime walkTime,
 
-        @Schema(description = "요일", example = "MON", allowableValues = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"})
+        @Schema(description = "요일", example = "MONDAY")
         @NotNull(message = "요일을 입력해주세요.")
         DayOfWeek dayOfWeek,
 

@@ -1,10 +1,12 @@
 package team9.ddang.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.repository.MemberDogRepository;
+import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.member.controller.request.AddFriendRequest;
 import team9.ddang.member.entity.Friend;
 import team9.ddang.member.entity.FriendRequest;
@@ -16,6 +18,9 @@ import team9.ddang.member.repository.WalkWithMemberRepository;
 import team9.ddang.member.service.response.FriendListResponse;
 import team9.ddang.member.service.response.FriendResponse;
 import team9.ddang.member.service.response.MemberResponse;
+import team9.ddang.notification.entity.Notification;
+import team9.ddang.notification.repository.NotificationRepository;
+import team9.ddang.notification.service.request.FriendNotificationRequest;
 import team9.ddang.walk.repository.WalkRepository;
 
 import java.util.List;
@@ -30,6 +35,8 @@ public class FriendServiceImpl implements FriendService{
     private final MemberDogRepository memberDogRepository;
     private final WalkRepository walkRepository;
     private final WalkWithMemberRepository walkWithMemberRepository;
+    private final NotificationRepository notificationRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     @Transactional
@@ -38,6 +45,17 @@ public class FriendServiceImpl implements FriendService{
 
         if(friendRequestRepository.existsFriendRequestByReceiver(member)){
             saveFriend(member, otherMember);
+
+            FriendNotificationRequest request1 = new FriendNotificationRequest(otherMember, member);
+            FriendNotificationRequest request2 = new FriendNotificationRequest(member, otherMember);
+
+            Notification notificationForMember = request1.toEntity();
+            Notification notificationForOtherMember = request2.toEntity();
+
+            notificationRepository.saveAll(List.of(notificationForMember, notificationForOtherMember));
+
+            sendMessageToNotificationUrl(member.getEmail(), notificationForMember.getContent());
+            sendMessageToNotificationUrl(otherMember.getEmail(), notificationForOtherMember.getContent());
         }
         else {
             createFriendRequest(member, otherMember);
@@ -108,5 +126,9 @@ public class FriendServiceImpl implements FriendService{
 
     private Member getMemberFromMemberIdOrElseThrow(Long memberId){
         return memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 멤버 입니다."));
+    }
+
+    private void sendMessageToNotificationUrl(String email, Object data){
+        messagingTemplate.convertAndSend("/sub/notification/" + email,  WebSocketResponse.ok(data));
     }
 }

@@ -125,7 +125,6 @@ class MemberControllerTest extends ApiTestSupport {
                 Gender.MALE,
                 FamilyRole.FATHER,
                 "https://example.com/profile.jpg",
-                IsMatched.TRUE,
                 12.5,
                 5,
                 3,
@@ -145,7 +144,6 @@ class MemberControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.data.gender").value("MALE"))
                 .andExpect(jsonPath("$.data.familyRole").value("FATHER"))
                 .andExpect(jsonPath("$.data.profileImg").value("https://example.com/profile.jpg"))
-                .andExpect(jsonPath("$.data.isMatched").value("TRUE"))
                 .andExpect(jsonPath("$.data.totalDistance").value(12.5))
                 .andExpect(jsonPath("$.data.walkCount").value(5))
                 .andExpect(jsonPath("$.data.countWalksWithMember").value(3))
