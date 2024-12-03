@@ -24,7 +24,9 @@ public record ChatRoomResponse(
     public ChatRoomResponse(ChatRoom chatRoom, String lastMessage, Long unreadMessageCount, List<Member> members) {
         this(
                 chatRoom.getChatroomId(),
-                chatRoom.getName(),
+                members.stream()
+                        .map(Member::getName)
+                        .collect(Collectors.joining(", ")),
                 lastMessage,
                 unreadMessageCount,
                 members.stream()
