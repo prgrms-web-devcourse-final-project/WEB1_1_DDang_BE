@@ -46,4 +46,15 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
           AND c.isRead = 'FALSE'
     """)
     List<Chat> findUnreadMessagesByChatRoomIdAndMemberId(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
+
+    @Query("""
+        SELECT cm.chatRoom.chatroomId, COUNT(c)
+        FROM ChatMember cm
+        LEFT JOIN Chat c ON cm.chatRoom.chatroomId = c.chatRoom.chatroomId
+        WHERE cm.member.email = :email
+          AND cm.isDeleted = 'FALSE'
+          AND (c.isRead = 'FALSE' OR c.isRead IS NULL)
+        GROUP BY cm.chatRoom.chatroomId
+       """)
+    List<Object[]> countUnreadMessagesByMemberEmail(@Param("email") String email);
 }

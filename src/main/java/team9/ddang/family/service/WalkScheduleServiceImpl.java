@@ -70,7 +70,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
 
-        List<WalkSchedule> schedules = walkScheduleRepository.findAllByFamilyId(currentMember.getFamily().getFamilyId());
+        List<WalkSchedule> schedules = walkScheduleRepository.findAllByFamilyIdWithDetails(currentMember.getFamily().getFamilyId());
 
         return schedules.stream()
                 .map(WalkScheduleResponse::from)

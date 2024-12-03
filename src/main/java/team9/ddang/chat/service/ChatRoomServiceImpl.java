@@ -2,6 +2,7 @@ package team9.ddang.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.chat.entity.ChatMember;
@@ -12,6 +13,7 @@ import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.chat.repository.ChatRoomRepository;
 import team9.ddang.chat.service.request.ChatRoomCreateServiceRequest;
 import team9.ddang.chat.service.response.ChatRoomResponse;
+import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
@@ -29,6 +31,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
     private final ChatRepository chatRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public ChatRoomResponse createChatRoom(ChatRoomCreateServiceRequest request, Member member) {
@@ -65,7 +68,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
 
-        return new ChatRoomResponse(chatRoom, null, 0L, members);
+        ChatRoomResponse chatRoomResponse = new ChatRoomResponse(chatRoom, null, 0L, members);
+
+        sendMessageToUser(opponentMember.getEmail(), chatRoomResponse);
+
+        return chatRoomResponse;
     }
 
     @Transactional(readOnly = true)
@@ -84,6 +91,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 })
                 .toList();
     }
+
+    private void sendMessageToUser(String email, Object data){
+        messagingTemplate.convertAndSend("/sub/chatroom/" + email, WebSocketResponse.ok(data));
+    }
+
 
     private Member findMemberByIdOrThrowException(Long id) {
         return memberRepository.findActiveById(id)

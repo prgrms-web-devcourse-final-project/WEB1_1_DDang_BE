@@ -6,13 +6,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team9.ddang.chat.controller.request.ChatReadRequest;
 import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.service.response.ChatReadResponse;
 import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.global.api.WebSocketResponse;
+import team9.ddang.global.controller.response.WebSocketChatInfoResponse;
 import team9.ddang.global.controller.response.WebSocketErrorResponse;
+
+import java.util.List;
 
 @Tag(name = "WebSocket Chat API", description = "WebSocket을 통한 채팅 관련 명세")
 @RestController
@@ -86,5 +90,25 @@ public class WebSocketController {
     public WebSocketResponse<ChatReadResponse> handleMessageAck() {
         ChatReadResponse chatReadResponse = null;
         return WebSocketResponse.ok(chatReadResponse);
+    }
+
+    @Operation(
+            summary = "채팅방 정보 url",
+            description = " 해당 url을 구독하면, 내가 속한 채팅방 목록 및 읽지 않은 메세지 개수를 받을 수 있습니다. 또한 타 유저에 의해 새로운 채팅방이 생성되면 해당 채팅방 정보를 받습니다."
+    )
+    @PostMapping("/sub/message/{email}")
+    public WebSocketResponse<List<WebSocketChatInfoResponse>> subMemberEmail(){
+        List<WebSocketChatInfoResponse> webSocketChatInfoResponse = null;
+        return WebSocketResponse.ok(webSocketChatInfoResponse);
+    }
+
+    @Operation(
+            summary = "채팅 url",
+            description = " 해당 url을 구독하면, 해당 채팅방의 채팅을 수신할 수 있습니다. 또한 다른 member 의 메세지 읽음 여부도 수신할 수 있습니다."
+    )
+    @PostMapping("/sub/chat/{chatRoomId}")
+    public WebSocketResponse<ChatResponse> recieveMessage() {
+        ChatResponse chatResponse = null;
+        return WebSocketResponse.ok(chatResponse);
     }
 }
