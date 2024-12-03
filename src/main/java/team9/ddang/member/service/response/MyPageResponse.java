@@ -27,9 +27,6 @@ public record MyPageResponse(
         @Schema(description = "회원 프로필 이미지 URL", example = "https://example.com/profile.jpg")
         String profileImg,
 
-        @Schema(description = "강번따 허용 여부", example = "TRUE")
-        IsMatched isMatched,
-
         @Schema(description = "총 산책 거리 (킬로미터)", example = "12.5")
         double totalDistance,
 
@@ -51,7 +48,6 @@ public record MyPageResponse(
                 member.getGender(),
                 member.getFamilyRole(),
                 member.getProfileImg(),
-                member.getIsMatched(),
                 totalDistance,
                 walkCount,
                 countWalksWithMember,

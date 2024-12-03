@@ -16,6 +16,7 @@ import team9.ddang.member.repository.WalkWithMemberRepository;
 import team9.ddang.member.service.request.JoinServiceRequest;
 import team9.ddang.member.service.response.MemberResponse;
 import team9.ddang.member.service.response.MyPageResponse;
+import team9.ddang.notification.service.NotificationSettingsService;
 import team9.ddang.walk.repository.WalkRepository;
 
 @Service
@@ -29,6 +30,7 @@ public class MemberServiceImpl implements MemberService {
     private final WalkWithMemberRepository walkWithMemberRepository;
     private final DogService dogService;
     private final JwtService jwtService;
+    private final NotificationSettingsService notificationSettingsService;
 
     @Override
     public MemberResponse join(JoinServiceRequest serviceRequest, HttpServletResponse response) {
@@ -36,6 +38,7 @@ public class MemberServiceImpl implements MemberService {
         Member member = serviceRequest.toEntity();
 
         memberRepository.save(member);
+        notificationSettingsService.saveDefaultNotificationSettings(member);
 
         String accessToken = jwtService.createAccessToken(member.getEmail(), member.getProvider().name());
         String refreshToken = jwtService.createRefreshToken(member.getEmail());
