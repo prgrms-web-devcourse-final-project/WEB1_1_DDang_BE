@@ -36,49 +36,61 @@ public class WalkScheduleNotificationScheduler {
     public void sendWalkScheduleNotifications() {
         log.info("산책 일정 조회 스케줄러 동작 시작...");
 
-        java.time.DayOfWeek currentDay = LocalDateTime.now().getDayOfWeek();
-        LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);;
+        try {
+            java.time.DayOfWeek currentDay = LocalDateTime.now().getDayOfWeek();
+            LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
+            ;
 
-        LocalTime targetTime = currentTime.plusMinutes(15);
+            LocalTime targetTime = currentTime.plusMinutes(15);
 
-        DayOfWeek customDayOfWeek = convertJavaDayOfWeekToCustomDayOfWeek(currentDay);
-        log.info("Custom day: {}", customDayOfWeek);
-        List<WalkSchedule> upcomingSchedules = walkScheduleRepository.findByDayOfWeekAndWalkTime(
-                customDayOfWeek, targetTime
-        );
-        log.info("Upcoming schedules: {}", upcomingSchedules);
+            DayOfWeek customDayOfWeek = convertJavaDayOfWeekToCustomDayOfWeek(currentDay);
+            List<WalkSchedule> upcomingSchedules = walkScheduleRepository.findByDayOfWeekAndWalkTime(
+                    customDayOfWeek, targetTime
+            );
+            log.info("Upcoming schedules: {}", upcomingSchedules);
 
-        // 조건에 맞는 알림을 저장 및 WebSocket 메시지 전송
-        for (WalkSchedule schedule : upcomingSchedules) {
-            saveNotificationAndSendMessage(schedule);
+            // 조건에 맞는 알림을 저장 및 WebSocket 메시지 전송
+            for (WalkSchedule schedule : upcomingSchedules) {
+                try {
+                    saveNotificationAndSendMessage(schedule);
+                } catch (Exception e) {
+                    log.error("알림 저장 및 메시지 전송 중 오류 발생: {}", e.getMessage());
+                }
+            }
+
+            log.info("산책 일정 조회 스케줄러 동작 완료!");
+        } catch (Exception e) {
+            log.error("산책 일정 조회 스케줄러 동작 중 오류 발생: {}", e.getMessage());
         }
-
-        log.info("산책 일정 조회 스케줄러 동작 완료!");
     }
 
     private void saveNotificationAndSendMessage(WalkSchedule schedule) {
-        // 알림 설정이 TRUE인 멤버 필터링
-        NotificationSettings settings = notificationSettingsRepository.findByMember_MemberIdAndType(
-                schedule.getMember().getMemberId(), Type.WALK
-        ).orElse(null);
+        try {
+            // 알림 설정이 TRUE인 멤버 필터링
+            NotificationSettings settings = notificationSettingsRepository.findByMember_MemberIdAndType(
+                    schedule.getMember().getMemberId(), Type.WALK
+            ).orElse(null);
 
-        if (settings != null && settings.getIsAgreed().equals(IsAgreed.TRUE)) {
+            if (settings != null && settings.getIsAgreed().equals(IsAgreed.TRUE)) {
 
-            FamilyRoleMessageRequest familyRoleMessageRequest = FamilyRoleMessageRequest.from(schedule.getMember().getFamilyRole());
-            String content = familyRoleMessageRequest.message() + " 곧 산책 갈 시간이에요!";
+                FamilyRoleMessageRequest familyRoleMessageRequest = FamilyRoleMessageRequest.from(schedule.getMember().getFamilyRole());
+                String content = familyRoleMessageRequest.message() + " 곧 산책 갈 시간이에요!";
 
-            // 알림 저장
-            Notification notification = Notification.builder()
-                    .type(Type.WALK)
-                    .content(content)
-                    .isRead(IsRead.FALSE)
-                    .member(schedule.getMember())
-                    .build();
+                // 알림 저장
+                Notification notification = Notification.builder()
+                        .type(Type.WALK)
+                        .content(content)
+                        .isRead(IsRead.FALSE)
+                        .member(schedule.getMember())
+                        .build();
 
-            notification = notificationRepository.save(notification);
+                notification = notificationRepository.save(notification);
 
-            // WebSocket 메시지 전송
-            sendMessageToNotificationUrl(schedule.getMember().getEmail(), notification);
+                // WebSocket 메시지 전송
+                sendMessageToNotificationUrl(schedule.getMember().getEmail(), notification);
+            }
+        } catch (Exception e) {
+            log.error("알림 저장 및 메시지 전송 중 오류 발생: {}", e.getMessage());
         }
     }
 
