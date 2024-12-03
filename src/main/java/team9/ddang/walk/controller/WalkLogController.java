@@ -3,19 +3,16 @@ package team9.ddang.walk.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.oauth2.CustomOAuth2User;
-import team9.ddang.walk.controller.request.log.GetLogByDateRequest;
 import team9.ddang.walk.service.WalkLogService;
 import team9.ddang.walk.service.response.log.WalkLogByFamilyResponse;
 import team9.ddang.walk.service.response.log.WalkLogResponse;
@@ -58,14 +55,6 @@ public class WalkLogController {
             description = """
                     산책을 한 날짜의 상세 산책 내역을 조회합니다. 
                     """,
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "조회하고자 하는 날짜의 값",
-            required = true,
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = GetLogByDateRequest.class)
-            )
-    ),
             parameters = {
                     @Parameter(
                             name = "Authorization",
@@ -78,8 +67,8 @@ public class WalkLogController {
     )
     @GetMapping("/date")
     public ApiResponse<List<WalkLogResponse>> getWalkLogByDate(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
-                                                         @RequestBody @Valid GetLogByDateRequest getLogByDateRequest){
-        List<WalkLogResponse> response = walkLogService.getWalkLogByDate(customOAuth2User.getMember(), getLogByDateRequest.toService());
+                                                         @RequestParam(value = "selectDate") LocalDate selectDate){
+        List<WalkLogResponse> response = walkLogService.getWalkLogByDate(customOAuth2User.getMember(), selectDate);
         return ApiResponse.ok(response);
     }
 
