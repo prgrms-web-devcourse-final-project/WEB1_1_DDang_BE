@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team9.ddang.global.entity.BaseEntity;
+import team9.ddang.member.entity.Member;
 
 @Entity
 @Getter
@@ -18,31 +19,24 @@ public class NotificationSettings extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private IsAgreed friendRequestNotification;
+    private Type type;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private IsAgreed walkNotification;
+    private IsAgreed isAgreed;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private IsAgreed messageNotification;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private IsAgreed systemNotification;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private IsAgreed otherNotification;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Builder
-    private NotificationSettings(IsAgreed friendRequestNotification, IsAgreed walkNotification, IsAgreed messageNotification, IsAgreed systemNotification, IsAgreed otherNotification) {
-        this.friendRequestNotification = friendRequestNotification;
-        this.walkNotification = walkNotification;
-        this.messageNotification = messageNotification;
-        this.systemNotification = systemNotification;
-        this.otherNotification = otherNotification;
+    private NotificationSettings(Type type, IsAgreed isAgreed, Member member) {
+        this.type = type;
+        this.isAgreed = isAgreed;
+        this.member = member;
+    }
+
+    public void updateIsAgreed(IsAgreed isAgreed) {
+        this.isAgreed = isAgreed;
     }
 }
-// TODO : 알림 설정 추가?
