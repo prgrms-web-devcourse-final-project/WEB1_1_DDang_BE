@@ -28,9 +28,12 @@ public record MemberInfo(
         String profileImg,
 
         @Schema(description = "회원의 산책 일정 목록")
-        List<WalkScheduleInfo> walkScheduleInfoList
+        List<WalkScheduleInfo> walkScheduleInfoList,
+
+        @Schema(description = "회원의 총 산책 횟수", example = "4")
+        int totalWalkCount
 ) {
-    public MemberInfo(Member member, List<WalkScheduleInfo> walkScheduleInfoList) {
+    public MemberInfo(Member member, List<WalkScheduleInfo> walkScheduleInfoList, int totalWalkCount) {
         this(
                 member.getMemberId(),
                 member.getEmail(),
@@ -38,7 +41,8 @@ public record MemberInfo(
                 member.getGender(),
                 member.getFamilyRole(),
                 member.getProfileImg(),
-                walkScheduleInfoList
+                walkScheduleInfoList,
+                totalWalkCount
         );
     }
 }

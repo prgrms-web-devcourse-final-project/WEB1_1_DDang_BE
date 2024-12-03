@@ -178,7 +178,9 @@ public class FamilyServiceImpl implements FamilyService {
                             ))
                             .collect(Collectors.toList());
 
-                    return new MemberInfo(memberEntity, walkScheduleInfoList);
+                    int totalWalkCount = walkRepository.countWalksByMemberId(memberEntity.getMemberId());
+
+                    return new MemberInfo(memberEntity, walkScheduleInfoList, totalWalkCount);
                 })
                 .collect(Collectors.toList());
 
