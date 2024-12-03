@@ -37,6 +37,12 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        if ("OPTIONS".equals(request.getMethod())) {
+            log.info("OPTIONS 요청, 인증을 통과하지 않음: {}", request.getRequestURI());
+            filterChain.doFilter(request, response); // OPTIONS 요청은 인증 없이 필터를 지나가도록
+            return;
+        }
+
         if (isExcludedUrl(request.getRequestURI())) {
             log.info("필터 제외 대상 요청: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
