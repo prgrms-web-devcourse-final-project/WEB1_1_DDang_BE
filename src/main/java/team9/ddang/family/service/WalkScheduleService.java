@@ -7,7 +7,7 @@ import team9.ddang.member.entity.Member;
 import java.util.List;
 
 public interface WalkScheduleService {
-    WalkScheduleResponse createWalkSchedule(WalkScheduleCreateServiceRequest request, Member member);
+    List<WalkScheduleResponse> createWalkSchedule(WalkScheduleCreateServiceRequest request, Member member);
 
     List<WalkScheduleResponse> getWalkSchedulesByFamilyId(Member member);
 

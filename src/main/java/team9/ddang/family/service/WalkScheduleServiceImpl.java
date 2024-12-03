@@ -34,7 +34,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
 
     @Override
     @Transactional
-    public WalkScheduleResponse createWalkSchedule (WalkScheduleCreateServiceRequest request, Member member){
+    public List<WalkScheduleResponse> createWalkSchedule (WalkScheduleCreateServiceRequest request, Member member){
 
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
@@ -47,17 +47,21 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
         // TODO : 나중에 여러 강아지를 키울 수 있게 된다면 강아지를 리스트로 받아와야 할 듯
         Dog dog = validateAndGetDog(request.dogId(), family);
 
-        WalkSchedule walkSchedule = WalkSchedule.builder()
-                .member(walkMember)
-                .dog(dog)
-                .dayOfWeek(request.dayOfWeek())
-                .walkTime(request.walkTime())
-                .family(family)
-                .build();
+        List<WalkSchedule> walkSchedules = request.dayOfWeek().stream()
+                .map(dayOfWeek -> WalkSchedule.builder()
+                        .member(walkMember)
+                        .dog(dog)
+                        .dayOfWeek(dayOfWeek)
+                        .walkTime(request.walkTime())
+                        .family(family)
+                        .build())
+                .toList();
 
-        walkScheduleRepository.save(walkSchedule);
+        walkScheduleRepository.saveAll(walkSchedules);
 
-        return WalkScheduleResponse.from(walkSchedule);
+        return walkSchedules.stream()
+                .map(WalkScheduleResponse::from)
+                .toList();
     }
 
     @Override
