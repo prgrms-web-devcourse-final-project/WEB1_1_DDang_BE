@@ -1,6 +1,5 @@
 package team9.ddang.global.config.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,8 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/css/**", "/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger/**", "/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/member/join", "/api/v1/member/reissue").permitAll()
-                        .requestMatchers("/ws").permitAll()
-                        .requestMatchers("/api/v1/chat/**", "/api/v1/walk/**", "/api/v1/member/logout", "/api/v1/dogs/**").hasRole("USER")
+                        .requestMatchers("/ws", "/ws/**").permitAll()
+                        //.requestMatchers("/api/v1/chat/**", "/api/v1/walk/**", "/api/v1/member/logout", "/api/v1/dogs/**").hasRole("USER")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )

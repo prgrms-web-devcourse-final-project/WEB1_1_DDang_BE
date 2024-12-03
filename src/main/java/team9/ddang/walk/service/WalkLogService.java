@@ -1,7 +1,6 @@
 package team9.ddang.walk.service;
 
 import team9.ddang.member.entity.Member;
-import team9.ddang.walk.service.request.log.GetLogByDateServiceRequest;
 import team9.ddang.walk.service.response.log.WalkLogByFamilyResponse;
 import team9.ddang.walk.service.response.log.WalkLogResponse;
 import team9.ddang.walk.service.response.log.WalkStaticsResponse;
@@ -12,7 +11,7 @@ import java.util.List;
 public interface WalkLogService {
     List<LocalDate> getWalkLogs(Member member);
 
-    List<WalkLogResponse> getWalkLogByDate(Member member, GetLogByDateServiceRequest service);
+    List<WalkLogResponse> getWalkLogByDate(Member member, LocalDate date);
 
     List<Integer> getYearlyWalkLog(Member member);
 

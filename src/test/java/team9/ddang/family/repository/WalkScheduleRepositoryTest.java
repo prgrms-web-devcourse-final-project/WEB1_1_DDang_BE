@@ -19,9 +19,9 @@ import team9.ddang.global.entity.IsDeleted;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.entity.Provider;
-import team9.ddang.member.entity.Role;
 import team9.ddang.member.repository.MemberRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -80,7 +80,7 @@ class WalkScheduleRepositoryTest extends IntegrationTestSupport {
                 .breed("Golden Retriever")
                 .birthDate(LocalDate.of(2020, 5, 20))
                 .gender(Gender.MALE)
-                .weight(30)
+                .weight(BigDecimal.valueOf(3.3))
                 .isNeutered(IsNeutered.TRUE)
                 .family(testFamily)
                 .comment("Loves to play fetch!")

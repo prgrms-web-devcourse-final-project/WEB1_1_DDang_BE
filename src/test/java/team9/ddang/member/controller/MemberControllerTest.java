@@ -2,11 +2,8 @@ package team9.ddang.member.controller;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,28 +12,25 @@ import org.springframework.security.test.context.support.WithMockUser;
 import team9.ddang.ApiTestSupport;
 import team9.ddang.dog.entity.IsNeutered;
 import team9.ddang.dog.service.response.GetDogResponse;
-import team9.ddang.member.controller.request.JoinRequest;
 import team9.ddang.global.entity.Gender;
+import team9.ddang.member.controller.request.JoinRequest;
 import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.oauth2.CustomOAuth2User;
-import team9.ddang.member.repository.MemberRepository;
-import team9.ddang.member.service.MemberService;
 import team9.ddang.member.service.response.MemberResponse;
 import team9.ddang.member.service.response.MyPageResponse;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static team9.ddang.member.entity.Provider.GOOGLE;
 
 @MockBean(JpaMetamodelMappingContext.class)
@@ -116,7 +110,7 @@ class MemberControllerTest extends ApiTestSupport {
                 "Buddy",
                 "Labrador",
                 LocalDate.of(2018, 5, 10), // 생일 (2018년 5월 10일)
-                10, // 체중 (kg)
+                BigDecimal.valueOf(3.0), // 체중 (kg)
                 Gender.MALE,
                 "https://example.com/dog.jpg",
                 IsNeutered.TRUE,
