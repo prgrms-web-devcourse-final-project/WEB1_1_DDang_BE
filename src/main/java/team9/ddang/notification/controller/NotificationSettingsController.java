@@ -1,6 +1,7 @@
 package team9.ddang.notification.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +16,7 @@ import team9.ddang.notification.service.response.SettingsUpdateResponse;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/notification-settings")
+@Tag(name = "Notification Settings API", description = "알림 설정 API")
 public class NotificationSettingsController {
 
     private final NotificationSettingsService notificationSettingsService;
@@ -25,7 +27,7 @@ public class NotificationSettingsController {
         return ApiResponse.ok(notificationSettingsService.getSettings(customOAuth2User.getMember().getMemberId()));
     }
 
-    @PostMapping("/update")
+    @PatchMapping("/update")
     @Operation(
             summary = "알림 설정 수정",
             description = "알림 설정 수정 API",
