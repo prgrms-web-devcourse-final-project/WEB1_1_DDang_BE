@@ -30,6 +30,10 @@ public class StompHandler implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
         try {
+            if (accessor.getCommand() == null) {
+                return message;
+            }
+
             if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                 handleConnect(accessor);
             }
@@ -40,7 +44,8 @@ public class StompHandler implements ChannelInterceptor {
         } catch (Exception e) {
             System.err.println("Error in StompHandler: " + e.getMessage());
             e.printStackTrace();
-            throw e;
+            accessor.getSessionAttributes().put("error", e.getMessage());
+            return null;
         }
 
         return message;
@@ -60,6 +65,7 @@ public class StompHandler implements ChannelInterceptor {
         accessor.setUser(authentication);
 
         accessor.getSessionAttributes().put("user", authentication);
+        accessor.getSessionAttributes().put("token", token);
 
         System.out.println("User connected: " + email);
     }
@@ -102,10 +108,15 @@ public class StompHandler implements ChannelInterceptor {
 
     private String extractToken(SimpMessageHeaderAccessor accessor) {
         String authHeader = accessor.getFirstNativeHeader("Authorization");
-        System.out.println("Authorization header: " + authHeader);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
-        throw new IllegalArgumentException("Authorization 헤더가 없거나 잘못되었습니다.");
+
+        String token = (String) accessor.getSessionAttributes().get("token");
+        if (token != null) {
+            return token;
+        }
+
+        throw new IllegalArgumentException("Authorization 헤더 또는 세션에 토큰이 없습니다.");
     }
 }
