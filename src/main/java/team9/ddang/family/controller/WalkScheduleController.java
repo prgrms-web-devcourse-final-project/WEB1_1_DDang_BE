@@ -62,9 +62,24 @@ public class WalkScheduleController {
         return ApiResponse.ok(response);
     }
 
+    @GetMapping("/{memberId}")
+    @Operation(
+            summary = "특정 맴버 산책 일정 리스트 조회",
+            description = """
+                지정한 사용자의 모든 산책 일정을 조회합니다.
+                """
+    )
+    public ApiResponse<List<WalkScheduleResponse>> getMemberWalkSchedules(
+            @PathVariable Long memberId,
+            @AuthenticationPrincipal CustomOAuth2User currentUser
+    ) {
+        List<WalkScheduleResponse> response = walkScheduleService.getWalkSchedulesByMemberId(memberId, currentUser.getMember());
+        return ApiResponse.ok(response);
+    }
 
 
-    @DeleteMapping("/{id}")
+
+    @DeleteMapping("/{walkScheduleId}")
     @Operation(
             summary = "산책 일정 삭제",
             description = """
@@ -73,10 +88,10 @@ public class WalkScheduleController {
                 """
     )
     public ApiResponse<Void> deleteWalkSchedule(
-            @PathVariable Long id,
+            @PathVariable Long walkScheduleId,
             @AuthenticationPrincipal CustomOAuth2User currentUser
     ) {
-        walkScheduleService.deleteWalkSchedule(id, currentUser.getMember());
+        walkScheduleService.deleteWalkSchedule(walkScheduleId, currentUser.getMember());
         return ApiResponse.noContent();
     }
 

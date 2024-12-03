@@ -11,5 +11,7 @@ public interface WalkScheduleService {
 
     List<WalkScheduleResponse> getWalkSchedulesByFamilyId(Member member);
 
+    List<WalkScheduleResponse> getWalkSchedulesByMemberId(Long memberId, Member member);
+
     void deleteWalkSchedule(Long walkScheduleId, Member member);
 }

@@ -82,6 +82,28 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<WalkScheduleResponse> getWalkSchedulesByMemberId(Long memberId, Member member){
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+
+        if (currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        Member searchMember = findMemberByIdOrThrowException(memberId);
+
+        if (searchMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+
+        List<WalkSchedule> schedules = walkScheduleRepository.findAllByMemberId(searchMember.getMemberId());
+
+        return schedules.stream()
+                .map(WalkScheduleResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void deleteWalkSchedule(Long walkScheduleId, Member member) {
 
