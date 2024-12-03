@@ -10,7 +10,6 @@ import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.dog.repository.DogRepository;
 import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.dog.service.response.GetDogResponse;
-import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
@@ -48,7 +47,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional
-    public FamilyResponse createFamily(FamilyCreateRequest request, Member member) {
+    public FamilyResponse createFamily(Member member) {
 
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
@@ -63,7 +62,7 @@ public class FamilyServiceImpl implements FamilyService {
 
         Family family = Family.builder()
                 .member(currentMember)
-                .familyName(request.familyName())
+                .familyName("")
                 .build();
 
         family = familyRepository.save(family);

@@ -16,9 +16,6 @@ public record FamilyDetailResponse(
         @Schema(description = "가족 대표자 회원 ID", example = "42")
         Long memberId,
 
-        @Schema(description = "가족 이름", example = "행복한 가족")
-        String familyName,
-
         @Schema(description = "가족 구성원 목록")
         List<MemberResponse> members,
 
@@ -39,7 +36,6 @@ public record FamilyDetailResponse(
         this(
                 family.getFamilyId(),
                 family.getMember().getMemberId(),
-                family.getFamilyName(),
                 members,
                 dogs,
                 totalWalkCount,
