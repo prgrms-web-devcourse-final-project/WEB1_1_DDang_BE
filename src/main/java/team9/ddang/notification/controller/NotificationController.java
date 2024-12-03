@@ -2,6 +2,7 @@ package team9.ddang.notification.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -16,6 +17,7 @@ import team9.ddang.notification.service.response.NotificationResponse;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/notification")
+@Tag(name = "Notification API", description = "알림 API")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -32,6 +34,9 @@ public class NotificationController {
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @RequestParam(defaultValue = "0") int page // 기본값은 첫 페이지
     ) {
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+        }
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("createdAt").descending());  // 최신순 정렬
         Slice<NotificationResponse> notificationList = notificationService.getNotificationList(customOAuth2User.getMember(), pageRequest);
         return ApiResponse.ok(notificationList);
