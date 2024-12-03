@@ -1,6 +1,7 @@
 package team9.ddang.dog.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Digits;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import team9.ddang.global.entity.BaseEntity;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.global.entity.IsDeleted;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -31,7 +33,8 @@ public class Dog extends BaseEntity {
     private LocalDate birthDate;
 
     @Column(nullable = false)
-    private Integer weight;
+    @Digits(integer = 3, fraction = 2)
+    private BigDecimal weight;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -54,7 +57,7 @@ public class Dog extends BaseEntity {
 
 
     @Builder
-    private Dog(String name, String breed, LocalDate birthDate, Gender gender, Integer weight, IsNeutered isNeutered, String profileImg, Family family, String comment) {
+    private Dog(String name, String breed, LocalDate birthDate, Gender gender, BigDecimal weight, IsNeutered isNeutered, String profileImg, Family family, String comment) {
         this.name = name;
         this.breed = breed;
         this.birthDate = birthDate;
@@ -79,7 +82,7 @@ public class Dog extends BaseEntity {
         this.birthDate = birthDate;
     }
 
-    public void updateWeight(Integer weight) {
+    public void updateWeight(BigDecimal weight) {
         this.weight = weight;
     }
 

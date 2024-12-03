@@ -30,8 +30,8 @@ public interface MemberDogRepository extends JpaRepository<MemberDog, Long> {
     Optional<MemberDog> findOneByMemberIdAndNotDeleted(@Param("memberId") Long memberId);
 
     @Modifying
-    @Query("UPDATE MemberDog md SET md.isDeleted = 'TRUE' WHERE md.dog.dogId = :dogId AND md.member.memberId = :memberId")
-    void softDeleteByDogIdAndMemberId(@Param("dogId") Long dogId, @Param("memberId") Long memberId);
+    @Query("UPDATE MemberDog md SET md.isDeleted = 'TRUE' WHERE md.dog.dogId = :dogId")
+    void softDeleteByDogId(@Param("dogId") Long dogId);
 
 
 
