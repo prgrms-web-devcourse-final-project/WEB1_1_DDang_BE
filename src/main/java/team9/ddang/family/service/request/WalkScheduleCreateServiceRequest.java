@@ -6,9 +6,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record WalkScheduleCreateServiceRequest(
-        Long memberId,
         LocalTime walkTime,
-        List<DayOfWeek> dayOfWeek,
-        Long dogId
+        List<DayOfWeek> dayOfWeek
 ) {
 }

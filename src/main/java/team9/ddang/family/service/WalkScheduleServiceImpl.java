@@ -38,18 +38,18 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
 
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
-        Member walkMember = findMemberByIdOrThrowException(request.memberId());
-
-        validateMembersInSameFamily(currentMember, walkMember);
+        if (currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
 
         Family family = currentMember.getFamily();
 
         // TODO : 나중에 여러 강아지를 키울 수 있게 된다면 강아지를 리스트로 받아와야 할 듯
-        Dog dog = validateAndGetDog(request.dogId(), family);
+        Dog dog = findDogByFamilyIdOrThrowException(currentMember.getFamily().getFamilyId());
 
         List<WalkSchedule> walkSchedules = request.dayOfWeek().stream()
                 .map(dayOfWeek -> WalkSchedule.builder()
-                        .member(walkMember)
+                        .member(currentMember)
                         .dog(dog)
                         .dayOfWeek(dayOfWeek)
                         .walkTime(request.walkTime())
@@ -124,15 +124,6 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
 
 
 
-    private void validateMembersInSameFamily(Member member1, Member member2) {
-        if (member1.getFamily() == null || member2.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
-        if (!member1.getFamily().getFamilyId().equals(member2.getFamily().getFamilyId())) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_EQUAL_FAMILY.getText());
-        }
-    }
-
     private Dog validateAndGetDog(Long dogId, Family family) {
         Dog dog = findDogByIdOrThrowException(dogId);
         if (!family.getFamilyId().equals(dog.getFamily().getFamilyId())) {
@@ -146,6 +137,14 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
                 .orElseThrow(() -> {
                     log.warn(">>>> {} : {} <<<<", id, FamilyExceptionMessage.FAMILY_NOT_FOUND);
                     return new IllegalArgumentException(FamilyExceptionMessage.FAMILY_NOT_FOUND.getText());
+                });
+    }
+
+    private Dog findDogByFamilyIdOrThrowException(Long id) {
+        return dogRepository.findActiveByFamilyId(id)
+                .orElseThrow(() -> {
+                    log.warn(">>>> {} : {} <<<<", id, FamilyExceptionMessage.MEMBER_DOG_NOT_FOUND);
+                    return new IllegalArgumentException(FamilyExceptionMessage.MEMBER_DOG_NOT_FOUND.getText());
                 });
     }
 

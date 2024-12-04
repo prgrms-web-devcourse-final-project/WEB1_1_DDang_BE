@@ -11,9 +11,6 @@ import team9.ddang.family.service.request.WalkScheduleCreateServiceRequest;
 
 @Schema(description = "산책 일정 생성 데이터")
 public record WalkScheduleCreateRequest(
-        @Schema(description = "산책 담당 멤버 ID", example = "1")
-        @NotNull(message = "산책 담당 멤버를 입력해주세요.")
-        Long memberId,
 
         @Schema(description = "산책 시간 (HH:mm)", example = "09:30")
         @NotNull(message = "산책 시간을 입력해주세요.")
@@ -21,13 +18,13 @@ public record WalkScheduleCreateRequest(
 
         @Schema(description = "요일 리스트", example = "[\"MONDAY\", \"WEDNESDAY\"]")
         @NotEmpty(message = "요일을 입력해주세요.")
-        List<DayOfWeek> dayOfWeekList,
+        List<DayOfWeek> dayOfWeekList
 
-        @Schema(description = "강아지 ID", example = "5")
-        @NotNull(message = "강아지 ID를 입력해주세요.")
-        Long dogId
+//        @Schema(description = "강아지 ID", example = "5")
+//        @NotNull(message = "강아지 ID를 입력해주세요.")
+//        Long dogId
 ) {
     public WalkScheduleCreateServiceRequest toServiceRequest() {
-        return new WalkScheduleCreateServiceRequest(memberId, walkTime, dayOfWeekList, dogId);
+        return new WalkScheduleCreateServiceRequest(walkTime, dayOfWeekList);
     }
 }
