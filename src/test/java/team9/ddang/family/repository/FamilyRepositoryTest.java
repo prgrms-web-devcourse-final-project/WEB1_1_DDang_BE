@@ -40,7 +40,6 @@ class FamilyRepositoryTest extends IntegrationTestSupport {
         testMember = Member.builder()
                 .name("John Doe")
                 .email("john.doe@example.com")
-                .birthDate(LocalDate.of(1990, 1, 1))
                 .gender(team9.ddang.global.entity.Gender.MALE)
                 .address("123 Test Street")
                 .provider(Provider.GOOGLE)
