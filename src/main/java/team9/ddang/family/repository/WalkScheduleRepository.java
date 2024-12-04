@@ -50,4 +50,14 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
     @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.dog.dogId = :dogId")
     void softDeleteByDogId(@Param("dogId") Long dogId);
 
+    @Query("""
+    SELECT w 
+    FROM WalkSchedule w
+    WHERE w.member.memberId = :memberId AND w.isDeleted = 'FALSE'
+""")
+    List<WalkSchedule> findAllByMemberId(@Param("memberId") Long memberId);
+
+    @Modifying
+    @Query("DELETE FROM WalkSchedule ws WHERE ws.walkScheduleId IN :ids")
+    void deleteAllById(@Param("ids") List<Long> ids);
 }

@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.controller.request.FamilyJoinRequest;
 import team9.ddang.family.service.FamilyService;
 import team9.ddang.family.service.response.FamilyDetailResponse;
@@ -29,20 +28,12 @@ public class FamilyController {
             summary = "가족 생성",
             description = """
                     새로운 가족을 생성하고, 생성된 가족 정보를 반환합니다.
-                    요청 본문에는 가족 이름(familyName)이 포함되어야 합니다.
                     강아지를 소유하고, 패밀리댕에 속해 있지 않은 맴버만 생성할 수 있습니다.
-                    """,
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "가족 생성 요청 데이터",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = FamilyCreateRequest.class)
-                    )
-            )
+                    """
     )
-    public ApiResponse<FamilyResponse> createFamily(@RequestBody FamilyCreateRequest request, @AuthenticationPrincipal CustomOAuth2User currentUser) {
+    public ApiResponse<FamilyResponse> createFamily(@AuthenticationPrincipal CustomOAuth2User currentUser) {
         Member currentMember = currentUser.getMember();
-        FamilyResponse response = familyService.createFamily(request, currentMember);
+        FamilyResponse response = familyService.createFamily(currentMember);
         return ApiResponse.created(response);
     }
 

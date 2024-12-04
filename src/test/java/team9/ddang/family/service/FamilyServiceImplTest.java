@@ -13,7 +13,6 @@ import team9.ddang.dog.entity.IsNeutered;
 import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.dog.repository.DogRepository;
 import team9.ddang.dog.repository.MemberDogRepository;
-import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.service.response.FamilyDetailResponse;
@@ -114,9 +113,7 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .build();
         memberDogRepository.save(memberDog);
 
-        FamilyCreateRequest request = new FamilyCreateRequest("New Family");
-
-        FamilyResponse response = familyService.createFamily(request, newMember);
+        FamilyResponse response = familyService.createFamily(newMember);
 
         assertThat(response).isNotNull();
         assertThat(response.familyName()).isEqualTo("New Family");

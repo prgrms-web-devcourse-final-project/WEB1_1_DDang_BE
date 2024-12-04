@@ -1,15 +1,18 @@
 package team9.ddang.family.service;
 
 import team9.ddang.family.service.request.WalkScheduleCreateServiceRequest;
+import team9.ddang.family.service.request.WalkScheduleDeleteServiceRequest;
 import team9.ddang.family.service.response.WalkScheduleResponse;
 import team9.ddang.member.entity.Member;
 
 import java.util.List;
 
 public interface WalkScheduleService {
-    WalkScheduleResponse createWalkSchedule(WalkScheduleCreateServiceRequest request, Member member);
+    List<WalkScheduleResponse> createWalkSchedule(WalkScheduleCreateServiceRequest request, Member member);
 
     List<WalkScheduleResponse> getWalkSchedulesByFamilyId(Member member);
 
-    void deleteWalkSchedule(Long walkScheduleId, Member member);
+    List<WalkScheduleResponse> getWalkSchedulesByMemberId(Long memberId, Member member);
+
+    void deleteWalkSchedule(WalkScheduleDeleteServiceRequest request, Member member);
 }

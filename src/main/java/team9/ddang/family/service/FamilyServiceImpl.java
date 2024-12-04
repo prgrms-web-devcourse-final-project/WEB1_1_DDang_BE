@@ -10,14 +10,11 @@ import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.dog.repository.DogRepository;
 import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.dog.service.response.GetDogResponse;
-import team9.ddang.family.controller.request.FamilyCreateRequest;
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.repository.WalkScheduleRepository;
-import team9.ddang.family.service.response.FamilyDetailResponse;
-import team9.ddang.family.service.response.FamilyResponse;
-import team9.ddang.family.service.response.InviteCodeResponse;
+import team9.ddang.family.service.response.*;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.member.service.response.MemberResponse;
@@ -48,7 +45,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional
-    public FamilyResponse createFamily(FamilyCreateRequest request, Member member) {
+    public FamilyResponse createFamily(Member member) {
 
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
@@ -63,7 +60,7 @@ public class FamilyServiceImpl implements FamilyService {
 
         Family family = Family.builder()
                 .member(currentMember)
-                .familyName(request.familyName())
+                .familyName("")
                 .build();
 
         family = familyRepository.save(family);
@@ -169,9 +166,22 @@ public class FamilyServiceImpl implements FamilyService {
                 ))
                 .collect(Collectors.toList());
 
-        List<MemberResponse> members = memberRepository.findAllByFamilyId(family.getFamilyId())
+        List<MemberInfo> members = memberRepository.findAllByFamilyId(family.getFamilyId())
                 .stream()
-                .map(MemberResponse::from)
+                .map(memberEntity -> {
+                    List<WalkScheduleInfo> walkScheduleInfoList = walkScheduleRepository.findAllByMemberId(memberEntity.getMemberId())
+                            .stream()
+                            .map(schedule -> new WalkScheduleInfo(
+                                    schedule.getWalkScheduleId(),
+                                    schedule.getDayOfWeek(),
+                                    schedule.getWalkTime()
+                            ))
+                            .collect(Collectors.toList());
+
+                    int totalWalkCount = walkRepository.countWalksByMemberId(memberEntity.getMemberId());
+
+                    return new MemberInfo(memberEntity, walkScheduleInfoList, totalWalkCount);
+                })
                 .collect(Collectors.toList());
 
         int totalWalkCount = walkRepository.countWalksByFamilyId(family.getFamilyId()); // 산책 횟수

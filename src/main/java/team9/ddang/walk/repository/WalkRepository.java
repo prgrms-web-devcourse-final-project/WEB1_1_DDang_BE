@@ -22,7 +22,7 @@ public interface WalkRepository extends JpaRepository<Walk, Long> {
     @Query("""
             SELECT COALESCE(COUNT(w), 0) 
             FROM Walk w 
-            WHERE w.member.memberId = :memberId
+            WHERE w.member.memberId = :memberId AND w.isDeleted = 'FALSE'
             """)
     int countWalksByMemberId(@Param("memberId") Long memberId);
 
