@@ -33,8 +33,10 @@ public class Member extends BaseEntity {
     private String address;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private FamilyRole familyRole;
 
+    @Column(nullable = false)
     private String profileImg;
 
     @Enumerated(EnumType.STRING)

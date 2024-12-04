@@ -34,8 +34,10 @@ public record JoinRequest(
         @NotBlank(message = " 주소를 입력해주세요.")
         String address,
 
+        @NotNull(message = "가족 역할을 입력해주세요.")
         FamilyRole familyRole,
 
+        @NotBlank(message = "프로필 이미지를 입력해주세요.")
         String profileImg
 ) {
 
