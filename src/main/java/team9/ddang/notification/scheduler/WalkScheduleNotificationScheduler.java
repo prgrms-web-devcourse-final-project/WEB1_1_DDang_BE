@@ -74,7 +74,7 @@ public class WalkScheduleNotificationScheduler {
             if (settings != null && settings.getIsAgreed().equals(IsAgreed.TRUE)) {
 
                 FamilyRoleMessageRequest familyRoleMessageRequest = FamilyRoleMessageRequest.from(schedule.getMember().getFamilyRole());
-                String content = familyRoleMessageRequest.message() + " 곧 산책 갈 시간이에요!";
+                String content = schedule.getMember().getName() + familyRoleMessageRequest.message() + " 곧 산책 갈 시간이에요!";
 
                 // 알림 저장
                 Notification notification = Notification.builder()

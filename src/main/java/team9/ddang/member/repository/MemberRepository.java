@@ -1,6 +1,7 @@
 package team9.ddang.member.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import team9.ddang.member.entity.Member;
@@ -26,4 +27,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     (SELECT m2.family.familyId FROM Member m2 WHERE m2.memberId = :memberId)
 """)
     List<Member> findFamilyMembersByMemberId(@Param("memberId") Long memberId);
+
+    @Modifying
+    @Query("""
+            UPDATE Member m
+            SET m.isDeleted = 'TRUE'
+            WHERE m.memberId = :memberId
+            """)
+    void softDeleteById(@Param("memberId") Long memberId);
 }

@@ -49,7 +49,6 @@ class FriendControllerTest extends ApiTestSupport {
 
         Member member = Member.builder()
                 .memberId(1L)
-                .birthDate(LocalDate.of(1999,9,3))
                 .name("mjk")
                 .email("user@example.com")
                 .role(Role.USER)
@@ -58,7 +57,7 @@ class FriendControllerTest extends ApiTestSupport {
                 .gender(Gender.MALE)
                 .provider(Provider.GOOGLE)
                 .profileImg("profileImg1.png")
-                .familyRole(FamilyRole.BROTHER)
+                .familyRole(FamilyRole.ELDER_BROTHER)
                 .build();
 
         // Mock된 사용자 설정
@@ -110,7 +109,6 @@ class FriendControllerTest extends ApiTestSupport {
 
         Member member = Member.builder()
                 .memberId(2L)
-                .birthDate(LocalDate.of(1999,9,3))
                 .name("mjk")
                 .email("user@example.com")
                 .role(Role.USER)
@@ -119,7 +117,7 @@ class FriendControllerTest extends ApiTestSupport {
                 .gender(Gender.MALE)
                 .provider(Provider.GOOGLE)
                 .profileImg("profileImg1.png")
-                .familyRole(FamilyRole.BROTHER)
+                .familyRole(FamilyRole.ELDER_BROTHER)
                 .build();
 
         List<FriendListResponse> response = new ArrayList<>();
@@ -175,7 +173,6 @@ class FriendControllerTest extends ApiTestSupport {
 
         Member member = Member.builder()
                 .memberId(2L)
-                .birthDate(LocalDate.of(1999,9,3))
                 .name("mjk")
                 .email("user@example.com")
                 .role(Role.USER)
@@ -184,7 +181,7 @@ class FriendControllerTest extends ApiTestSupport {
                 .gender(Gender.MALE)
                 .provider(Provider.GOOGLE)
                 .profileImg("profileImg1.png")
-                .familyRole(FamilyRole.BROTHER)
+                .familyRole(FamilyRole.ELDER_BROTHER)
                 .build();
 
         // Mock된 사용자 설정
@@ -302,7 +299,6 @@ class FriendControllerTest extends ApiTestSupport {
 
         Member member = Member.builder()
                 .memberId(1L)
-                .birthDate(LocalDate.of(1999,9,3))
                 .name("mjk")
                 .email("user@example.com")
                 .role(Role.USER)
@@ -311,7 +307,7 @@ class FriendControllerTest extends ApiTestSupport {
                 .gender(Gender.MALE)
                 .provider(Provider.GOOGLE)
                 .profileImg("profileImg1.png")
-                .familyRole(FamilyRole.BROTHER)
+                .familyRole(FamilyRole.ELDER_BROTHER)
                 .build();
 
         // Mock된 사용자 설정

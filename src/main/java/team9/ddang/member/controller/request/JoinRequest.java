@@ -28,18 +28,16 @@ public record JoinRequest(
         @NotBlank(message = "이름을 입력해주세요.")
         String name,
 
-        @NotNull(message = "생년월일을 입력해주세요.")
-        @Past(message = "생년월일은 과거 날짜여야 합니다.")
-        LocalDate birthDate,
-
         @NotNull(message = "성별을 입력해주세요.")
         Gender gender,
 
         @NotBlank(message = " 주소를 입력해주세요.")
         String address,
 
+        @NotNull(message = "가족 역할을 입력해주세요.")
         FamilyRole familyRole,
 
+        @NotBlank(message = "프로필 이미지를 입력해주세요.")
         String profileImg
 ) {
 
@@ -48,7 +46,6 @@ public record JoinRequest(
                 email,
                 provider,
                 name,
-                birthDate,
                 gender,
                 address,
                 familyRole,

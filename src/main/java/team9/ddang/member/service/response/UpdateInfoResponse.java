@@ -4,27 +4,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.entity.Member;
-import team9.ddang.member.entity.Provider;
 
-@Schema(description = "회원 응답 데이터")
-public record MemberResponse(
+@Schema(description = "회원 정보 수정 페이지 조회 응답 데이터")
+public record UpdateInfoResponse(
+
         @Schema(description = "회원 ID", example = "1")
         Long memberId,
 
         @Schema(description = "회원 이름", example = "John Doe")
         String name,
 
-        @Schema(description = "회원 이메일", example = "john.doe@example.com")
-        String email,
-
-        @Schema(description = "OAuth2 제공자", example = "GOOGLE")
-        Provider provider,
-
         @Schema(description = "회원 성별", example = "MALE")
         Gender gender,
-
-        @Schema(description = "회원 주소", example = "123 Main Street")
-        String address,
 
         @Schema(description = "가족 내 역할", example = "FATHER")
         FamilyRole familyRole,
@@ -32,15 +23,14 @@ public record MemberResponse(
         @Schema(description = "회원 프로필 이미지 URL", example = "https://example.com/profile.jpg")
         String profileImg
 ) {
-    public static MemberResponse from(Member member) {
-        return new MemberResponse(
+    public static UpdateInfoResponse from(Member member) {
+        return new UpdateInfoResponse(
                 member.getMemberId(),
                 member.getName(),
-                member.getEmail(),
-                member.getProvider(),
                 member.getGender(),
-                member.getAddress(),
                 member.getFamilyRole(),
-                member.getProfileImg());
+                member.getProfileImg()
+        );
     }
+
 }

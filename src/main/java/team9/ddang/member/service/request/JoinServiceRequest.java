@@ -9,7 +9,6 @@ public record JoinServiceRequest(
         String email,
         Provider provider,
         String name,
-        LocalDate birthDate,
         Gender gender,
         String address,
         FamilyRole familyRole,
@@ -22,7 +21,6 @@ public record JoinServiceRequest(
                 .email(email)
                 .provider(provider)
                 .name(name)
-                .birthDate(birthDate)
                 .gender(gender)
                 .address(address)
                 .familyRole(familyRole)
