@@ -1,6 +1,7 @@
 package team9.ddang.global.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,8 @@ public class S3Service {
     private String putS3(File uploadFile, String fileName){
 
         amazonS3Client.putObject(
-                new PutObjectRequest(bucket, fileName, uploadFile) // PublicRead 권한으로 upload
+                new PutObjectRequest(bucket, fileName, uploadFile)
+                        .withCannedAcl(CannedAccessControlList.PublicRead) // PublicRead 권한으로 upload
         );
 
         return amazonS3Client.getUrl(bucket, fileName).toString(); // File의 URL return
@@ -92,7 +94,7 @@ public class S3Service {
     private String setFileName(String dirName){
         String fileName = dirName + "/" + UUID.randomUUID();
 
-        if(amazonS3Client.getUrl(bucket, fileName) != null){
+        if(amazonS3Client.doesObjectExist(bucket, fileName)){
             fileName = dirName + "/" + UUID.randomUUID();
         }
 
