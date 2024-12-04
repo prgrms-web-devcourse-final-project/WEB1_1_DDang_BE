@@ -18,10 +18,7 @@ import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.walk.service.request.walk.DecisionWalkServiceRequest;
 import team9.ddang.walk.service.request.walk.ProposalWalkServiceRequest;
 import team9.ddang.walk.service.request.walk.StartWalkServiceRequest;
-import team9.ddang.walk.service.response.walk.MemberNearbyInfo;
-import team9.ddang.walk.service.response.walk.MemberNearbyResponse;
-import team9.ddang.walk.service.response.walk.ProposalWalkResponse;
-import team9.ddang.walk.service.response.walk.WalkWithResponse;
+import team9.ddang.walk.service.response.walk.*;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -75,6 +72,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
             throw new IllegalArgumentException(NOT_MATCHED_MEMBER.getText());
         }
 
+        Member otherMember = getMemberFromEmailOrElseThrow(memberEmail);
         redisService.deleteValues(PROPOSAL_KEY + serviceRequest.otherEmail());
 
         if(serviceRequest.decision().equals("ACCEPT")){
@@ -82,8 +80,8 @@ public class WalkLocationServiceImpl implements WalkLocationService {
             redisService.setValues(WALK_WITH_KEY + serviceRequest.otherEmail(), member.getEmail());
         }
 
-        sendMessageToWalkUrl(member.getEmail(), serviceRequest.decision());
-        sendMessageToWalkUrl(serviceRequest.otherEmail(), serviceRequest.decision());
+        sendMessageToWalkUrl(member.getEmail(), DecisionWalkResponse.of(serviceRequest.decision(), otherMember));
+        sendMessageToWalkUrl(serviceRequest.otherEmail(), DecisionWalkResponse.of(serviceRequest.decision(), member));
     }
 
     @Override

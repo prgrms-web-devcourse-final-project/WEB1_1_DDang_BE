@@ -13,6 +13,7 @@ import team9.ddang.global.controller.response.WebSocketErrorResponse;
 import team9.ddang.walk.controller.request.walk.DecisionWalkRequest;
 import team9.ddang.walk.controller.request.walk.ProposalWalkRequest;
 import team9.ddang.walk.controller.request.walk.StartWalkRequest;
+import team9.ddang.walk.service.response.walk.DecisionWalkResponse;
 import team9.ddang.walk.service.response.walk.MemberNearbyResponse;
 import team9.ddang.walk.service.response.walk.ProposalWalkResponse;
 import team9.ddang.walk.service.response.walk.WalkWithResponse;
@@ -122,8 +123,8 @@ public class WebSocketWalkController {
             }
     )
     @GetMapping("/api/v1/decision")
-    public WebSocketResponse<String> decisionWalk(){
-        String response = null;
+    public WebSocketResponse<DecisionWalkResponse> decisionWalk(){
+        DecisionWalkResponse response = null;
         return WebSocketResponse.ok(response);
     }
 
