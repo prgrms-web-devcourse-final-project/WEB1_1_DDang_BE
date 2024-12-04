@@ -14,12 +14,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.controller.request.JoinRequest;
+import team9.ddang.member.controller.request.UpdateAddressRequest;
+import team9.ddang.member.controller.request.UpdateRequest;
 import team9.ddang.member.entity.IsMatched;
-import team9.ddang.member.entity.Member;
 import team9.ddang.member.oauth2.CustomOAuth2User;
 import team9.ddang.member.service.MemberService;
 import team9.ddang.member.service.response.MemberResponse;
 import team9.ddang.member.service.response.MyPageResponse;
+import team9.ddang.member.service.response.UpdateResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -108,5 +110,65 @@ public class MemberController {
         Long memberId = customOAuth2User.getMember().getMemberId();
         IsMatched updatedIsMatched = memberService.updateIsMatched(memberId, isMatched);
         return ApiResponse.ok(updatedIsMatched);
+    }
+
+    @GetMapping("/update")
+    @Operation(
+            summary = "회원 정보 수정을 위한 정보 조회",
+            description = "회원 정보 수정을 위한 정보를 조회합니다."
+    )
+    public ApiResponse<UpdateResponse> getUpdateInfo(@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+
+        return ApiResponse.ok(memberService.getUpdateInfo(customOAuth2User.getMember().getMemberId()));
+    }
+
+    @PatchMapping("/update")
+    @Operation(
+            summary = "회원 정보 수정",
+            description = "회원 정보를 수정합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "수정할 회원 정보",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UpdateRequest.class)
+                    )
+            )
+    )
+    public ApiResponse<UpdateResponse> updateMember(@RequestBody @Valid UpdateRequest updateRequest,
+                                                    @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+
+        return ApiResponse.ok(memberService.updateMember(customOAuth2User.getMember().getMemberId(), updateRequest.toServiceRequest()));
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(
+            summary = "회원 삭제",
+            description = "회원을 삭제합니다."
+    )
+    public ApiResponse<String> deleteMember(@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+        Long memberId = customOAuth2User.getMember().getMemberId();
+        memberService.deleteMember(memberId);
+        return ApiResponse.ok("회원 삭제 완료");
+    }
+
+    @PatchMapping("/update/address")
+    @Operation(
+            summary = "주소 수정",
+            description = "주소를 수정합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "수정할 주소",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UpdateAddressRequest.class)
+                    )
+            )
+    )
+    public ApiResponse<String> updateAddress(@RequestBody @Valid UpdateAddressRequest updateAddressRequest,
+                                             @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+
+        memberService.updateAddress(customOAuth2User.getMember().getMemberId(), updateAddressRequest.toServiceRequest());
+        return ApiResponse.ok("주소 수정 완료");
     }
 }

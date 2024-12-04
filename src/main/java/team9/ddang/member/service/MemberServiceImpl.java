@@ -14,8 +14,11 @@ import team9.ddang.member.jwt.service.JwtService;
 import team9.ddang.member.repository.MemberRepository;
 import team9.ddang.member.repository.WalkWithMemberRepository;
 import team9.ddang.member.service.request.JoinServiceRequest;
+import team9.ddang.member.service.request.UpdateAddressServiceRequest;
+import team9.ddang.member.service.request.UpdateServiceRequest;
 import team9.ddang.member.service.response.MemberResponse;
 import team9.ddang.member.service.response.MyPageResponse;
+import team9.ddang.member.service.response.UpdateResponse;
 import team9.ddang.notification.service.NotificationSettingsService;
 import team9.ddang.walk.repository.WalkRepository;
 
@@ -119,5 +122,42 @@ public class MemberServiceImpl implements MemberService {
 
         member.updateIsMatched(isMatched);
         return member.getIsMatched(); // 업데이트된 값을 반환
+    }
+
+    @Override
+    public UpdateResponse updateMember(Long memberId, UpdateServiceRequest updateServiceRequest) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        updateServiceRequest.toEntity(member);
+
+        return UpdateResponse.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UpdateResponse getUpdateInfo(Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        return UpdateResponse.from(member);
+    }
+
+    @Override
+    public void deleteMember(Long memberId) {
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        memberRepository.softDeleteById(memberId);
+    }
+
+    @Override
+    public void updateAddress(Long memberId, UpdateAddressServiceRequest serviceRequest) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        member.updateAddress(serviceRequest.address());
     }
 }
