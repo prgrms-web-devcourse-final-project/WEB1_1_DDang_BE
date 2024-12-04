@@ -14,9 +14,15 @@ public record FriendListResponse(
         Gender gender,
 
         @Schema(description = "가족 내 역할", example = "FATHER")
-        FamilyRole familyRole
+        FamilyRole familyRole,
+
+        @Schema(description = "프로필 이미지", example = "http://asdasdasd.asdad")
+        String profileImg,
+
+        @Schema(description = "회원 이름", example = "춘식이")
+        String name
 ) {
     public static FriendListResponse from(Member member){
-        return new FriendListResponse(member.getMemberId(), member.getGender(), member.getFamilyRole());
+        return new FriendListResponse(member.getMemberId(), member.getGender(), member.getFamilyRole(), member.getProfileImg(), member.getName());
     }
 }

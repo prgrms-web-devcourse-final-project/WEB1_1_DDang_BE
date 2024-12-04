@@ -26,13 +26,14 @@ public interface WalkRepository extends JpaRepository<Walk, Long> {
             """)
     int countWalksByMemberId(@Param("memberId") Long memberId);
 
+    @EntityGraph(attributePaths = {"member"})
     @Query(value = """
-        SELECT * 
-        FROM walk 
-        WHERE member_id = :memberId 
-        AND DATE(created_at) = :date
-       """, nativeQuery = true)
-    List<Walk> findAllByMemberAndDate(@Param("memberId") Long memberId, @Param("date") LocalDate date);
+        SELECT w
+        FROM Walk w 
+        WHERE w.member IN :members 
+        AND DATE(w.createdAt) = :date
+       """)
+    List<Walk> findAllByMembersAndDate(@Param("members") List<Member> members, @Param("date") LocalDate date);
 
     @EntityGraph(attributePaths = {"member"})
     @Query(value = """
@@ -41,7 +42,7 @@ public interface WalkRepository extends JpaRepository<Walk, Long> {
         WHERE w.member IN :members
         AND YEAR(w.createdAt) = :year
        """)
-    List<Walk> findAllByMembersAndDate(@Param("members") List<Member> members, @Param("year") int year);
+    List<Walk> findAllByMembersAndYear(@Param("members") List<Member> members, @Param("year") int year);
 
     @Query("""
         SELECT COALESCE(SUM(w.totalDistance), 0)

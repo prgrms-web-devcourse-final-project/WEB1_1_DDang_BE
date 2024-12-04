@@ -6,27 +6,26 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.dog.exception.DogExceptionMessage;
+import team9.ddang.dog.repository.DogRepository;
 import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.dog.service.request.CreateDogServiceRequest;
+import team9.ddang.dog.service.request.UpdateDogServiceRequest;
 import team9.ddang.dog.service.response.CreateDogResponse;
 import team9.ddang.dog.service.response.GetDogResponse;
-import team9.ddang.dog.service.request.UpdateDogServiceRequest;
-import team9.ddang.dog.entity.Dog;
-import team9.ddang.dog.repository.DogRepository;
 import team9.ddang.family.exception.FamilyExceptionMessage;
-import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.repository.WalkScheduleRepository;
-import team9.ddang.global.entity.IsDeleted;
+import team9.ddang.global.service.S3Service;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//import team9.ddang.family.entity.Family;
-//import team9.ddang.family.repository.FamilyRepository;
 
 @Slf4j
 @Service
@@ -36,14 +35,17 @@ public class DogService {
 
     private final DogRepository dogRepository;
     private final MemberRepository memberRepository;
-    private final MemberDogRepository memberDogRepository; // MemberDog 저장
-    private final FamilyRepository familyRepository;
+    private final MemberDogRepository memberDogRepository;
     private final WalkScheduleRepository walkScheduleRepository;
+    private final S3Service s3Service;
 
-    public CreateDogResponse createDog(CreateDogServiceRequest request, Long memberId) {
+    private final static String DOG_PROFILE_DIR = "dog";
+
+    public CreateDogResponse createDog(CreateDogServiceRequest request, Long memberId, MultipartFile profileImgFile) throws IOException {
 
         //  memberId로 Member 객체 조회
         Member member = findMemberByIdOrThrowException(memberId);
+        String profileImg = s3Service.upload(profileImgFile, DOG_PROFILE_DIR);
 
         // TODO : 지금은 강아지 한마리만 소유 가능
         List<MemberDog> memberDogs = memberDogRepository.findAllByMember(member);
@@ -64,7 +66,7 @@ public class DogService {
                 .weight(request.weight())
                 .gender(request.gender())
                 .isNeutered(request.isNeutered())
-                .profileImg(request.profileImg())
+                .profileImg(profileImg)
                 .family(member.getFamily())
                 .comment(request.comment())
                 .build();
@@ -123,7 +125,7 @@ public class DogService {
         );
     }
 
-    public void updateDog(UpdateDogServiceRequest request, Long memberId) {
+    public void updateDog(UpdateDogServiceRequest request, Long memberId, MultipartFile profileImgFile) throws IOException {
 
         // 1. 소유권 검증
         memberDogRepository.findByDogIdAndMemberId(request.dogId(), memberId)
@@ -138,7 +140,10 @@ public class DogService {
         if (request.birthDate() != null) dog.updateBirthDate(request.birthDate());
         if (request.weight() != null) dog.updateWeight(request.weight());
         if (request.gender() != null) dog.updateGender(request.gender());
-        if (request.profileImg() != null) dog.updateProfileImg(request.profileImg());
+        if (profileImgFile != null) {
+            String profileImg = s3Service.upload(profileImgFile, DOG_PROFILE_DIR);
+            dog.updateProfileImg(profileImg);
+        }
         if (request.isNeutered() != null) dog.updateIsNeutered(request.isNeutered());
         if (request.comment() != null) dog.updateComment(request.comment());
     }
