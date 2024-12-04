@@ -1,6 +1,8 @@
 package team9.ddang.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -170,5 +172,23 @@ public class MemberController {
 
         memberService.updateAddress(customOAuth2User.getMember().getMemberId(), updateAddressRequest.toServiceRequest());
         return ApiResponse.ok("주소 수정 완료");
+    }
+
+    @GetMapping("{memberId}")
+    @Operation(
+            summary = "특정 회원 정보 조회",
+            description = "특정 회원의 정보를 조회합니다.",
+            parameters = {
+                    @Parameter(
+                            name = "memberId",
+                            description = "멤버 ID",
+                            required = true,
+                            in = ParameterIn.PATH,
+                            schema = @Schema(type = "long", example = "12345")
+                    )
+            }
+    )
+    public ApiResponse<MyPageResponse> getMemberInfoWithId(@PathVariable Long memberId) {
+        return ApiResponse.ok(memberService.getMemberInfo(memberId));
     }
 }
