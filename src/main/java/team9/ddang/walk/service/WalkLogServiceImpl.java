@@ -48,8 +48,9 @@ public class WalkLogServiceImpl implements WalkLogService{
     @Override
     @Transactional(readOnly = true)
     public List<WalkLogResponse> getWalkLogByDate(Member member, LocalDate date) {
-        List<Walk> walks = walkRepository.findAllByMemberAndDate(member.getMemberId(), date);
-        Dog dog  = getDogFromMemberId(member.getMemberId());
+        List<Member> memberList = memberRepository.findFamilyMembersByMemberId(member.getMemberId());
+        List<Walk> walks = walkRepository.findAllByMembersAndDate(memberList, date);
+        Dog dog = getDogFromMemberId(member.getMemberId());
 
         return walks.stream().map(walk ->
         { List<Position> positionList = locationRepository.findAllPositionByWalkId(walk.getWalkId());
@@ -76,7 +77,7 @@ public class WalkLogServiceImpl implements WalkLogService{
     @Override
     public List<WalkLogByFamilyResponse> getYearlyWalkLogByFamily(Member member) {
         List<Member> familyMemberList = memberRepository.findFamilyMembersByMemberId(member.getMemberId());
-        List<Walk> walkList = walkRepository.findAllByMembersAndDate(familyMemberList, Year.now().getValue());
+        List<Walk> walkList = walkRepository.findAllByMembersAndYear(familyMemberList, Year.now().getValue());
 
         Map<Member, Long> walkCountByMember = walkList.stream()
                 .collect(Collectors.groupingBy(Walk::getMember, Collectors.counting()));
