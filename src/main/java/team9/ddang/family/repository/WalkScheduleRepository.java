@@ -56,4 +56,8 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
     WHERE w.member.memberId = :memberId AND w.isDeleted = 'FALSE'
 """)
     List<WalkSchedule> findAllByMemberId(@Param("memberId") Long memberId);
+
+    @Modifying
+    @Query("DELETE FROM WalkSchedule ws WHERE ws.walkScheduleId IN :ids")
+    void deleteAllById(@Param("ids") List<Long> ids);
 }

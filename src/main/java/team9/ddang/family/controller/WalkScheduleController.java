@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team9.ddang.family.controller.request.WalkScheduleCreateRequest;
+import team9.ddang.family.controller.request.WalkScheduleDeleteRequest;
 import team9.ddang.family.service.WalkScheduleService;
 import team9.ddang.family.service.response.WalkScheduleResponse;
 import team9.ddang.member.oauth2.CustomOAuth2User;
@@ -29,7 +30,7 @@ public class WalkScheduleController {
             summary = "산책 일정 생성",
             description = """
                     새로운 산책 일정을 생성합니다.
-                    요청 본문에는 산책을 진행할 인원(memberId), 산책 시간(walkTime), 요일 리스트(dayOfWeek), 강아지 ID(dogId)가 포함되어야 합니다.
+                    요청 본문에는 산책 시간(walkTime), 요일 리스트(dayOfWeek)가 포함되어야 합니다.
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "산책 일정 생성 요청 데이터",
@@ -79,19 +80,20 @@ public class WalkScheduleController {
 
 
 
-    @DeleteMapping("/{walkScheduleId}")
+    @DeleteMapping
     @Operation(
-            summary = "산책 일정 삭제",
+            summary = "산책 일정 리스트 삭제",
             description = """
                 산책 일정 ID를 기준으로 산책 일정을 삭제합니다.
                 요청 사용자가 해당 가족에 속하지 않은 경우 또는 권한이 없는 경우 삭제가 불가능합니다.
+                성공시 204 No Content를 반환합니다.
                 """
     )
     public ApiResponse<Void> deleteWalkSchedule(
-            @PathVariable Long walkScheduleId,
+            @Valid @RequestBody WalkScheduleDeleteRequest request,
             @AuthenticationPrincipal CustomOAuth2User currentUser
     ) {
-        walkScheduleService.deleteWalkSchedule(walkScheduleId, currentUser.getMember());
+        walkScheduleService.deleteWalkSchedule(request.toServiceRequest(), currentUser.getMember());
         return ApiResponse.noContent();
     }
 

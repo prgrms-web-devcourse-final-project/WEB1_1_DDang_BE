@@ -14,6 +14,7 @@ import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.repository.WalkScheduleRepository;
 import team9.ddang.family.service.request.WalkScheduleCreateServiceRequest;
+import team9.ddang.family.service.request.WalkScheduleDeleteServiceRequest;
 import team9.ddang.family.service.response.WalkScheduleResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
@@ -105,7 +106,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
 
     @Override
     @Transactional
-    public void deleteWalkSchedule(Long walkScheduleId, Member member) {
+    public void deleteWalkSchedule(WalkScheduleDeleteServiceRequest request, Member member) {
 
         Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
 
@@ -113,13 +114,15 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
 
-        WalkSchedule walkSchedule = findWalkScheduleByIdOrThrowException(walkScheduleId);
+        List<WalkSchedule> walkSchedules = walkScheduleRepository.findAllById(request.walkScheduleId());
 
-        if (!walkSchedule.getFamily().getFamilyId().equals(currentMember.getFamily().getFamilyId())) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.WALKSCHEDULE_NOT_IN_FAMILY.getText());
+        for (WalkSchedule walkSchedule : walkSchedules) {
+            if (!walkSchedule.getMember().getMemberId().equals(currentMember.getMemberId())) {
+                throw new IllegalArgumentException(FamilyExceptionMessage.WALKSCHEDULE_NOT_IN_FAMILY.getText());
+            }
         }
 
-        walkScheduleRepository.softDeleteById(walkScheduleId);
+        walkScheduleRepository.deleteAllById(request.walkScheduleId());
     }
 
 

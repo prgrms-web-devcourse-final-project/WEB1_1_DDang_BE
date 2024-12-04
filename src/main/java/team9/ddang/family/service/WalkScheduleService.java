@@ -1,6 +1,7 @@
 package team9.ddang.family.service;
 
 import team9.ddang.family.service.request.WalkScheduleCreateServiceRequest;
+import team9.ddang.family.service.request.WalkScheduleDeleteServiceRequest;
 import team9.ddang.family.service.response.WalkScheduleResponse;
 import team9.ddang.member.entity.Member;
 
@@ -13,5 +14,5 @@ public interface WalkScheduleService {
 
     List<WalkScheduleResponse> getWalkSchedulesByMemberId(Long memberId, Member member);
 
-    void deleteWalkSchedule(Long walkScheduleId, Member member);
+    void deleteWalkSchedule(WalkScheduleDeleteServiceRequest request, Member member);
 }
