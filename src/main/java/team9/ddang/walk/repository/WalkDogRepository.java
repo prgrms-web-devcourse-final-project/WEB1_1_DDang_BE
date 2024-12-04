@@ -15,6 +15,12 @@ public interface WalkDogRepository extends JpaRepository<WalkDog, Long> {
     @Query("SELECT wd.walk FROM WalkDog wd JOIN wd.walk w WHERE wd.dog.dogId = :dogId AND w.createdAt BETWEEN :startOfDay AND :endOfDay")
     List<Walk> findWalksByDogIdAndToday(@Param("dogId") Long dogId, @Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
+   @Query("""
+    SELECT wd
+    FROM WalkDog wd
+    WHERE wd.dog.dogId = :dogId
+    AND wd.dog.isDeleted = 'FALSE'
+""")
     List<WalkDog> findAllByDog_DogId(Long dogId);
 
     @Query("SELECT wd FROM WalkDog wd WHERE YEAR(wd.createdAt) = :year AND wd.dog.dogId = :dogId")
