@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 import team9.ddang.family.entity.Family;
 import team9.ddang.global.entity.BaseEntity;
 import team9.ddang.global.entity.Gender;
-
-import java.time.LocalDate;
+import team9.ddang.global.entity.IsDeleted;
 
 @Entity
 @Getter
@@ -25,9 +24,6 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false, length = 100)
     private String email;
-
-    @Column(name = "birth_date", nullable = false)
-    private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -58,11 +54,10 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Builder
-    private Member(Long memberId, String name, String email, LocalDate birthDate, Gender gender, String address, FamilyRole familyRole, Provider provider, String profileImg, IsMatched isMatched, Family family, Role role) {
+    private Member(Long memberId, String name, String email, Gender gender, String address, FamilyRole familyRole, Provider provider, String profileImg, IsMatched isMatched, Family family, Role role) {
         this.memberId = memberId;
         this.name = name;
         this.email = email;
-        this.birthDate = birthDate;
         this.gender = gender;
         this.address = address;
         this.familyRole = familyRole;
@@ -80,5 +75,25 @@ public class Member extends BaseEntity {
 
     public void updateIsMatched(IsMatched isMatched) {
         this.isMatched = isMatched;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updateGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public void updateFamilyRole(FamilyRole familyRole) {
+        this.familyRole = familyRole;
+    }
+
+    public void updateProfileImg(String profileImg) {
+        this.profileImg = profileImg;
+    }
+
+    public void updateAddress(String address) {
+        this.address = address;
     }
 }

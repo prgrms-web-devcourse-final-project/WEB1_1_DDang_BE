@@ -6,8 +6,6 @@ import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.entity.Provider;
 
-import java.time.LocalDate;
-
 @Schema(description = "회원 응답 데이터")
 public record MemberResponse(
         @Schema(description = "회원 ID", example = "1")
@@ -21,9 +19,6 @@ public record MemberResponse(
 
         @Schema(description = "OAuth2 제공자", example = "GOOGLE")
         Provider provider,
-
-        @Schema(description = "회원 생년월일", example = "1990-01-01")
-        LocalDate birthDate,
 
         @Schema(description = "회원 성별", example = "MALE")
         Gender gender,
@@ -43,7 +38,6 @@ public record MemberResponse(
                 member.getName(),
                 member.getEmail(),
                 member.getProvider(),
-                member.getBirthDate(),
                 member.getGender(),
                 member.getAddress(),
                 member.getFamilyRole(),

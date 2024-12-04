@@ -28,10 +28,6 @@ public record JoinRequest(
         @NotBlank(message = "이름을 입력해주세요.")
         String name,
 
-        @NotNull(message = "생년월일을 입력해주세요.")
-        @Past(message = "생년월일은 과거 날짜여야 합니다.")
-        LocalDate birthDate,
-
         @NotNull(message = "성별을 입력해주세요.")
         Gender gender,
 
@@ -48,7 +44,6 @@ public record JoinRequest(
                 email,
                 provider,
                 name,
-                birthDate,
                 gender,
                 address,
                 familyRole,

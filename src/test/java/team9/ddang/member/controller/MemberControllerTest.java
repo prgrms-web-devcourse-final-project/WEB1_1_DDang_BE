@@ -45,7 +45,6 @@ class MemberControllerTest extends ApiTestSupport {
                 "guest@example.com",
                 GOOGLE,
                 "John Doe",
-                LocalDate.of(1990, 1, 1),
                 Gender.MALE,
                 "123 Test Street",
                 null,
@@ -57,7 +56,6 @@ class MemberControllerTest extends ApiTestSupport {
                 "John Doe",
                 "guest@example.com",
                 GOOGLE,
-                LocalDate.of(1990, 1, 1),
                 Gender.MALE,
                 "123 Test Street",
                 null,
@@ -76,8 +74,7 @@ class MemberControllerTest extends ApiTestSupport {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.name").value("John Doe"))
-                .andExpect(jsonPath("$.data.email").value("guest@example.com"))
-                .andExpect(jsonPath("$.data.birthDate").value("1990-01-01"));
+                .andExpect(jsonPath("$.data.email").value("guest@example.com"));
     }
 
     @DisplayName("마이페이지 - 회원 정보 조회 성공")
