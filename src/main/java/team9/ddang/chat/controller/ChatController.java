@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,8 @@ import team9.ddang.global.aop.AuthenticationContext;
 import team9.ddang.global.aop.ExtractEmail;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.oauth2.CustomOAuth2User;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v1/chat/message")
@@ -59,19 +62,21 @@ public class ChatController {
             description = "특정 채팅방의 메시지를 페이징 형태로 조회합니다. 또한, 채팅방 입장으로 간주하여, /sub/chat/{chatRoomId} 구독 경로로 메세지 읽음 여부를 broadcast 합니다.",
             parameters = {
                     @Parameter(name = "chatRoomId", description = "조회할 채팅방 ID", required = true, example = "1"),
-                    @Parameter(name = "page", description = "페이지 번호 (기본값: 0)", example = "0")
+                    @Parameter(name = "lastMessageCreatedAt", description = "마지막으로 로드한 메시지의 생성 시간", example = "2024-12-04T12:34:56"),
             }
     )
     public ApiResponse<Slice<ChatResponse>> getChatMessages(
             @PathVariable Long chatRoomId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastMessageCreatedAt,
             @AuthenticationPrincipal CustomOAuth2User currentUser
     ) {
-        if (page < 0) {
-            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
-        }
-        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("createdAt").ascending());
-        Slice<ChatResponse> chats = chatService.findChatsByRoom(chatRoomId, pageRequest, currentUser.getMember());
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+
+
+        Slice<ChatResponse> chats = (lastMessageCreatedAt == null) ?
+                chatService.findChatsByRoom(chatRoomId, pageRequest, currentUser.getMember()) :
+                chatService.findChatsBefore(chatRoomId, lastMessageCreatedAt, pageRequest, currentUser.getMember());
+
         return ApiResponse.ok(chats);
     }
 }

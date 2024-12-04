@@ -23,6 +23,7 @@ import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -70,6 +71,14 @@ public class ChatServiceImpl implements ChatService {
         String topic = "topic-chat-" + chatRoomId;
         chatProducer.sendReadEvent(topic, new ChatReadServiceRequest(chatRoomId, currentMember.getEmail(), null));
 
+        return chats.map(ChatResponse::new);
+    }
+
+    @Override
+    @Transactional
+    public Slice<ChatResponse> findChatsBefore(Long chatRoomId, LocalDateTime lastMessageCreatedAt, Pageable pageable, Member member){
+        checkValidate(chatRoomId, member.getEmail());
+        Slice<Chat> chats = chatRepository.findChatsBefore(chatRoomId, lastMessageCreatedAt, pageable);
         return chats.map(ChatResponse::new);
     }
 

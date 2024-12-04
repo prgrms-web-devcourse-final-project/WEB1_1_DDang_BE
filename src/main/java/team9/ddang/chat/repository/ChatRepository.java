@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import team9.ddang.chat.entity.Chat;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,4 +58,13 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
         GROUP BY cm.chatRoom.chatroomId
        """)
     List<Object[]> countUnreadMessagesByMemberEmail(@Param("email") String email);
+
+    @Query("""
+    SELECT c
+    FROM Chat c
+    WHERE c.chatRoom.chatroomId = :chatRoomId
+      AND c.isDeleted = 'FALSE'
+      AND c.createdAt < :lastMessageCreatedAt
+""")
+    Slice<Chat> findChatsBefore(@Param("chatRoomId") Long chatRoomId, @Param("lastMessageCreatedAt") LocalDateTime lastMessageCreatedAt, Pageable pageable);
 }

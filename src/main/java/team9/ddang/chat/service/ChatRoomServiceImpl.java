@@ -44,7 +44,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         members.add(opponentMember);
 
         List<Member> curmembers = new ArrayList<>();
-        members.add(currentMember);
+        curmembers.add(currentMember);
 
         Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(currentMember, opponentMember);
         if (existingChatRoom.isPresent()) {
