@@ -70,7 +70,7 @@ public class ChatController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastMessageCreatedAt,
             @AuthenticationPrincipal CustomOAuth2User currentUser
     ) {
-        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+        PageRequest pageRequest = PageRequest.of(0, 20, Sort.by("createdAt").descending());
 
 
         Slice<ChatResponse> chats = (lastMessageCreatedAt == null) ?
