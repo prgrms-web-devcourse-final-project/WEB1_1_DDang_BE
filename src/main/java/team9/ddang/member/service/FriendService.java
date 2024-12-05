@@ -9,7 +9,7 @@ import team9.ddang.member.service.response.MemberResponse;
 import java.util.List;
 
 public interface FriendService {
-    MemberResponse decideFriend(Member member, AddFriendRequest addFriendRequest);
+    MemberResponse addFriend(Member member, AddFriendRequest addFriendRequest);
 
     List<FriendListResponse> getFriendList(Member member);
 

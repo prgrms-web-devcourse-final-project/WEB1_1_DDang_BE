@@ -45,7 +45,7 @@ class FriendControllerTest extends ApiTestSupport {
     void addFriend() throws Exception {
         //given
         Long memberId = 1L;
-        AddFriendRequest request = new AddFriendRequest(memberId, "ACCPET");
+        AddFriendRequest request = new AddFriendRequest(memberId);
 
         Member member = Member.builder()
                 .memberId(1L)
@@ -75,7 +75,7 @@ class FriendControllerTest extends ApiTestSupport {
         String accessToken = jwtService.createAccessToken(member.getEmail(), "GOOGLE");
 
         //when
-        given(friendService.decideFriend(any(Member.class), eq(request)))
+        given(friendService.addFriend(any(Member.class), eq(request)))
                 .willReturn(response);
 
 
@@ -295,7 +295,7 @@ class FriendControllerTest extends ApiTestSupport {
     @WithMockUser
     void addFriendWhenMemberIdIsNullThenThrowException() throws Exception {
         //given
-        AddFriendRequest request = new AddFriendRequest(null, "ACCEPT");
+        AddFriendRequest request = new AddFriendRequest(null);
 
         Member member = Member.builder()
                 .memberId(1L)
@@ -325,7 +325,7 @@ class FriendControllerTest extends ApiTestSupport {
         String accessToken = jwtService.createAccessToken(member.getEmail(), "GOOGLE");
 
         //when
-        given(friendService.decideFriend(any(Member.class), eq(request)))
+        given(friendService.addFriend(any(Member.class), eq(request)))
                 .willReturn(response);
 
         //then
