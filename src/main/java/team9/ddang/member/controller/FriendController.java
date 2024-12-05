@@ -32,8 +32,11 @@ public class FriendController {
 
 
     @Operation(
-            summary = "친구 추가",
-            description = "친구 추가 요청을 보냅니다. 상대도 이미 보냈으면 친구 추가를 진행합니다.",
+            summary = "친구 추가, 거절",
+            description = """
+                    친구 추가,거절 요청을 보냅니다. 상대도 이미 보냈으면 친구 추가를 진행합니다. 거절 시 친구 요청은 삭제됩니다.
+                    decision 값은 ACCEPT 혹은 DENY 로 보내주세요
+                    """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "친구를 추가하고자 하는 멤버의 ID",
                     required = true,
@@ -56,7 +59,7 @@ public class FriendController {
     public ApiResponse<MemberResponse> addFriend(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
                                                  @RequestBody @Valid AddFriendRequest addFriendRequest){
 
-        MemberResponse response = friendService.addFriend(customOAuth2User.getMember(), addFriendRequest);
+        MemberResponse response = friendService.decideFriend(customOAuth2User.getMember(), addFriendRequest);
         return ApiResponse.ok(response);
     }
 

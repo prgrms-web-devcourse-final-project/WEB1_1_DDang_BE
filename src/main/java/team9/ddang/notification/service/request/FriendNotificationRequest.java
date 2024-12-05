@@ -8,7 +8,7 @@ import team9.ddang.notification.entity.Type;
 public record FriendNotificationRequest(Member sender, Member receiver) {
 
     public Notification toEntity() {
-        String content = sender.getName() + "you earned Friends!";
+        String content = sender.getName() + "님과 친구가 되었습니다!";
         return Notification.builder()
                 .type(Type.FRIEND)
                 .content(content)

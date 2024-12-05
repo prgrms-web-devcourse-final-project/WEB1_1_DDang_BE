@@ -40,26 +40,15 @@ public class FriendServiceImpl implements FriendService{
 
     @Override
     @Transactional
-    public MemberResponse addFriend(Member member, AddFriendRequest addFriendRequest) {
+    public MemberResponse decideFriend(Member member, AddFriendRequest addFriendRequest) {
         Member otherMember = getMemberFromMemberIdOrElseThrow(addFriendRequest.memberId());
 
-        if(friendRequestRepository.existsFriendRequestByReceiver(member)){
-            saveFriend(member, otherMember);
-
-            FriendNotificationRequest request1 = new FriendNotificationRequest(otherMember, member);
-            FriendNotificationRequest request2 = new FriendNotificationRequest(member, otherMember);
-
-            Notification notificationForMember = request1.toEntity();
-            Notification notificationForOtherMember = request2.toEntity();
-
-            notificationRepository.saveAll(List.of(notificationForMember, notificationForOtherMember));
-
-            sendMessageToNotificationUrl(member.getEmail(), notificationForMember.getContent());
-            sendMessageToNotificationUrl(otherMember.getEmail(), notificationForOtherMember.getContent());
+        if(addFriendRequest.decision().equals("ACCEPT")){
+            addFriend(member, otherMember);
+            return MemberResponse.from(otherMember);
         }
-        else {
-            createFriendRequest(member, otherMember);
-        }
+
+        denyFriend(member, otherMember);
 
         return MemberResponse.from(otherMember);
     }
@@ -104,6 +93,31 @@ public class FriendServiceImpl implements FriendService{
         friendRepository.deleteBySenderAndReceiver(member, otherMember);
     }
 
+    private void addFriend(Member member, Member otherMember){
+        if(friendRequestRepository.existsFriendRequestBySenderAndReceiver(otherMember, member)){
+            saveFriend(member, otherMember);
+
+            FriendNotificationRequest request1 = new FriendNotificationRequest(otherMember, member);
+            FriendNotificationRequest request2 = new FriendNotificationRequest(member, otherMember);
+
+            Notification notificationForMember = request1.toEntity();
+            Notification notificationForOtherMember = request2.toEntity();
+
+            notificationRepository.saveAll(List.of(notificationForMember, notificationForOtherMember));
+
+            sendMessageToNotificationUrl(member.getEmail(), notificationForMember.getContent());
+            sendMessageToNotificationUrl(otherMember.getEmail(), notificationForOtherMember.getContent());
+            return;
+        }
+        createFriendRequest(member, otherMember);
+    }
+
+    private void denyFriend(Member member, Member otherMember){
+        if(friendRequestRepository.existsFriendRequestBySenderAndReceiver(otherMember, member)){
+            friendRequestRepository.deleteBySenderAndReceiver(otherMember, member);
+        }
+    }
+
     private void saveFriend(Member member, Member otherMember){
         List<Friend> friends = List.of(
                 Friend.builder().sender(member).receiver(otherMember).build(),
@@ -111,7 +125,7 @@ public class FriendServiceImpl implements FriendService{
         );
 
         friendRepository.saveAll(friends);
-        friendRequestRepository.deleteByReceiver(member);
+        friendRequestRepository.deleteBySenderAndReceiver(otherMember, member);
     }
 
     private void createFriendRequest(Member member, Member otherMember){
