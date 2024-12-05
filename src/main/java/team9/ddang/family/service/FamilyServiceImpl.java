@@ -276,6 +276,27 @@ public class FamilyServiceImpl implements FamilyService {
         familyRepository.softDeleteFamilyById(family.getFamilyId());
     }
 
+    @Override
+    @Transactional
+    public void deleteFamilyAndMembersAndDogs(Family family, Member currentMember) {
+        // 가족에 속한 멤버들 방출
+        List<Member> familyMembers = memberRepository.findAllByFamilyId(family.getFamilyId());
+        for (Member familyMember : familyMembers) {
+                walkScheduleRepository.softDeleteByMemberId(familyMember.getMemberId());
+                memberDogRepository.softDeleteByMember(familyMember);
+                familyMember.updateFamily(null);
+            }
+
+        // 패밀리에 속한 강아지들 삭제
+        List<Dog> dogs = dogRepository.findAllByFamilyId(family.getFamilyId());
+        for (Dog dog : dogs) {
+            dogRepository.softDeleteById(dog.getDogId());
+        }
+
+        // 패밀리 삭제
+        familyRepository.softDeleteFamilyById(family.getFamilyId());
+    }
+
     private String generateInviteCode(Long familyId) {
         String code;
         boolean isSet;
