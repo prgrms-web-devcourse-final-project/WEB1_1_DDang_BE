@@ -12,6 +12,7 @@ public enum ChatExceptionMessage {
 
     // ChatRoom
     CHATROOM_NOT_FOUND("해당 채팅방을 찾을 수 없습니다."),
+    CHATROOM_CREATION_FAILED("채팅방 생성에 실패했습니다. 잠시 후 다시 시도해주세요."),
 
     // MEMBER
     MEMBER_NOT_FOUND("해당 맴버를 찾을 수 없습니다."),
