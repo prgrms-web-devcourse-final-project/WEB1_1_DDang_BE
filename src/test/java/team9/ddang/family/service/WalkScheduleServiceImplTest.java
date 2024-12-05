@@ -13,6 +13,7 @@ import team9.ddang.dog.entity.IsNeutered;
 import team9.ddang.family.entity.DayOfWeek;
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.entity.WalkSchedule;
+import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.repository.WalkScheduleRepository;
 import team9.ddang.family.service.request.WalkScheduleCreateServiceRequest;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @Transactional
 class WalkScheduleServiceImplTest extends IntegrationTestSupport {
@@ -110,7 +113,6 @@ class WalkScheduleServiceImplTest extends IntegrationTestSupport {
     @DisplayName("산책 일정을 생성해야 한다")
     void createWalkSchedule_Success() {
 
-        // Given
         List<DayOfWeek> dayOfWeeks = List.of(
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
@@ -122,18 +124,21 @@ class WalkScheduleServiceImplTest extends IntegrationTestSupport {
                 dayOfWeeks
         );
 
-        // When
         List<WalkScheduleResponse> responses = walkScheduleService.createWalkSchedule(request, testMember);
 
-        // Then
-        assertThat(responses).isNotNull();
-        assertThat(responses).hasSize(3); // 요일별로 3개의 응답이 생성되어야 함
-        WalkScheduleResponse firstResponse = responses.get(0);
-
-        assertThat(firstResponse.dayOfWeek()).isEqualTo(DayOfWeek.MONDAY);
-        assertThat(firstResponse.walkTime()).isEqualTo(LocalTime.of(9, 30));
-        assertThat(firstResponse.memberName()).isEqualTo(testMember.getName());
-        assertThat(firstResponse.dogName()).isEqualTo(testDog.getName());
+        assertAll(
+                () -> assertThat(responses).isNotNull(),
+                () -> assertThat(responses).hasSize(3),
+                () -> {
+                    WalkScheduleResponse firstResponse = responses.get(0);
+                    assertAll(
+                            () -> assertThat(firstResponse.dayOfWeek()).isEqualTo(DayOfWeek.MONDAY),
+                            () -> assertThat(firstResponse.walkTime()).isEqualTo(LocalTime.of(9, 30)),
+                            () -> assertThat(firstResponse.memberName()).isEqualTo(testMember.getName()),
+                            () -> assertThat(firstResponse.dogName()).isEqualTo(testDog.getName())
+                    );
+                }
+        );
     }
 
     @Test
@@ -150,10 +155,14 @@ class WalkScheduleServiceImplTest extends IntegrationTestSupport {
 
         List<WalkScheduleResponse> schedules = walkScheduleService.getWalkSchedulesByFamilyId(testMember);
 
-        assertThat(schedules).isNotNull();
-        assertThat(schedules).hasSize(1);
-        assertThat(schedules.get(0).dayOfWeek()).isEqualTo(DayOfWeek.TUESDAY);
-        assertThat(schedules.get(0).walkTime()).isEqualTo(LocalTime.of(18, 0));
+        assertAll(
+                () -> assertThat(schedules).isNotNull(),
+                () -> assertThat(schedules).hasSize(1),
+                () -> assertAll(
+                        () -> assertThat(schedules.get(0).dayOfWeek()).isEqualTo(DayOfWeek.TUESDAY),
+                        () -> assertThat(schedules.get(0).walkTime()).isEqualTo(LocalTime.of(18, 0))
+                )
+        );
     }
 
     @Test
@@ -179,6 +188,127 @@ class WalkScheduleServiceImplTest extends IntegrationTestSupport {
         em.clear();
 
         boolean exists = walkScheduleRepository.existsById(schedule.getWalkScheduleId());
-        assertThat(exists).isFalse();
+        assertAll(
+                () -> assertThat(exists).isFalse()
+        );
+    }
+
+
+    @Test
+    @DisplayName("산책 일정 생성 실패 케이스를 검증한다")
+    void createWalkSchedule_FailureCases() {
+        WalkScheduleCreateServiceRequest emptyDayRequest = new WalkScheduleCreateServiceRequest(
+                LocalTime.of(9, 30),
+                List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
+        );
+
+        Member nonFamilyMember = Member.builder()
+                .name("Non Family Member")
+                .email("nonfamily@example.com")
+                .gender(Gender.MALE)
+                .provider(Provider.GOOGLE)
+                .address("No Address")
+                .isMatched(IsMatched.FALSE)
+                .role(Role.USER)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("profile.jpg")
+                .build();
+        memberRepository.save(nonFamilyMember);
+
+        assertAll(
+                () -> assertThatThrownBy(() -> walkScheduleService.createWalkSchedule(emptyDayRequest, nonFamilyMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText())
+        );
+    }
+
+
+    @Test
+    @DisplayName("산책 일정 조회 실패를 검증한다")
+    void getWalkSchedulesByFamilyId_FailureAndEdgeCases() {
+        Member nonFamilyMember = Member.builder()
+                .name("Non Family Member")
+                .email("nonfamily@example.com")
+                .gender(Gender.FEMALE)
+                .provider(Provider.GOOGLE)
+                .address("No Address")
+                .isMatched(IsMatched.FALSE)
+                .role(Role.USER)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("profile.jpg")
+                .build();
+        memberRepository.save(nonFamilyMember);
+
+        List<WalkScheduleResponse> schedules = walkScheduleService.getWalkSchedulesByFamilyId(testMember);
+
+        assertAll(
+                () -> assertThat(schedules).isEmpty(),
+                () -> assertThatThrownBy(() -> walkScheduleService.getWalkSchedulesByFamilyId(nonFamilyMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText())
+        );
+    }
+
+
+
+    @Test
+    @DisplayName("다른 사람의 산책 일정을 삭제하려고 하면 예외가 발생해야 한다")
+    void deleteWalkSchedule_ShouldThrowException_WhenNotOwner() {
+        WalkSchedule schedule = WalkSchedule.builder()
+                .member(walkMember)
+                .dog(testDog)
+                .dayOfWeek(DayOfWeek.TUESDAY)
+                .walkTime(LocalTime.of(10, 0))
+                .family(testFamily)
+                .build();
+        walkScheduleRepository.save(schedule);
+
+        List<Long> scheduleIds = List.of(schedule.getWalkScheduleId());
+        WalkScheduleDeleteServiceRequest request = new WalkScheduleDeleteServiceRequest(scheduleIds);
+
+        assertThatThrownBy(() -> walkScheduleService.deleteWalkSchedule(request, testMember))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(FamilyExceptionMessage.WALKSCHEDULE_NOT_IN_FAMILY.getText());
+    }
+
+
+
+    @Test
+    @DisplayName("멤버 검증 실패 케이스를 검증한다")
+    void validateMemberInFamily_FailureCases() {
+        Member invalidMember = Member.builder()
+                .name("Invalid Member")
+                .email("invalid@example.com")
+                .gender(Gender.MALE)
+                .provider(Provider.GOOGLE)
+                .address("Invalid Address")
+                .isMatched(IsMatched.FALSE)
+                .role(Role.USER)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("profile.jpg")
+                .build();
+
+        Member nonFamilyMember = Member.builder()
+                .name("Non Family Member")
+                .email("nonfamily@example.com")
+                .gender(Gender.FEMALE)
+                .provider(Provider.GOOGLE)
+                .address("No Address")
+                .isMatched(IsMatched.FALSE)
+                .role(Role.USER)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("profile.jpg")
+                .build();
+        memberRepository.save(nonFamilyMember);
+
+        assertAll(
+                () -> assertThatThrownBy(() -> walkScheduleService.getWalkSchedulesByMemberId(invalidMember.getMemberId(), testMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.MEMBER_NOT_FOUND.getText()),
+
+                () -> assertThatThrownBy(() -> walkScheduleService.getWalkSchedulesByMemberId(nonFamilyMember.getMemberId(), testMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText())
+        );
     }
 }
