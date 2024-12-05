@@ -3,10 +3,12 @@ package team9.ddang.walk.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.global.service.RedisService;
+import team9.ddang.global.service.S3Service;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.entity.WalkWithMember;
 import team9.ddang.member.repository.WalkWithMemberRepository;
@@ -20,6 +22,7 @@ import team9.ddang.walk.service.request.walk.CompleteWalkServiceRequest;
 import team9.ddang.walk.service.response.walk.CompleteWalkResponse;
 import team9.ddang.walk.service.response.walk.WalkWithDogInfo;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -38,19 +41,23 @@ public class WalkServiceImpl implements WalkService{
     private final WalkDogRepository walkDogRepository;
     private final LocationBulkRepository locationBulkRepository;
     private final WalkWithMemberRepository walkWithMemberRepository;
+    private final S3Service s3Service;
 
+    private final static String WALK_ROUTE_DIR = "walk";
 
     @Override
     @Transactional
-    public CompleteWalkResponse completeWalk(Member member, CompleteWalkServiceRequest completeWalkServiceRequest) {
+    public CompleteWalkResponse completeWalk(Member member, CompleteWalkServiceRequest completeWalkServiceRequest,
+                                             MultipartFile walkImgFile) throws IOException {
         Dog dog = getDogFromMemberId(member.getMemberId());
         List<Location> locations = getLocationList(member.getEmail());
+        String walkImg = s3Service.upload(walkImgFile, WALK_ROUTE_DIR);
 
         if(locations.isEmpty()) {
             throw new IllegalArgumentException(ABNORMAL_WALK.getText());
         }
 
-        Walk walk = completeWalkServiceRequest.toEntity(locations, member);
+        Walk walk = completeWalkServiceRequest.toEntity(locations, member, walkImg);
         saveWalkAndLocationAndDog(locations, walk, dog);
 
         redisService.deleteGeoValues(POINT_KEY, member.getEmail());
@@ -58,7 +65,7 @@ public class WalkServiceImpl implements WalkService{
         return CompleteWalkResponse.of(
                 member.getName(), dog.getName(), walk.getTotalDistance(), completeWalkServiceRequest.totalWalkTime(),
                 calculateCalorie(dog.getWeight(),completeWalkServiceRequest.totalDistance()),
-                locations.stream().map(Location::getPosition).toList(), getWalkingFriendInfo(member)
+                walk.getWalkImg(), getWalkingFriendInfo(member)
         );
     }
 
