@@ -25,20 +25,13 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
         SELECT c 
         FROM ChatRoom c 
         WHERE c.isDeleted = 'FALSE' 
-          AND EXISTS (
-              SELECT cm 
+          AND (
+              SELECT COUNT(cm) 
               FROM ChatMember cm 
               WHERE cm.chatRoom = c 
-                AND cm.member = :member1 
+                AND cm.member IN (:member1, :member2) 
                 AND cm.isDeleted = 'FALSE'
-          ) 
-          AND EXISTS (
-              SELECT cm 
-              FROM ChatMember cm 
-              WHERE cm.chatRoom = c 
-                AND cm.member = :member2 
-                AND cm.isDeleted = 'FALSE'
-          )
+          ) = 2
     """)
     Optional<ChatRoom> findOneToOneChatRoom(@Param("member1") Member member1, @Param("member2") Member member2);
 
