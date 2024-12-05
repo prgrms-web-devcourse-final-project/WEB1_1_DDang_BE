@@ -12,4 +12,6 @@ public interface NotificationSettingsService {
     SettingsUpdateResponse updateSettings(Long memberId, NotificationSettingsRequest notificationSettingsRequest);
 
     SettingsResponse getSettings(Long memberId);
+
+    void deleteNotificationSettings(Long memberId);
 }

@@ -68,4 +68,9 @@ public class NotificationSettingsServiceImpl implements NotificationSettingsServ
 
         return SettingsUpdateResponse.from(notificationSettings);
     }
+
+    @Override
+    public void deleteNotificationSettings(Long memberId) {
+        notificationSettingsRepository.deleteByMember(memberId);
+    }
 }
