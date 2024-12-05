@@ -112,7 +112,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MyPageResponse getMemberInfo(Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findActiveById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         int totalDistanceInMeters = walkRepository.findTotalDistanceByMemberId(memberId);
@@ -128,7 +128,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public IsMatched updateIsMatched(Long memberId, IsMatched isMatched) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findActiveById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         member.updateIsMatched(isMatched);
@@ -138,7 +138,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public UpdateResponse updateMember(Long memberId, UpdateServiceRequest updateServiceRequest) {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findActiveById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         updateServiceRequest.toEntity(member);
@@ -150,7 +150,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public UpdateResponse getUpdateInfo(Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findActiveById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         return UpdateResponse.from(member);
@@ -184,7 +184,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void updateAddress(Long memberId, UpdateAddressServiceRequest serviceRequest) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findActiveById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         member.updateAddress(serviceRequest.address());
