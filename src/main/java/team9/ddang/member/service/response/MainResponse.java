@@ -18,8 +18,8 @@ public record MainResponse(
         @Schema(description = "강아지 이름", example = "Buddy")
         String dogName,
 
-        @Schema(description = "강아지 프로필 이미지", example = "https://~~~~.com")
-        String dogProfileImgUrl,
+        @Schema(description = "멤버 프로필 이미지", example = "Avatar4.svg")
+        String memberProfileImgUrl,
 
         @Schema(description = "산책 시간")
         TimeDuration timeDuration,
@@ -34,7 +34,7 @@ public record MainResponse(
         return new MainResponse(member.getMemberId(),
                 member.getFamilyRole(),
                 dog.getName(),
-                dog.getProfileImg(),
+                member.getProfileImg(),
                 team9.ddang.walk.service.response.TimeDuration.from(totalSeconds),
                 totalDistanceMeter,
                 WalkCalculator.calculateCalorie(dog.getWeight(), totalDistanceMeter));
