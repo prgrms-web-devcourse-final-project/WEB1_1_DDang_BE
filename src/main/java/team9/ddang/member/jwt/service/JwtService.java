@@ -86,7 +86,7 @@ public class JwtService {
     public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
         response.setStatus(HttpServletResponse.SC_OK);
 
-        setAccessTokenHeader(response, accessToken);
+        setAccessTokenHeader(response, BEARER + accessToken);
         setRefreshTokenCookie(response, refreshToken);
     }
 
