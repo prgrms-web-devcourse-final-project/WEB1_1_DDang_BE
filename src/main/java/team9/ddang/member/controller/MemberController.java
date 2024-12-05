@@ -149,8 +149,8 @@ public class MemberController {
             description = "회원을 삭제합니다."
     )
     public ApiResponse<String> deleteMember(@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        Long memberId = customOAuth2User.getMember().getMemberId();
-        memberService.deleteMember(memberId);
+
+        memberService.deleteMember(customOAuth2User.getMember());
         return ApiResponse.ok("회원 삭제 완료");
     }
 

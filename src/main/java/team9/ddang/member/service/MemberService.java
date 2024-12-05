@@ -3,6 +3,7 @@ package team9.ddang.member.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import team9.ddang.member.entity.IsMatched;
+import team9.ddang.member.entity.Member;
 import team9.ddang.member.service.request.JoinServiceRequest;
 import team9.ddang.member.service.request.UpdateAddressServiceRequest;
 import team9.ddang.member.service.request.UpdateServiceRequest;
@@ -26,7 +27,7 @@ public interface MemberService {
 
     UpdateResponse getUpdateInfo(Long memberId);
 
-    void deleteMember(Long memberId);
+    void deleteMember(Member member);
 
     void updateAddress(Long memberId, UpdateAddressServiceRequest serviceRequest);
 }
