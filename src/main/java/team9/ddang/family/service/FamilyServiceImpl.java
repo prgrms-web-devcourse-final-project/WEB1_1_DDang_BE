@@ -47,16 +47,10 @@ public class FamilyServiceImpl implements FamilyService {
     @Transactional
     public FamilyResponse createFamily(Member member) {
 
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() != null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_ALREADY_IN_FAMILY.getText());
-        }
+        Member currentMember = validateMemberNotInFamily(member);
 
         // TODO : 나중에 여러 강아지를 키울 수 있게 된다면 강아지를 리스트로 받아와야 할 듯
-        Long dogId = findMemberDogByIdOrThrowException(currentMember.getMemberId()).getDog().getDogId();
-        Dog dog = findDogByIdOrThrowException(dogId);
-
+        Dog dog = findDogForMember(currentMember);
 
         Family family = Family.builder()
                 .member(currentMember)
@@ -64,7 +58,6 @@ public class FamilyServiceImpl implements FamilyService {
                 .build();
 
         family = familyRepository.save(family);
-
         currentMember.updateFamily(family);
         dog.updateFamily(family);
 
@@ -73,11 +66,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     public InviteCodeResponse createInviteCode(Member member) {
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
+        Member currentMember = validateMemberInFamily(member);
 
         Family family = currentMember.getFamily();
         String redisSearchKey = REDIS_INVITE_KEY_PREFIX;
@@ -94,7 +83,6 @@ public class FamilyServiceImpl implements FamilyService {
             }
         }
 
-        // 새로운 초대 코드 생성
         String newInviteCode = generateInviteCode(family.getFamilyId());
         redisTemplate.opsForValue().set(REDIS_INVITE_KEY_PREFIX + newInviteCode, String.valueOf(family.getFamilyId()), Duration.ofMinutes(5));
 
@@ -105,51 +93,19 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     @Transactional
     public FamilyResponse addMemberToFamily(String inviteCode, Member member) {
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        String familyIdStr = redisTemplate.opsForValue().get(REDIS_INVITE_KEY_PREFIX + inviteCode);
-        if (familyIdStr == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.INVALID_INVITE_CODE.getText());
-        }
-
-        if (currentMember.getFamily() != null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_ALREADY_IN_FAMILY.getText());
-        }
-
-        boolean hasDog = memberDogRepository.existsByMember(member);
-        if (hasDog) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_DOG_FOUND.getText());
-        }
-
-        Long familyId = Long.valueOf(familyIdStr);
-
-        Family family = findFamilyByIdOrThrowException(familyId);
-
-        currentMember.updateFamily(family);
-
-        List<Dog> dogs = dogRepository.findAllByFamilyId(family.getFamilyId());
-
-        for (Dog dog : dogs) {
-            MemberDog memberDog = MemberDog.builder()
-                    .member(currentMember)
-                    .dog(dog)
-                    .build();
-            memberDogRepository.save(memberDog);
-        }
-
+        Member currentMember = validateMemberNotInFamily(member);
+        validateMemberWithoutDog(member);
+        Family family = getFamilyByInviteCode(inviteCode);
+        addMemberToFamilyAssociations(currentMember, family);
         return new FamilyResponse(family);
     }
 
     @Override
     @Transactional(readOnly = true)
     public FamilyDetailResponse getMyFamily(Member member) {
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
-
+        Member currentMember = validateMemberInFamily(member);
         Family family = currentMember.getFamily();
+
         List<GetDogResponse> dogs = dogRepository.findAllByFamilyId(family.getFamilyId())
                 .stream()
                 .map(dog -> new GetDogResponse(
@@ -199,81 +155,117 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     @Transactional
     public void removeMemberFromFamily(Long memberIdToRemove, Member member) {
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
-
-        Family family = currentMember.getFamily();
-
-        if (!family.getMember().getMemberId().equals(currentMember.getMemberId())) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_FAMILY_BOSS.getText());
-        }
-
-        if (family.getMember().getMemberId().equals(memberIdToRemove)) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_FAMILY_BOSS.getText());
-        }
-
-
-        Member memberToRemove = findMemberByIdOrThrowException(memberIdToRemove);
-        if (memberToRemove.getFamily() == null ||
-                !memberToRemove.getFamily().getFamilyId().equals(family.getFamilyId())) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
+        Member currentMember = validateFamilyBoss(member);
+        validateMemberNotBoss(memberIdToRemove, currentMember);
+        Member memberToRemove = validateMemberInSameFamily(memberIdToRemove, currentMember.getFamily());
 
         walkScheduleRepository.softDeleteByMemberId(memberToRemove.getMemberId());
-
         memberDogRepository.softDeleteByMember(memberToRemove);
-
         memberToRemove.updateFamily(null);
     }
 
     @Override
     @Transactional
     public void leaveFamily(Member member) {
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
-
-        Family family = currentMember.getFamily();
-
-        if (family.getMember().getMemberId().equals(currentMember.getMemberId())) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_LEAVE_OWNER.getText());
-        }
+        Member currentMember = validateMemberInFamily(member);
+        validateNotFamilyBossForLeaving(currentMember);
 
         walkScheduleRepository.softDeleteByMemberId(currentMember.getMemberId());
-
         memberDogRepository.softDeleteByMember(currentMember);
-
         currentMember.updateFamily(null);
     }
 
     @Override
     @Transactional
     public void deleteFamily(Member member) {
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+        Member currentMember = validateFamilyBoss(member);
+        Family family = currentMember.getFamily();
+        validateFamilyNotEmpty(family);
 
+        walkScheduleRepository.softDeleteByFamilyId(family.getFamilyId());
+        familyRepository.softDeleteFamilyById(family.getFamilyId());
+    }
+
+    private Member validateMemberNotInFamily(Member member) {
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+        if (currentMember.getFamily() != null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_ALREADY_IN_FAMILY.getText());
+        }
+        return currentMember;
+    }
+
+    private Member validateMemberInFamily(Member member) {
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
         if (currentMember.getFamily() == null) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
         }
+        return currentMember;
+    }
 
-        Family family = currentMember.getFamily();
-
-        if (!family.getMember().getMemberId().equals(currentMember.getMemberId())) {
+    private Member validateFamilyBoss(Member member) {
+        Member currentMember = validateMemberInFamily(member);
+        if (!currentMember.getFamily().getMember().getMemberId().equals(currentMember.getMemberId())) {
             throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_FAMILY_BOSS.getText());
         }
+        return currentMember;
+    }
+    private void validateMemberNotBoss(Long memberId, Member currentMember) {
+        if (memberId.equals(currentMember.getMemberId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_FAMILY_BOSS.getText());
+        }
+    }
 
+    private Member validateMemberInSameFamily(Long memberId, Family family) {
+        Member member = findMemberByIdOrThrowException(memberId);
+        if (member.getFamily() == null || !member.getFamily().getFamilyId().equals(family.getFamilyId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+        return member;
+    }
+
+    private void validateNotFamilyBossForLeaving(Member member) {
+        Family family = member.getFamily();
+        if (family != null && family.getMember().getMemberId().equals(member.getMemberId())) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_LEAVE_OWNER.getText());
+        }
+    }
+
+    private void validateMemberWithoutDog(Member member) {
+        if (memberDogRepository.existsByMember(member)) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_DOG_FOUND.getText());
+        }
+    }
+
+    private void validateFamilyNotEmpty(Family family) {
         List<Member> familyMembers = memberRepository.findAllByFamilyId(family.getFamilyId());
         if (familyMembers.size() > 1) {
             throw new IllegalArgumentException(FamilyExceptionMessage.FAMILY_NOT_EMPTY.getText());
         }
+    }
 
-        walkScheduleRepository.softDeleteByFamilyId(family.getFamilyId());
+    private Dog findDogForMember(Member member) {
+        Long dogId = findMemberDogByIdOrThrowException(member.getMemberId()).getDog().getDogId();
+        return findDogByIdOrThrowException(dogId);
+    }
 
-        familyRepository.softDeleteFamilyById(family.getFamilyId());
+    private Family getFamilyByInviteCode(String inviteCode) {
+        String familyIdStr = redisTemplate.opsForValue().get(REDIS_INVITE_KEY_PREFIX + inviteCode);
+        if (familyIdStr == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.INVALID_INVITE_CODE.getText());
+        }
+        Long familyId = Long.valueOf(familyIdStr);
+        return findFamilyByIdOrThrowException(familyId);
+    }
+
+    private void addMemberToFamilyAssociations(Member member, Family family) {
+        member.updateFamily(family);
+        List<Dog> dogs = dogRepository.findAllByFamilyId(family.getFamilyId());
+        dogs.forEach(dog -> memberDogRepository.save(
+                MemberDog.builder()
+                        .member(member)
+                        .dog(dog)
+                        .build()
+        ));
     }
 
     private String generateInviteCode(Long familyId) {
