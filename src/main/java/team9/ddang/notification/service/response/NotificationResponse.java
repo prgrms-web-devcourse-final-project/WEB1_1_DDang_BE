@@ -4,12 +4,15 @@ import team9.ddang.notification.entity.IsRead;
 import team9.ddang.notification.entity.Notification;
 import team9.ddang.notification.entity.Type;
 
+import java.time.LocalDateTime;
+
 public record NotificationResponse(
         Long notificationId,
         Type type,
         String content,
         IsRead isRead,
-        Long memberId
+        Long memberId,
+        LocalDateTime createdAt
 ) {
     public static NotificationResponse of(Notification notification) {
         return new NotificationResponse(
@@ -17,7 +20,8 @@ public record NotificationResponse(
                 notification.getType(),
                 notification.getContent(),
                 notification.getIsRead(),
-                notification.getMember().getMemberId()
+                notification.getMember().getMemberId(),
+                notification.getCreatedAt()
         );
     }
 }

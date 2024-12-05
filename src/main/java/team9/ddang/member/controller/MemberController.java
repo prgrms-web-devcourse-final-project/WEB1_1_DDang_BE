@@ -73,7 +73,7 @@ public class MemberController {
     @DeleteMapping("/logout")
     @Operation(
             summary = "로그아웃",
-            description = "로그아웃을 수행합니다."
+            description = "로그아웃을 수행합니다. 요청 시, 헤더에 유효한 `accessToken`을 `Authorization` 헤더에 `Bearer <accessToken>` 형태로 포함시켜서 보내주세요."
     )
     public ApiResponse<String> logout(HttpServletRequest request) {
         log.info("logout() 메서드 진입");
@@ -149,8 +149,8 @@ public class MemberController {
             description = "회원을 삭제합니다."
     )
     public ApiResponse<String> deleteMember(@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        Long memberId = customOAuth2User.getMember().getMemberId();
-        memberService.deleteMember(memberId);
+
+        memberService.deleteMember(customOAuth2User.getMember());
         return ApiResponse.ok("회원 삭제 완료");
     }
 
