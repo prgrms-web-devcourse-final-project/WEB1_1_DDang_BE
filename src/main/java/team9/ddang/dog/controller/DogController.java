@@ -1,6 +1,7 @@
 package team9.ddang.dog.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,12 @@ public class DogController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = CreateDogRequest.class)
                     )
-            )
+            ),
+            parameters = {
+                    @Parameter( name = "profileImgFile",
+                            description = "Profile Image File",
+                            required = false,
+                            schema = @Schema(type = "string", format = "binary") ) }
     )
     public ApiResponse<CreateDogResponse> createDog(
             @RequestPart @Valid CreateDogRequest request,
@@ -73,7 +79,12 @@ public class DogController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = UpdateDogRequest.class)
                     )
-            )
+            ),
+            parameters = {
+                    @Parameter( name = "profileImgFile",
+                            description = "Profile Image File",
+                            required = false,
+                            schema = @Schema(type = "string", format = "binary") ) }
     )
     public ApiResponse<Void> updateDog(
             @PathVariable Long id,
