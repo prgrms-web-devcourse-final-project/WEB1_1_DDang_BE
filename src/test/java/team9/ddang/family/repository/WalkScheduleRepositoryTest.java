@@ -16,6 +16,7 @@ import team9.ddang.family.entity.Family;
 import team9.ddang.family.entity.WalkSchedule;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.global.entity.IsDeleted;
+import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.entity.Provider;
@@ -57,12 +58,13 @@ class WalkScheduleRepositoryTest extends IntegrationTestSupport {
         testMember = Member.builder()
                 .name("John Doe")
                 .email("john.doe@example.com")
-                .birthDate(LocalDate.of(1990, 1, 1))
                 .gender(team9.ddang.global.entity.Gender.MALE)
                 .address("123 Test Street")
                 .provider(Provider.GOOGLE)
                 .role(team9.ddang.member.entity.Role.USER)
                 .isMatched(IsMatched.TRUE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(testMember);
 
@@ -89,7 +91,7 @@ class WalkScheduleRepositoryTest extends IntegrationTestSupport {
 
         testSchedule = WalkSchedule.builder()
                 .member(testMember)
-                .dayOfWeek(DayOfWeek.MON)
+                .dayOfWeek(DayOfWeek.MONDAY)
                 .dog(testDog)
                 .walkTime(LocalTime.of(9, 30))
                 .family(testFamily)

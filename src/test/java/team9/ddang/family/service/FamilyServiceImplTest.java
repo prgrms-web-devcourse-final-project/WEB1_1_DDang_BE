@@ -19,10 +19,7 @@ import team9.ddang.family.service.response.FamilyDetailResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.global.entity.IsDeleted;
-import team9.ddang.member.entity.IsMatched;
-import team9.ddang.member.entity.Member;
-import team9.ddang.member.entity.Provider;
-import team9.ddang.member.entity.Role;
+import team9.ddang.member.entity.*;
 import team9.ddang.member.repository.MemberRepository;
 
 import java.math.BigDecimal;
@@ -66,6 +63,8 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(testMember);
 
@@ -102,6 +101,8 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(newMember);
 
@@ -114,7 +115,6 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
         FamilyResponse response = familyService.createFamily(newMember);
 
         assertThat(response).isNotNull();
-        assertThat(response.familyName()).isEqualTo("New Family");
         assertThat(response.memberId()).isEqualTo(newMember.getMemberId());
     }
 
@@ -124,7 +124,6 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
         FamilyDetailResponse response = familyService.getMyFamily(testMember);
 
         assertThat(response).isNotNull();
-        assertThat(response.familyName()).isEqualTo("Test Family");
         assertThat(response.members()).hasSize(1);
         assertThat(response.dogs()).hasSize(1);
     }
@@ -140,6 +139,8 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         additionalMember.updateFamily(testFamily);
         memberRepository.save(additionalMember);
@@ -186,13 +187,14 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(newMember);
 
         FamilyResponse response = familyService.addMemberToFamily(inviteCode, newMember);
 
         assertThat(response).isNotNull();
-        assertThat(response.familyName()).isEqualTo("Test Family");
         assertThat(newMember.getFamily()).isEqualTo(testFamily);
     }
 
@@ -207,6 +209,8 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         additionalMember.updateFamily(testFamily);
         memberRepository.save(additionalMember);

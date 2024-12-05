@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.IntegrationTestSupport;
 import team9.ddang.family.entity.Family;
 import team9.ddang.global.entity.IsDeleted;
+import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.entity.Provider;
@@ -45,6 +46,8 @@ class FamilyRepositoryTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(team9.ddang.member.entity.Role.USER)
                 .isMatched(IsMatched.TRUE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(testMember);
 

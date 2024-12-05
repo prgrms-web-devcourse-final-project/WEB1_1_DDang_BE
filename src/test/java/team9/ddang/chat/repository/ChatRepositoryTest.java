@@ -11,9 +11,7 @@ import team9.ddang.chat.entity.Chat;
 import team9.ddang.chat.entity.ChatRoom;
 import team9.ddang.chat.entity.ChatType;
 import team9.ddang.global.entity.Gender;
-import team9.ddang.member.entity.IsMatched;
-import team9.ddang.member.entity.Member;
-import team9.ddang.member.entity.Provider;
+import team9.ddang.member.entity.*;
 import team9.ddang.member.repository.MemberRepository;
 
 import java.time.LocalDate;
@@ -34,7 +32,6 @@ class ChatRepositoryTest extends IntegrationTestSupport {
     private MemberRepository memberRepository;
 
     @DisplayName("채팅방 ID로 채팅 목록을 조회한다.")
-    @Disabled("member 업데이트 필요")
     @Test
     void findByChatRoomId_shouldReturnChats() {
 
@@ -45,12 +42,13 @@ class ChatRepositoryTest extends IntegrationTestSupport {
         Member member = memberRepository.save(Member.builder()
                 .name("Test Member")
                 .email("test@example.com")
-                .birthDate(LocalDate.of(1990, 1, 1))
                 .gender(Gender.MALE)
+                .address("123 Test Street")
                 .provider(Provider.GOOGLE)
-//                .role(Role.ROLE_USER)
-//                .comment("안녕하세요")
+                .role(Role.USER)
                 .isMatched(IsMatched.TRUE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build());
 
         Chat chat1 = chatRepository.save(Chat.builder()
@@ -76,7 +74,6 @@ class ChatRepositoryTest extends IntegrationTestSupport {
     }
 
     @DisplayName("채팅방의 마지막 메시지를 조회한다.")
-    @Disabled("member 업데이트 필요")
     @Test
     void findLastMessageByChatRoom_shouldReturnLastMessage() {
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
@@ -86,12 +83,13 @@ class ChatRepositoryTest extends IntegrationTestSupport {
         Member member = memberRepository.save(Member.builder()
                 .name("Test Member")
                 .email("test@example.com")
-                .birthDate(LocalDate.of(1990, 1, 1))
                 .gender(Gender.MALE)
                 .provider(Provider.GOOGLE)
-//                .role(Role.ROLE_USER)
-//                .comment("안녕하세요")
+                .role(Role.USER)
+                .address("123 Test Street")
                 .isMatched(IsMatched.TRUE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build());
 
         Chat lastChat = chatRepository.save(Chat.builder()
