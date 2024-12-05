@@ -6,7 +6,7 @@ import team9.ddang.member.entity.Member;
 
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, Long> {
 
-    boolean existsFriendRequestByReceiver(Member receiver);
+    boolean existsFriendRequestBySenderAndReceiver(Member sender ,Member receiver);
 
-    void deleteByReceiver(Member receiver);
+    void deleteBySenderAndReceiver(Member Sender ,Member receiver);
 }
