@@ -45,9 +45,7 @@ public class ChatServiceImpl implements ChatService {
 
         Member member = findMemberByEmailOrThrowException(email);
 
-        if(!chatMemberRepository.existsByChatRoomIdAndMemberId(chatRoomId, member.getMemberId())){
-            throw new IllegalArgumentException(ChatExceptionMessage.CHATMEMBER_NOT_IN_CHATROOM.getText());
-        }
+        validateMemberInChatRoom(chatRoomId, member);
 
         Chat chat = Chat.builder()
                 .chatRoom(chatRoom)
@@ -55,7 +53,6 @@ public class ChatServiceImpl implements ChatService {
                 .chatType(ChatType.TALK)
                 .text(message)
                 .build();
-
 
         return new ChatResponse(chatRepository.save(chat));
     }
@@ -98,6 +95,13 @@ public class ChatServiceImpl implements ChatService {
     public void checkChat(ChatServiceRequest request){
         findChatRoomByIdOrThrowException(request.chatRoomId());
         findMemberByEmailOrThrowException(request.email());
+    }
+
+    private void validateMemberInChatRoom(Long chatRoomId, Member member) {
+        boolean isMemberInChatRoom = chatMemberRepository.existsByChatRoomIdAndMemberId(chatRoomId, member.getMemberId());
+        if (!isMemberInChatRoom) {
+            throw new IllegalArgumentException(ChatExceptionMessage.CHATMEMBER_NOT_IN_CHATROOM.getText());
+        }
     }
 
     private Member checkValidate(Long chatRoomId, String email){
