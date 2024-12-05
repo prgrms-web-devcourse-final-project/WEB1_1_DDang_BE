@@ -2,6 +2,7 @@ package team9.ddang.global.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -99,5 +100,22 @@ public class S3Service {
         }
 
         return fileName;
+    }
+
+    public void uploadChatFile(String bucketName, String keyName, File file) {
+        PutObjectRequest request = new PutObjectRequest(bucketName, keyName, file)
+                .withCannedAcl(CannedAccessControlList.Private);
+        amazonS3Client.putObject(request);
+
+        log.info("파일 업로드 성공: 버킷={}, 키={}", bucketName, keyName);
+    }
+
+    public File downloadChatFile(String bucketName, String keyName, String downloadPath) {
+        File file = new File(downloadPath);
+        GetObjectRequest request = new GetObjectRequest(bucketName, keyName);
+        amazonS3Client.getObject(request, file);
+
+        log.info("파일 다운로드 성공: 버킷={}, 키={}", bucketName, keyName);
+        return file;
     }
 }
