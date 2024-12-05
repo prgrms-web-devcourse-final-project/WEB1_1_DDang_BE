@@ -12,22 +12,31 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
-    @Query("SELECT c FROM Chat c WHERE c.isDeleted = 'false' AND c.chatId = :id")
-    Optional<Chat> findActiveById(Long id);
+    @Query("""
+                SELECT c 
+                FROM Chat c 
+                WHERE c.isDeleted = 'FALSE' 
+                  AND c.chatId = :id
+            """)
+    Optional<Chat> findActiveById(@Param("id") Long id);
 
     @Query("""
                 SELECT c 
                 FROM Chat c 
                 JOIN FETCH c.member 
                 JOIN FETCH c.chatRoom 
-                WHERE c.isDeleted = 'false' AND c.chatRoom.chatroomId = :chatRoomId
+                WHERE c.isDeleted = 'FALSE' 
+                 AND c.chatRoom.chatroomId = :chatRoomId
             """)
     Slice<Chat> findByChatRoomId(Long chatRoomId, Pageable pageable);
 
-    @Query("SELECT c.text FROM Chat c " +
-            "WHERE c.chatRoom.chatroomId = :chatRoomId " +
-            "AND c.isDeleted = 'FALSE' " +
-            "ORDER BY c.createdAt DESC LIMIT 1")
+    @Query("""
+                SELECT c.text 
+                FROM Chat c 
+                WHERE c.chatRoom.chatroomId = :chatRoomId 
+                  AND c.isDeleted = 'FALSE' 
+                ORDER BY c.createdAt DESC
+            """)
     String findLastMessageByChatRoom(@Param("chatRoomId") Long chatRoomId);
 
     @Query("""
@@ -40,31 +49,31 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     Long countUnreadMessagesByChatRoomAndMember(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
 
     @Query("""
-        SELECT c
-        FROM Chat c
-        WHERE c.chatRoom.chatroomId = :chatRoomId
-          AND c.member.memberId <> :memberId
-          AND c.isRead = 'FALSE'
-    """)
+                SELECT c
+                FROM Chat c
+                WHERE c.chatRoom.chatroomId = :chatRoomId
+                  AND c.member.memberId <> :memberId
+                  AND c.isRead = 'FALSE'
+            """)
     List<Chat> findUnreadMessagesByChatRoomIdAndMemberId(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
 
     @Query("""
-        SELECT cm.chatRoom.chatroomId, COUNT(c)
-        FROM ChatMember cm
-        LEFT JOIN Chat c ON cm.chatRoom.chatroomId = c.chatRoom.chatroomId
-        WHERE cm.member.email = :email
-          AND cm.isDeleted = 'FALSE'
-          AND (c.isRead = 'FALSE' OR c.isRead IS NULL)
-        GROUP BY cm.chatRoom.chatroomId
-       """)
+            SELECT cm.chatRoom.chatroomId, COUNT(c)
+            FROM ChatMember cm
+            LEFT JOIN Chat c ON cm.chatRoom.chatroomId = c.chatRoom.chatroomId
+            WHERE cm.member.email = :email
+              AND cm.isDeleted = 'FALSE'
+              AND (c.isRead = 'FALSE' OR c.isRead IS NULL)
+            GROUP BY cm.chatRoom.chatroomId
+            """)
     List<Object[]> countUnreadMessagesByMemberEmail(@Param("email") String email);
 
     @Query("""
-    SELECT c
-    FROM Chat c
-    WHERE c.chatRoom.chatroomId = :chatRoomId
-      AND c.isDeleted = 'FALSE'
-      AND c.createdAt < :lastMessageCreatedAt
-""")
+            SELECT c
+            FROM Chat c
+            WHERE c.chatRoom.chatroomId = :chatRoomId
+              AND c.isDeleted = 'FALSE'
+              AND c.createdAt < :lastMessageCreatedAt
+            """)
     Slice<Chat> findChatsBefore(@Param("chatRoomId") Long chatRoomId, @Param("lastMessageCreatedAt") LocalDateTime lastMessageCreatedAt, Pageable pageable);
 }

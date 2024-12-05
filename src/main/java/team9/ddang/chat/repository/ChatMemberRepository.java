@@ -11,18 +11,37 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatMemberRepository extends JpaRepository<ChatMember, Long> {
-    @Query("SELECT c FROM ChatMember c WHERE c.isDeleted = 'false' AND c.chatMemberId = :id")
+    @Query("""
+                SELECT c 
+                FROM ChatMember c 
+                WHERE c.isDeleted = 'FALSE' 
+                  AND c.chatMemberId = :id
+            """)
     Optional<ChatMember> findActiveById(Long id);
 
-    @Query("SELECT cm.member FROM ChatMember cm " +
-            "WHERE cm.chatRoom = :chatRoom AND cm.isDeleted = 'FALSE'")
+    @Query("""
+                SELECT cm.member 
+                FROM ChatMember cm
+                WHERE cm.chatRoom = :chatRoom 
+                  AND cm.isDeleted = 'FALSE'
+            """)
     List<Member> findMembersByChatRoom(@Param("chatRoom") ChatRoom chatRoom);
 
-    @Query("SELECT COUNT(cm) > 0 FROM ChatMember cm " +
-            "WHERE cm.chatRoom.chatroomId = :chatRoomId AND cm.member.memberId = :memberId AND cm.isDeleted = 'FALSE'")
+    @Query("""
+                SELECT COUNT(cm) > 0 
+                FROM ChatMember cm
+                WHERE cm.chatRoom.chatroomId = :chatRoomId 
+                  AND cm.member.memberId = :memberId 
+                  AND cm.isDeleted = 'FALSE'
+            """)
     boolean existsByChatRoomIdAndMemberId(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
 
-    @Query("SELECT COUNT(cm) > 0 FROM ChatMember cm " +
-            "WHERE cm.chatRoom.chatroomId = :chatRoomId AND cm.member.email = :email AND cm.isDeleted = 'FALSE'")
+    @Query("""
+                SELECT COUNT(cm) > 0 
+                FROM ChatMember cm
+                WHERE cm.chatRoom.chatroomId = :chatRoomId 
+                  AND cm.member.email = :email 
+                  AND cm.isDeleted = 'FALSE'
+            """)
     boolean existsByChatRoomIdAndEmail(@Param("chatRoomId") Long chatRoomId, @Param("email") String email);
 }
