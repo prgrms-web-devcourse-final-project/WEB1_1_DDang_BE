@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team9.ddang.chat.entity.Chat;
@@ -24,6 +25,7 @@ import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -68,7 +70,13 @@ public class ChatServiceImpl implements ChatService {
         String topic = "topic-chat-" + chatRoomId;
         chatProducer.sendReadEvent(topic, new ChatReadServiceRequest(chatRoomId, currentMember.getEmail(), null));
 
-        return chats.map(ChatResponse::new);
+        List<ChatResponse> reversedResponses = new java.util.ArrayList<>(chats.getContent()
+                .stream()
+                .map(ChatResponse::new)
+                .toList());
+        Collections.reverse(reversedResponses);
+
+        return new SliceImpl<>(reversedResponses, pageable, chats.hasNext());
     }
 
     @Override
@@ -76,7 +84,13 @@ public class ChatServiceImpl implements ChatService {
     public Slice<ChatResponse> findChatsBefore(Long chatRoomId, LocalDateTime lastMessageCreatedAt, Pageable pageable, Member member){
         checkValidate(chatRoomId, member.getEmail());
         Slice<Chat> chats = chatRepository.findChatsBefore(chatRoomId, lastMessageCreatedAt, pageable);
-        return chats.map(ChatResponse::new);
+        List<ChatResponse> reversedResponses = new java.util.ArrayList<>(chats.getContent()
+                .stream()
+                .map(ChatResponse::new)
+                .toList());
+        Collections.reverse(reversedResponses);
+
+        return new SliceImpl<>(reversedResponses, pageable, chats.hasNext());
     }
 
     @Override
