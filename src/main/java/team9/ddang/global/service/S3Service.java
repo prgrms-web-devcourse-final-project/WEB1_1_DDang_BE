@@ -116,12 +116,17 @@ public class S3Service {
         }
     }
 
-    public File downloadChatFile(String bucketName, String keyName, String downloadPath) {
-        File file = new File(downloadPath);
-        GetObjectRequest request = new GetObjectRequest(bucketName, keyName);
-        amazonS3Client.getObject(request, file);
+    public File downloadChatFile(String bucketName, String keyName) {
+        try {
+            File tempFile = File.createTempFile("s3-download-", "-" + keyName.replaceAll("/", "_"));
+            GetObjectRequest request = new GetObjectRequest(bucketName, keyName);
+            amazonS3Client.getObject(request, tempFile);
 
-        log.info("파일 다운로드 성공: 버킷={}, 키={}", bucketName, keyName);
-        return file;
+            log.info("파일 다운로드 성공: 버킷={}, 키={}, 경로={}", bucketName, keyName, tempFile.getAbsolutePath());
+            return tempFile;
+        } catch (Exception e) {
+            log.error("파일 다운로드 실패: 버킷={}, 키={}, 에러={}", bucketName, keyName, e.getMessage());
+            throw new IllegalStateException("Failed to download file from S3", e);
+        }
     }
 }
