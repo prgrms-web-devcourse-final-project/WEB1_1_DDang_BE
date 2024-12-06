@@ -10,7 +10,7 @@ public interface WalkWithMemberRepository extends JpaRepository<WalkWithMember, 
     @Query("""
             SELECT COALESCE(COUNT(w), 0) 
             FROM WalkWithMember w 
-            WHERE w.sender.memberId = :memberId
+            WHERE w.sender.memberId = :memberId AND w.isDeleted = 'FALSE'
             """)
     int countBySenderMemberId(@Param("memberId") Long memberId);
 }
