@@ -102,12 +102,18 @@ public class S3Service {
         return fileName;
     }
 
-    public void uploadChatFile(String bucketName, String keyName, File file) {
-        PutObjectRequest request = new PutObjectRequest(bucketName, keyName, file)
-                .withCannedAcl(CannedAccessControlList.Private);
-        amazonS3Client.putObject(request);
+    public boolean uploadChatFile(String bucketName, String keyName, File file) {
+        try {
+            PutObjectRequest request = new PutObjectRequest(bucketName, keyName, file)
+                    .withCannedAcl(CannedAccessControlList.Private);
+            amazonS3Client.putObject(request);
 
-        log.info("파일 업로드 성공: 버킷={}, 키={}", bucketName, keyName);
+            log.info("파일 업로드 성공: 버킷={}, 키={}", bucketName, keyName);
+            return true;
+        } catch (Exception e) {
+            log.error("파일 업로드 실패: 버킷={}, 키={}, 에러={}", bucketName, keyName, e.getMessage());
+            return false;
+        }
     }
 
     public File downloadChatFile(String bucketName, String keyName, String downloadPath) {

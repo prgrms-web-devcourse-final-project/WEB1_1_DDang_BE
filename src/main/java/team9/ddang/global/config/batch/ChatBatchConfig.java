@@ -60,8 +60,8 @@ public class ChatBatchConfig {
         return new JpaPagingItemReaderBuilder<Chat>()
                 .name("chatItemReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT c FROM Chat c WHERE c.createdAt < :twoWeeksAgo")
-                .parameterValues(Map.of("twoWeeksAgo", LocalDateTime.now().minusWeeks(2)))
+                .queryString("SELECT c FROM Chat c WHERE c.createdAt < :oneWeekAgo")
+                .parameterValues(Map.of("oneWeekAgo", LocalDateTime.now().minusWeeks(1)))
                 .pageSize(100)
                 .build();
     }
@@ -71,16 +71,24 @@ public class ChatBatchConfig {
         return chunk -> {
             List<? extends Chat> chats = chunk.getItems();
 
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-            String fileName = "chats_archive_" + timestamp + ".csv";
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime oneWeekAgo = now.minusWeeks(1);
+
+            String period = oneWeekAgo.format(DateTimeFormatter.ofPattern("yyyyMMdd")) +
+                    "_" +
+                    now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            String fileName = "chats_archive_" + period + ".csv";
 
             File csvFile = createCsvFile(chats, fileName);
 
-            s3Service.uploadChatFile(bucket, "archive/" + fileName, csvFile);
+            boolean isUploaded = s3Service.uploadChatFile(bucket, "archive/" + fileName, csvFile);
+            if (isUploaded) {
+                csvFile.delete();
+            } else {
+                throw new IllegalStateException("Failed to upload file to S3");
+            }
 
-            csvFile.delete();
-
-            chatRepository.deleteChatsOlderThan(LocalDateTime.now().minusWeeks(2));
+            chatRepository.deleteChatsOlderThan(oneWeekAgo);
         };
     }
 
@@ -104,6 +112,6 @@ public class ChatBatchConfig {
 
     private String sanitize(String text) {
         if (text == null) return "";
-        return text.replaceAll(",", " ");
+        return text.replaceAll("[,\n\r]", " ");
     }
 }
