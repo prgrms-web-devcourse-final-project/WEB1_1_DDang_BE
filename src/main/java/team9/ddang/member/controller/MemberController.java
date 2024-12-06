@@ -70,7 +70,7 @@ public class MemberController {
         return ApiResponse.ok(newAccessToken);
     }
 
-    @DeleteMapping("/logout")
+    @PostMapping("/logout")
     @Operation(
             summary = "로그아웃",
             description = "로그아웃을 수행합니다. 요청 시, 헤더에 유효한 `accessToken`을 `Authorization` 헤더에 `Bearer <accessToken>` 형태로 포함시켜서 보내주세요."
