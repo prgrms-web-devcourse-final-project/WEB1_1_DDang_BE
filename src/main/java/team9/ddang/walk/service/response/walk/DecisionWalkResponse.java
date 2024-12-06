@@ -11,9 +11,12 @@ public record DecisionWalkResponse(
         String otherMemberName,
 
         @Schema(description = "상대방 프로필 이미지", example = "Avatar5.svg")
-        String otherMemberProfileImg
+        String otherMemberProfileImg,
+
+        @Schema(description = "메시지 타입", example = "DECISION")
+        Type type
 ) {
     public static DecisionWalkResponse of(String decision, Member member){
-        return new DecisionWalkResponse(decision, member.getName(), member.getProfileImg());
+        return new DecisionWalkResponse(decision, member.getName(), member.getProfileImg(), Type.DECISION);
     }
 }
