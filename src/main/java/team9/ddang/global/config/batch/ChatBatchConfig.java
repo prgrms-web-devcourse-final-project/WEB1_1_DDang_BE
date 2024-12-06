@@ -19,9 +19,8 @@ import team9.ddang.chat.entity.Chat;
 import team9.ddang.chat.repository.ChatRepository;
 import team9.ddang.global.service.S3Service;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -94,12 +93,12 @@ public class ChatBatchConfig {
 
     private File createCsvFile(List<? extends Chat> chats, String filePath) throws IOException {
         File file = new File(filePath);
-        try (var writer = new FileWriter(file)) {
+        try (var writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             writer.write("ID,Text,CreatedAt,ChatRoomId,MemberId,ChatType,IsRead\n");
             for (Chat chat : chats) {
                 writer.write(String.format("%d,%s,%s,%d,%d,%s,%s\n",
                         chat.getChatId(),
-                        sanitize(chat.getText()),
+                        escapeCsv(chat.getText()),
                         chat.getCreatedAt(),
                         chat.getChatRoom().getChatroomId(),
                         chat.getMember().getMemberId(),
@@ -110,8 +109,15 @@ public class ChatBatchConfig {
         return file;
     }
 
-    private String sanitize(String text) {
+    private String escapeCsv(String text) {
         if (text == null) return "";
-        return text.replaceAll("[,\n\r]", " ");
+
+        text = text.replace("\"", "\"\"");
+
+        if (text.contains(",") || text.contains("\n") || text.contains("\r") || text.contains("\t") || text.contains(";")) {
+            return "\"" + text + "\"";
+        }
+
+        return text;
     }
 }
