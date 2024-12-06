@@ -17,17 +17,16 @@ import team9.ddang.member.entity.Member;
 import team9.ddang.member.oauth2.CustomOAuth2User;
 import team9.ddang.member.service.response.MainResponse;
 
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Collections;
-import java.util.Map;
 
 @MockBean(JpaMetamodelMappingContext.class)
 class MainControllerTest extends ApiTestSupport {
@@ -47,7 +46,7 @@ class MainControllerTest extends ApiTestSupport {
                         .memberId(memberId)
                         .name("John Doe")
                         .email("user@example.com")
-                        .familyRole(FamilyRole.BROTHER)
+                        .familyRole(FamilyRole.ELDER_BROTHER)
                         .isMatched(IsMatched.TRUE)
                         .build()
         );
@@ -60,7 +59,7 @@ class MainControllerTest extends ApiTestSupport {
 
         Dog dog = Dog.builder()
                 .name("코코")
-                .weight(3)
+                .weight(BigDecimal.valueOf(3.3))
                 .build();
 
         MainResponse mainResponse = MainResponse.of(customOAuth2User.getMember(), dog, 3600, 3000);
@@ -80,7 +79,7 @@ class MainControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(jsonPath("$.message").value("OK"))
                 .andExpect(jsonPath("$.data.memberId").value(1L))
-                .andExpect(jsonPath("$.data.familyRole").value("BROTHER"))
+                .andExpect(jsonPath("$.data.familyRole").value("ELDER_BROTHER"))
                 .andExpect(jsonPath("$.data.dogName").value("코코"))
                 .andExpect(jsonPath("$.data.timeDuration.hours").value("1"))
                 .andExpect(jsonPath("$.data.totalDistanceMeter").value("3000"))
