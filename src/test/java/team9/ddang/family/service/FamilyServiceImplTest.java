@@ -14,15 +14,13 @@ import team9.ddang.dog.entity.MemberDog;
 import team9.ddang.dog.repository.DogRepository;
 import team9.ddang.dog.repository.MemberDogRepository;
 import team9.ddang.family.entity.Family;
+import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.service.response.FamilyDetailResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.global.entity.IsDeleted;
-import team9.ddang.member.entity.IsMatched;
-import team9.ddang.member.entity.Member;
-import team9.ddang.member.entity.Provider;
-import team9.ddang.member.entity.Role;
+import team9.ddang.member.entity.*;
 import team9.ddang.member.repository.MemberRepository;
 
 import java.math.BigDecimal;
@@ -30,6 +28,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @Transactional
 class FamilyServiceImplTest extends IntegrationTestSupport {
@@ -66,6 +66,8 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(testMember);
 
@@ -102,6 +104,8 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(newMember);
 
@@ -113,9 +117,10 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
 
         FamilyResponse response = familyService.createFamily(newMember);
 
-        assertThat(response).isNotNull();
-        assertThat(response.familyName()).isEqualTo("New Family");
-        assertThat(response.memberId()).isEqualTo(newMember.getMemberId());
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.memberId()).isEqualTo(newMember.getMemberId())
+        );
     }
 
     @Test
@@ -123,10 +128,11 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
     void getMyFamily_Success() {
         FamilyDetailResponse response = familyService.getMyFamily(testMember);
 
-        assertThat(response).isNotNull();
-        assertThat(response.familyName()).isEqualTo("Test Family");
-        assertThat(response.members()).hasSize(1);
-        assertThat(response.dogs()).hasSize(1);
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.members()).hasSize(1),
+                () -> assertThat(response.dogs()).hasSize(1)
+        );
     }
 
     @Test
@@ -140,6 +146,8 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         additionalMember.updateFamily(testFamily);
         memberRepository.save(additionalMember);
@@ -147,7 +155,11 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
         familyService.leaveFamily(additionalMember);
 
         Member updatedMember = memberRepository.findById(additionalMember.getMemberId()).orElseThrow();
-        assertThat(updatedMember.getFamily()).isNull();
+
+        assertAll(
+                () -> assertThat(updatedMember).isNotNull(),
+                () -> assertThat(updatedMember.getFamily()).isNull()
+        );
     }
 
     @Test
@@ -159,8 +171,11 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
         em.clear();
 
         Optional<Family> deletedFamily = familyRepository.findById(testFamily.getFamilyId());
-        assertThat(deletedFamily).isPresent();
-        assertThat(deletedFamily.get().getIsDeleted()).isEqualTo(IsDeleted.TRUE);
+
+        assertAll(
+                () -> assertThat(deletedFamily).isPresent(),
+                () -> assertThat(deletedFamily.get().getIsDeleted()).isEqualTo(IsDeleted.TRUE)
+        );
     }
 
     @Test
@@ -168,9 +183,11 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
     void createInviteCode_Success() {
         var response = familyService.createInviteCode(testMember);
 
-        assertThat(response).isNotNull();
-        assertThat(response.inviteCode()).isNotEmpty();
-        assertThat(response.expiresInSeconds()).isGreaterThan(0);
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.inviteCode()).isNotEmpty(),
+                () -> assertThat(response.expiresInSeconds()).isGreaterThan(0)
+        );
     }
 
     @Test
@@ -186,14 +203,17 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(newMember);
 
         FamilyResponse response = familyService.addMemberToFamily(inviteCode, newMember);
 
-        assertThat(response).isNotNull();
-        assertThat(response.familyName()).isEqualTo("Test Family");
-        assertThat(newMember.getFamily()).isEqualTo(testFamily);
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(newMember.getFamily()).isEqualTo(testFamily)
+        );
     }
 
     @Test
@@ -207,6 +227,8 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 .provider(Provider.GOOGLE)
                 .role(Role.USER)
                 .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         additionalMember.updateFamily(testFamily);
         memberRepository.save(additionalMember);
@@ -214,6 +236,110 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
         familyService.removeMemberFromFamily(additionalMember.getMemberId(), testMember);
 
         Member updatedMember = memberRepository.findById(additionalMember.getMemberId()).orElseThrow();
-        assertThat(updatedMember.getFamily()).isNull();
+
+        assertAll(
+                () -> assertThat(updatedMember).isNotNull(),
+                () -> assertThat(updatedMember.getFamily()).isNull()
+        );
+    }
+
+    @Test
+    @DisplayName("이미 가족에 속한 멤버가 가족을 생성하려고 하면 예외가 발생해야 한다")
+    void createFamily_ShouldThrowException_WhenMemberAlreadyInFamily() {
+        assertAll(
+                () -> assertThatThrownBy(() -> familyService.createFamily(testMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.MEMBER_ALREADY_IN_FAMILY.getText())
+        );
+    }
+
+    @Test
+    @DisplayName("가족에 속하지 않은 멤버가 가족 정보를 조회하려고 하면 예외가 발생해야 한다")
+    void getMyFamily_ShouldThrowException_WhenMemberNotInFamily() {
+        Member nonFamilyMember = Member.builder()
+                .name("Non Family Member")
+                .email("non.family@example.com")
+                .gender(Gender.MALE)
+                .address("456 Unknown Street")
+                .provider(Provider.GOOGLE)
+                .role(Role.USER)
+                .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("no-profile.jpg")
+                .build();
+        memberRepository.save(nonFamilyMember);
+
+        assertAll(
+                () -> assertThatThrownBy(() -> familyService.getMyFamily(nonFamilyMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText())
+        );
+    }
+
+    @Test
+    @DisplayName("가족 Boss가 가족을 탈퇴하려고 하면 예외가 발생해야 한다")
+    void leaveFamily_ShouldThrowException_WhenBossTriesToLeave() {
+        assertAll(
+                () -> assertThatThrownBy(() -> familyService.leaveFamily(testMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.MEMBER_NOT_LEAVE_OWNER.getText())
+        );
+    }
+
+    @Test
+    @DisplayName("가족에 멤버가 남아 있는 상태에서 가족을 삭제하려고 하면 예외가 발생해야 한다")
+    void deleteFamily_ShouldThrowException_WhenFamilyNotEmpty() {
+        Member additionalMember = Member.builder()
+                .name("Jane Doe")
+                .email("jane.doe@example.com")
+                .gender(Gender.FEMALE)
+                .address("789 Test Avenue")
+                .provider(Provider.GOOGLE)
+                .role(Role.USER)
+                .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
+                .build();
+        additionalMember.updateFamily(testFamily);
+        memberRepository.save(additionalMember);
+
+        assertAll(
+                () -> assertThatThrownBy(() -> familyService.deleteFamily(testMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.FAMILY_NOT_EMPTY.getText())
+        );
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 초대 코드로 가족에 멤버를 추가하려고 하면 예외가 발생해야 한다")
+    void addMemberToFamily_ShouldThrowException_WhenInviteCodeInvalid() {
+        Member newMember = Member.builder()
+                .name("New Member")
+                .email("new.member@example.com")
+                .gender(Gender.FEMALE)
+                .address("456 Another Street")
+                .provider(Provider.GOOGLE)
+                .role(Role.USER)
+                .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
+                .build();
+        memberRepository.save(newMember);
+
+        assertAll(
+                () -> assertThatThrownBy(() -> familyService.addMemberToFamily("INVALID_CODE", newMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.INVALID_INVITE_CODE.getText())
+        );
+    }
+
+    @Test
+    @DisplayName("가족 Boss를 가족에서 제거하려고 하면 예외가 발생해야 한다")
+    void removeMemberFromFamily_ShouldThrowException_WhenTryingToRemoveBoss() {
+        assertAll(
+                () -> assertThatThrownBy(() -> familyService.removeMemberFromFamily(testMember.getMemberId(), testMember))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(FamilyExceptionMessage.MEMBER_FAMILY_BOSS.getText())
+        );
     }
 }

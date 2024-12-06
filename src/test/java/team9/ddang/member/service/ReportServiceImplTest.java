@@ -43,24 +43,26 @@ class ReportServiceImplTest extends IntegrationTestSupport {
         sender = Member.builder()
                 .name("Sender")
                 .email("sender@example.com")
-                .birthDate(LocalDate.of(1990, 1, 1))
                 .gender(Gender.MALE)
                 .provider(Provider.GOOGLE)
                 .address("123 Sender Street")
                 .isMatched(IsMatched.FALSE)
                 .role(Role.USER)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(sender);
 
         receiver = Member.builder()
                 .name("Receiver")
                 .email("receiver@example.com")
-                .birthDate(LocalDate.of(1985, 5, 15))
                 .gender(Gender.FEMALE)
                 .provider(Provider.GOOGLE)
                 .address("123 Receiver Street")
                 .isMatched(IsMatched.FALSE)
                 .role(Role.USER)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(receiver);
     }

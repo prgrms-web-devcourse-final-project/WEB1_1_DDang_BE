@@ -13,27 +13,52 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long> {
-    @Query("SELECT w FROM WalkSchedule w WHERE w.family.familyId = :familyId AND w.isDeleted = 'FALSE'")
+
+    @Query("""
+        SELECT w 
+        FROM WalkSchedule w 
+        WHERE w.family.familyId = :familyId 
+          AND w.isDeleted = 'FALSE'
+    """)
     List<WalkSchedule> findAllByFamilyId(@Param("familyId") Long familyId);
 
-    @Query("SELECT w FROM WalkSchedule w WHERE w.walkScheduleId = :id AND w.isDeleted = 'FALSE'")
+    @Query("""
+        SELECT w 
+        FROM WalkSchedule w 
+        WHERE w.walkScheduleId = :id 
+          AND w.isDeleted = 'FALSE'
+    """)
     Optional<WalkSchedule> findActiveById(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"member"})
-    @Query("SELECT w FROM WalkSchedule w WHERE w.dog.dogId = :dogId AND w.isDeleted = 'FALSE'")
+    @Query("""
+        SELECT w 
+        FROM WalkSchedule w 
+        WHERE w.dog.dogId = :dogId 
+          AND w.isDeleted = 'FALSE'
+    """)
     List<WalkSchedule> findAllByDogId(@Param("dogId") Long dogId);
 
     @Modifying
-    @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.walkScheduleId = :id")
-    void softDeleteById(@Param("id") Long id);
+    @Query("""
+        DELETE FROM WalkSchedule w 
+        WHERE w.walkScheduleId = :id
+    """)
+    void deleteById(@Param("id") Long id);
 
     @Modifying
-    @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.member.memberId = :memberId")
-    void softDeleteByMemberId(@Param("memberId") Long memberId);
+    @Query("""
+        DELETE FROM WalkSchedule w 
+        WHERE w.member.memberId = :memberId
+    """)
+    void deleteByMemberId(@Param("memberId") Long memberId);
 
     @Modifying
-    @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.family.familyId = :familyId")
-    void softDeleteByFamilyId(@Param("familyId") Long familyId);
+    @Query("""
+        DELETE FROM WalkSchedule w 
+        WHERE w.family.familyId = :familyId
+    """)
+    void deleteByFamilyId(@Param("familyId") Long familyId);
 
     List<WalkSchedule> findByDayOfWeekAndWalkTime(DayOfWeek dayOfWeek, LocalTime walkTime);
   
@@ -47,8 +72,11 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
     List<WalkSchedule> findAllByFamilyIdWithDetails(@Param("familyId") Long familyId);
 
     @Modifying
-    @Query("UPDATE WalkSchedule w SET w.isDeleted = 'TRUE' WHERE w.dog.dogId = :dogId")
-    void softDeleteByDogId(@Param("dogId") Long dogId);
+    @Query("""
+        DELETE FROM WalkSchedule w 
+        WHERE w.dog.dogId = :dogId
+    """)
+    void deleteByDogId(@Param("dogId") Long dogId);
 
     @Query("""
     SELECT w 
@@ -58,6 +86,10 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
     List<WalkSchedule> findAllByMemberId(@Param("memberId") Long memberId);
 
     @Modifying
-    @Query("DELETE FROM WalkSchedule ws WHERE ws.walkScheduleId IN :ids")
+    @Query("""
+        DELETE 
+        FROM WalkSchedule ws 
+        WHERE ws.walkScheduleId IN :ids
+    """)
     void deleteAllById(@Param("ids") List<Long> ids);
 }

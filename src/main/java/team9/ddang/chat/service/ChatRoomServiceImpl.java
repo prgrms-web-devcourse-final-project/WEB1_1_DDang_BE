@@ -1,5 +1,7 @@
 package team9.ddang.chat.service;
 
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.PessimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -17,9 +19,7 @@ import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -35,47 +35,47 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Transactional
     public ChatRoomResponse createChatRoom(ChatRoomCreateServiceRequest request, Member member) {
+        try {
+            Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+            Member opponentMember = findMemberByIdOrThrowException(request.opponentMemberId());
 
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+            List<Member> members = List.of(opponentMember);
+            List<Member> curmembers = List.of(currentMember);
 
-        Member opponentMember = findMemberByIdOrThrowException(request.opponentMemberId());
+            return chatRoomRepository.findOneToOneChatRoom(currentMember, opponentMember)
+                    .map(existingChatRoom -> {
+                        String lastMessage = getLastMessage(existingChatRoom.getChatroomId());
+                        Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(
+                                existingChatRoom.getChatroomId(),
+                                currentMember.getMemberId()
+                        );
+                        return new ChatRoomResponse(existingChatRoom, lastMessage, unreadCount, members);
+                    })
+                    .orElseGet(() -> {
+                        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
+                                .name(currentMember.getName() + " & " + opponentMember.getName())
+                                .build());
 
-        List<Member> members = new ArrayList<>();
-        members.add(opponentMember);
+                        chatMemberRepository.save(ChatMember.builder()
+                                .member(currentMember)
+                                .chatRoom(chatRoom)
+                                .build());
 
-        List<Member> curmembers = new ArrayList<>();
-        curmembers.add(currentMember);
+                        chatMemberRepository.save(ChatMember.builder()
+                                .member(opponentMember)
+                                .chatRoom(chatRoom)
+                                .build());
 
-        Optional<ChatRoom> existingChatRoom = chatRoomRepository.findOneToOneChatRoom(currentMember, opponentMember);
-        if (existingChatRoom.isPresent()) {
-            String lastMessage = getLastMessage(existingChatRoom.get().getChatroomId());
-            Long unreadCount = chatRepository.countUnreadMessagesByChatRoomAndMember(existingChatRoom.get().getChatroomId(), currentMember.getMemberId());
-            return new ChatRoomResponse(existingChatRoom.get(), lastMessage, unreadCount, members);
+                        kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
+
+                        sendMessageToUser(opponentMember.getEmail(),
+                                new ChatRoomResponse(chatRoom, null, 0L, curmembers));
+
+                        return new ChatRoomResponse(chatRoom, null, 0L, members);
+                    });
+        } catch (PessimisticLockException | LockTimeoutException e) {
+            throw new IllegalArgumentException(ChatExceptionMessage.CHATROOM_CREATION_FAILED.getText());
         }
-
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
-                .name(currentMember.getName() + " & " + opponentMember.getName())
-                .build());
-
-        chatMemberRepository.save(ChatMember.builder()
-                .member(currentMember)
-                .chatRoom(chatRoom)
-                .build());
-
-        chatMemberRepository.save(ChatMember.builder()
-                .member(opponentMember)
-                .chatRoom(chatRoom)
-                .build());
-
-
-
-        kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
-
-        ChatRoomResponse chatRoomResponse = new ChatRoomResponse(chatRoom, null, 0L, members);
-
-        sendMessageToUser(opponentMember.getEmail(), new ChatRoomResponse(chatRoom, null, 0L, curmembers));
-
-        return chatRoomResponse;
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +98,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .toList();
     }
 
-    private void sendMessageToUser(String email, Object data){
+    private void sendMessageToUser(String email, Object data) {
         messagingTemplate.convertAndSend("/sub/chatroom/" + email, WebSocketResponse.ok(data));
     }
 

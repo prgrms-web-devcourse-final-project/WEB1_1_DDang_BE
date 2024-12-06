@@ -10,10 +10,19 @@ import java.util.Optional;
 
 public interface FamilyRepository extends JpaRepository<Family, Long> {
 
-    @Query("SELECT f FROM Family f WHERE f.familyId = :id AND f.isDeleted = 'FALSE'")
+    @Query("""
+        SELECT f 
+        FROM Family f 
+        WHERE f.familyId = :id 
+          AND f.isDeleted = 'FALSE'
+    """)
     Optional<Family> findActiveById(@Param("id") Long id);
 
     @Modifying
-    @Query("UPDATE Family f SET f.isDeleted = 'TRUE' WHERE f.familyId = :familyId")
+    @Query("""
+        UPDATE Family f 
+        SET f.isDeleted = 'TRUE' 
+        WHERE f.familyId = :familyId
+    """)
     void softDeleteFamilyById(@Param("familyId") Long familyId);
 }

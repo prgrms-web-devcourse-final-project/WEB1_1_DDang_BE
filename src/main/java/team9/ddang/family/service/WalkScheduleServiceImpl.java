@@ -37,11 +37,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
     @Transactional
     public List<WalkScheduleResponse> createWalkSchedule (WalkScheduleCreateServiceRequest request, Member member){
 
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
+        Member currentMember = validateMemberInFamily(member);
 
         Family family = currentMember.getFamily();
 
@@ -69,11 +65,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
     @Transactional(readOnly = true)
     public List<WalkScheduleResponse> getWalkSchedulesByFamilyId(Member member) {
 
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
+        Member currentMember = validateMemberInFamily(member);
 
         List<WalkSchedule> schedules = walkScheduleRepository.findAllByFamilyIdWithDetails(currentMember.getFamily().getFamilyId());
 
@@ -85,11 +77,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
     @Override
     @Transactional(readOnly = true)
     public List<WalkScheduleResponse> getWalkSchedulesByMemberId(Long memberId, Member member){
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
+        validateMemberInFamily(member);
 
         Member searchMember = findMemberByIdOrThrowException(memberId);
 
@@ -108,11 +96,7 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
     @Transactional
     public void deleteWalkSchedule(WalkScheduleDeleteServiceRequest request, Member member) {
 
-        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
-
-        if (currentMember.getFamily() == null) {
-            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
-        }
+        Member currentMember = validateMemberInFamily(member);
 
         List<WalkSchedule> walkSchedules = walkScheduleRepository.findAllById(request.walkScheduleId());
 
@@ -126,6 +110,13 @@ public class WalkScheduleServiceImpl implements WalkScheduleService {
     }
 
 
+    private Member validateMemberInFamily(Member member) {
+        Member currentMember = findMemberByIdOrThrowException(member.getMemberId());
+        if (currentMember.getFamily() == null) {
+            throw new IllegalArgumentException(FamilyExceptionMessage.MEMBER_NOT_IN_FAMILY.getText());
+        }
+        return currentMember;
+    }
 
     private Dog validateAndGetDog(Long dogId, Family family) {
         Dog dog = findDogByIdOrThrowException(dogId);
