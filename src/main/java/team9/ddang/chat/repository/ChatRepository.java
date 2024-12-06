@@ -35,7 +35,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
                 FROM Chat c 
                 WHERE c.chatRoom.chatroomId = :chatRoomId 
                   AND c.isDeleted = 'FALSE' 
-                ORDER BY c.createdAt DESC
+                ORDER BY c.createdAt DESC LIMIT 1
             """)
     String findLastMessageByChatRoom(@Param("chatRoomId") Long chatRoomId);
 
