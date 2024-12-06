@@ -93,10 +93,9 @@ class FriendControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.data.email").value("user@example.com"))
                 .andExpect(jsonPath("$.data.name").value("mjk"))
                 .andExpect(jsonPath("$.data.provider").value("GOOGLE"))
-                .andExpect(jsonPath("$.data.birthDate").value("1999-09-03"))
                 .andExpect(jsonPath("$.data.gender").value("MALE"))
                 .andExpect(jsonPath("$.data.address").value("Incheon"))
-                .andExpect(jsonPath("$.data.familyRole").value("BROTHER"))
+                .andExpect(jsonPath("$.data.familyRole").value("ELDER_BROTHER"))
                 .andExpect(jsonPath("$.data.profileImg").value("profileImg1.png"));
     }
 
@@ -159,7 +158,7 @@ class FriendControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.message").value("OK"))
                 .andExpect(jsonPath("$.data[0].memberId").value(2L))
                 .andExpect(jsonPath("$.data[0].gender").value("MALE"))
-                .andExpect(jsonPath("$.data[0].familyRole").value("BROTHER"));
+                .andExpect(jsonPath("$.data[0].familyRole").value("ELDER_BROTHER"));
 
     }
 
@@ -233,7 +232,7 @@ class FriendControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.data.memberName").value("mjk"))
                 .andExpect(jsonPath("$.data.address").value("Incheon"))
                 .andExpect(jsonPath("$.data.memberGender").value("MALE"))
-                .andExpect(jsonPath("$.data.familyRole").value("BROTHER"))
+                .andExpect(jsonPath("$.data.familyRole").value("ELDER_BROTHER"))
                 .andExpect(jsonPath("$.data.memberProfileImg").value("profileImg1.png"))
                 .andExpect(jsonPath("$.data.totalDistance").value("30.0"))
                 .andExpect(jsonPath("$.data.walkCount").value("10"))
@@ -242,7 +241,7 @@ class FriendControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.data.dogName").value("쪼꼬"))
                 .andExpect(jsonPath("$.data.dogBreed").value("말티즈"))
                 .andExpect(jsonPath("$.data.dogAge").value("2"))
-                .andExpect(jsonPath("$.data.dogWeight").value("3"))
+                .andExpect(jsonPath("$.data.dogWeight").value("3.0"))
                 .andExpect(jsonPath("$.data.dogGender").value("MALE"))
                 .andExpect(jsonPath("$.data.dogProfileImg").value("profile"))
                 .andExpect(jsonPath("$.data.isNeutered").value("TRUE"));
