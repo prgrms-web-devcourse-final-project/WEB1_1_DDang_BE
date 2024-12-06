@@ -273,7 +273,7 @@ public class FamilyServiceImpl implements FamilyService {
         // 가족에 속한 멤버들 방출
         List<Member> familyMembers = memberRepository.findAllByFamilyId(family.getFamilyId());
         for (Member familyMember : familyMembers) {
-                walkScheduleRepository.softDeleteByMemberId(familyMember.getMemberId());
+                walkScheduleRepository.deleteByMemberId(familyMember.getMemberId());
                 memberDogRepository.softDeleteByMember(familyMember);
                 familyMember.updateFamily(null);
             }

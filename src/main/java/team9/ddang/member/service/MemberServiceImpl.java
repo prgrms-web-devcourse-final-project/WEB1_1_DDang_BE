@@ -168,7 +168,7 @@ public class MemberServiceImpl implements MemberService {
         if (family.getMember().getMemberId().equals(currentMember.getMemberId())) { // 가족의 대표일 경우
             familyService.deleteFamilyAndMembersAndDogs(family, currentMember);
         } else { // 가족 구성원인 경우
-            walkScheduleRepository.softDeleteByMemberId(currentMember.getMemberId());
+            walkScheduleRepository.deleteByMemberId(currentMember.getMemberId());
             memberDogRepository.softDeleteByMember(currentMember);
 
             currentMember.updateFamily(null);
