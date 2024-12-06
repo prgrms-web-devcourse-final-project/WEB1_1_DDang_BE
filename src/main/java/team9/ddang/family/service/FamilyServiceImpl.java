@@ -17,7 +17,6 @@ import team9.ddang.family.repository.WalkScheduleRepository;
 import team9.ddang.family.service.response.*;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
-import team9.ddang.member.service.response.MemberResponse;
 import team9.ddang.walk.repository.WalkRepository;
 
 import java.time.Duration;
@@ -159,7 +158,7 @@ public class FamilyServiceImpl implements FamilyService {
         validateMemberNotBoss(memberIdToRemove, currentMember);
         Member memberToRemove = validateMemberInSameFamily(memberIdToRemove, currentMember.getFamily());
 
-        walkScheduleRepository.softDeleteByMemberId(memberToRemove.getMemberId());
+        walkScheduleRepository.deleteByMemberId(memberToRemove.getMemberId());
         memberDogRepository.softDeleteByMember(memberToRemove);
         memberToRemove.updateFamily(null);
     }
@@ -170,7 +169,7 @@ public class FamilyServiceImpl implements FamilyService {
         Member currentMember = validateMemberInFamily(member);
         validateNotFamilyBossForLeaving(currentMember);
 
-        walkScheduleRepository.softDeleteByMemberId(currentMember.getMemberId());
+        walkScheduleRepository.deleteByMemberId(currentMember.getMemberId());
         memberDogRepository.softDeleteByMember(currentMember);
         currentMember.updateFamily(null);
     }
@@ -182,7 +181,7 @@ public class FamilyServiceImpl implements FamilyService {
         Family family = currentMember.getFamily();
         validateFamilyNotEmpty(family);
 
-        walkScheduleRepository.softDeleteByFamilyId(family.getFamilyId());
+        walkScheduleRepository.deleteByFamilyId(family.getFamilyId());
         familyRepository.softDeleteFamilyById(family.getFamilyId());
     }
 

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @Transactional
 class WalkScheduleRepositoryTest extends IntegrationTestSupport {
@@ -104,32 +105,38 @@ class WalkScheduleRepositoryTest extends IntegrationTestSupport {
     void findActiveById_returnsActiveWalkSchedule() {
         Optional<WalkSchedule> foundSchedule = walkScheduleRepository.findActiveById(testSchedule.getWalkScheduleId());
 
-        assertThat(foundSchedule).isPresent();
-        assertThat(foundSchedule.get()).isEqualTo(testSchedule);
-        assertThat(foundSchedule.get().getIsDeleted()).isEqualTo(IsDeleted.FALSE);
+        assertAll(
+                () -> assertThat(foundSchedule).isPresent(),
+                () -> assertThat(foundSchedule.get()).isEqualTo(testSchedule),
+                () -> assertThat(foundSchedule.get().getIsDeleted()).isEqualTo(IsDeleted.FALSE)
+        );
     }
 
     @Test
     @DisplayName("findActiveById는 삭제된 산책 일정을 조회하지 않는다")
     void findActiveById_doesNotReturnDeletedWalkSchedule() {
-        walkScheduleRepository.softDeleteById(testSchedule.getWalkScheduleId());
+        walkScheduleRepository.deleteById(testSchedule.getWalkScheduleId());
 
         Optional<WalkSchedule> foundSchedule = walkScheduleRepository.findActiveById(testSchedule.getWalkScheduleId());
 
-        assertThat(foundSchedule).isNotPresent();
+        assertAll(
+                () -> assertThat(foundSchedule).isNotPresent()
+        );
     }
 
     @Test
-    @DisplayName("softDeleteById는 산책 일정을 소프트 삭제 처리한다")
-    void softDeleteById_softDeletesWalkSchedule() {
-        walkScheduleRepository.softDeleteById(testSchedule.getWalkScheduleId());
+    @DisplayName("deleteById는 산책 일정을 완전히 삭제한다")
+    void hardDeleteById_deletesWalkSchedule() {
+        walkScheduleRepository.deleteById(testSchedule.getWalkScheduleId());
 
         em.flush();
         em.clear();
 
         Optional<WalkSchedule> deletedSchedule = walkScheduleRepository.findById(testSchedule.getWalkScheduleId());
-        assertThat(deletedSchedule).isPresent();
-        assertThat(deletedSchedule.get().getIsDeleted()).isEqualTo(IsDeleted.TRUE);
+
+        assertAll(
+                () -> assertThat(deletedSchedule).isEmpty()
+        );
     }
 
     @Test
@@ -137,40 +144,44 @@ class WalkScheduleRepositoryTest extends IntegrationTestSupport {
     void findAllByFamilyId_returnsActiveWalkSchedules() {
         List<WalkSchedule> schedules = walkScheduleRepository.findAllByFamilyId(testFamily.getFamilyId());
 
-        assertThat(schedules).isNotEmpty();
-        assertThat(schedules).hasSize(1);
-        assertThat(schedules.get(0)).isEqualTo(testSchedule);
+        assertAll(
+                () -> assertThat(schedules).isNotEmpty(),
+                () -> assertThat(schedules).hasSize(1),
+                () -> assertThat(schedules.get(0)).isEqualTo(testSchedule)
+        );
     }
 
     @Test
-    @DisplayName("softDeleteByMemberId는 멤버의 모든 산책 일정을 소프트 삭제 처리한다")
-    void softDeleteByMemberId_softDeletesSchedulesForMember() {
-        walkScheduleRepository.softDeleteByMemberId(testMember.getMemberId());
+    @DisplayName("deleteByMemberId는 멤버의 모든 산책 일정을 완전히 삭제한다")
+    void hardDeleteByMemberId_deletesSchedulesForMember() {
+        walkScheduleRepository.deleteByMemberId(testMember.getMemberId());
 
         em.flush();
         em.clear();
 
         List<WalkSchedule> schedules = walkScheduleRepository.findAllByFamilyId(testFamily.getFamilyId());
-        assertThat(schedules).isEmpty();
-
         Optional<WalkSchedule> deletedSchedule = walkScheduleRepository.findById(testSchedule.getWalkScheduleId());
-        assertThat(deletedSchedule).isPresent();
-        assertThat(deletedSchedule.get().getIsDeleted()).isEqualTo(IsDeleted.TRUE);
+
+        assertAll(
+                () -> assertThat(schedules).isEmpty(),
+                () -> assertThat(deletedSchedule).isEmpty()
+        );
     }
 
     @Test
-    @DisplayName("softDeleteByFamilyId는 가족의 모든 산책 일정을 소프트 삭제 처리한다")
-    void softDeleteByFamilyId_softDeletesSchedulesForFamily() {
-        walkScheduleRepository.softDeleteByFamilyId(testFamily.getFamilyId());
+    @DisplayName("deleteByFamilyId는 가족의 모든 산책 일정을 완전히 삭제한다")
+    void hardDeleteByFamilyId_deletesSchedulesForFamily() {
+        walkScheduleRepository.deleteByFamilyId(testFamily.getFamilyId());
 
         em.flush();
         em.clear();
 
         List<WalkSchedule> schedules = walkScheduleRepository.findAllByFamilyId(testFamily.getFamilyId());
-        assertThat(schedules).isEmpty();
-
         Optional<WalkSchedule> deletedSchedule = walkScheduleRepository.findById(testSchedule.getWalkScheduleId());
-        assertThat(deletedSchedule).isPresent();
-        assertThat(deletedSchedule.get().getIsDeleted()).isEqualTo(IsDeleted.TRUE);
+
+        assertAll(
+                () -> assertThat(schedules).isEmpty(),
+                () -> assertThat(deletedSchedule).isEmpty()
+        );
     }
 }

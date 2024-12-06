@@ -41,27 +41,24 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
 
     @Modifying
     @Query("""
-        UPDATE WalkSchedule w 
-        SET w.isDeleted = 'TRUE' 
+        DELETE FROM WalkSchedule w 
         WHERE w.walkScheduleId = :id
     """)
-    void softDeleteById(@Param("id") Long id);
+    void deleteById(@Param("id") Long id);
 
     @Modifying
     @Query("""
-        UPDATE WalkSchedule w 
-        SET w.isDeleted = 'TRUE' 
+        DELETE FROM WalkSchedule w 
         WHERE w.member.memberId = :memberId
     """)
-    void softDeleteByMemberId(@Param("memberId") Long memberId);
+    void deleteByMemberId(@Param("memberId") Long memberId);
 
     @Modifying
     @Query("""
-        UPDATE WalkSchedule w 
-        SET w.isDeleted = 'TRUE' 
+        DELETE FROM WalkSchedule w 
         WHERE w.family.familyId = :familyId
     """)
-    void softDeleteByFamilyId(@Param("familyId") Long familyId);
+    void deleteByFamilyId(@Param("familyId") Long familyId);
 
     List<WalkSchedule> findByDayOfWeekAndWalkTime(DayOfWeek dayOfWeek, LocalTime walkTime);
   
@@ -76,11 +73,10 @@ public interface WalkScheduleRepository extends JpaRepository<WalkSchedule, Long
 
     @Modifying
     @Query("""
-        UPDATE WalkSchedule w 
-        SET w.isDeleted = 'TRUE' 
+        DELETE FROM WalkSchedule w 
         WHERE w.dog.dogId = :dogId
     """)
-    void softDeleteByDogId(@Param("dogId") Long dogId);
+    void deleteByDogId(@Param("dogId") Long dogId);
 
     @Query("""
     SELECT w 

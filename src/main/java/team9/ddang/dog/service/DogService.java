@@ -167,7 +167,7 @@ public class DogService {
         // 4. Dog 소프트 삭제
         dogRepository.softDeleteById(dogId);
 
-        walkScheduleRepository.softDeleteByDogId(dogId);
+        walkScheduleRepository.deleteByDogId(dogId);
 
         // TODO 산책 내역 삭제하기
     }

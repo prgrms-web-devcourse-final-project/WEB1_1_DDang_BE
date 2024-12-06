@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @Transactional
 class FamilyRepositoryTest extends IntegrationTestSupport {
@@ -63,9 +64,11 @@ class FamilyRepositoryTest extends IntegrationTestSupport {
     void findActiveById_returnsActiveFamily() {
         Optional<Family> foundFamily = familyRepository.findActiveById(testFamily.getFamilyId());
 
-        assertThat(foundFamily).isPresent();
-        assertThat(foundFamily.get()).isEqualTo(testFamily);
-        assertThat(foundFamily.get().getIsDeleted()).isEqualTo(IsDeleted.FALSE);
+        assertAll(
+                () -> assertThat(foundFamily).isPresent(),
+                () -> assertThat(foundFamily.get()).isEqualTo(testFamily),
+                () -> assertThat(foundFamily.get().getIsDeleted()).isEqualTo(IsDeleted.FALSE)
+        );
     }
 
     @Test
@@ -75,7 +78,9 @@ class FamilyRepositoryTest extends IntegrationTestSupport {
 
         Optional<Family> foundFamily = familyRepository.findActiveById(testFamily.getFamilyId());
 
-        assertThat(foundFamily).isNotPresent();
+        assertAll(
+                () -> assertThat(foundFamily).isNotPresent()
+        );
     }
 
     @Test
@@ -87,7 +92,10 @@ class FamilyRepositoryTest extends IntegrationTestSupport {
         em.clear();
 
         Optional<Family> deletedFamily = familyRepository.findById(testFamily.getFamilyId());
-        assertThat(deletedFamily).isPresent();
-        assertThat(deletedFamily.get().getIsDeleted()).isEqualTo(IsDeleted.TRUE);
+
+        assertAll(
+                () -> assertThat(deletedFamily).isPresent(),
+                () -> assertThat(deletedFamily.get().getIsDeleted()).isEqualTo(IsDeleted.TRUE)
+        );
     }
 }

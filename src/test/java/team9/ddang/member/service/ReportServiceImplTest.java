@@ -48,6 +48,8 @@ class ReportServiceImplTest extends IntegrationTestSupport {
                 .address("123 Sender Street")
                 .isMatched(IsMatched.FALSE)
                 .role(Role.USER)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(sender);
 
@@ -59,6 +61,8 @@ class ReportServiceImplTest extends IntegrationTestSupport {
                 .address("123 Receiver Street")
                 .isMatched(IsMatched.FALSE)
                 .role(Role.USER)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
                 .build();
         memberRepository.save(receiver);
     }
