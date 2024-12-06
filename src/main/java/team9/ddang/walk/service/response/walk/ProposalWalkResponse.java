@@ -31,7 +31,10 @@ public record ProposalWalkResponse(
         long dogAge,
 
         @Schema(description = "회원 이메일", example = "example@example.com")
-        String email
+        String email,
+
+        @Schema(description = "메시지 타입", example = "PROPOSAL")
+        Type type
 ){
     public static ProposalWalkResponse of(Dog dog, Member member, String comment){
         if(comment == null){
@@ -39,6 +42,6 @@ public record ProposalWalkResponse(
         }
 
         return new ProposalWalkResponse(dog.getDogId(), dog.getName(), dog.getBreed(), dog.getProfileImg(),
-                comment, dog.getGender(), calculateAgeFromNow(dog.getBirthDate()), member.getEmail());
+                comment, dog.getGender(), calculateAgeFromNow(dog.getBirthDate()), member.getEmail(), Type.PROPOSAL);
     }
 }

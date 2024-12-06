@@ -1,12 +1,11 @@
 package team9.ddang.member.service.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import team9.ddang.dog.entity.Dog;
 import team9.ddang.member.entity.FamilyRole;
 import team9.ddang.member.entity.Member;
 import team9.ddang.walk.service.response.TimeDuration;
 import team9.ddang.walk.util.WalkCalculator;
-
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Main 화면 응답")
 public record MainResponse(
@@ -18,6 +17,9 @@ public record MainResponse(
 
         @Schema(description = "강아지 이름", example = "Buddy")
         String dogName,
+
+        @Schema(description = "멤버 프로필 이미지", example = "Avatar4.svg")
+        String memberProfileImgUrl,
 
         @Schema(description = "산책 시간")
         TimeDuration timeDuration,
@@ -32,7 +34,8 @@ public record MainResponse(
         return new MainResponse(member.getMemberId(),
                 member.getFamilyRole(),
                 dog.getName(),
-                TimeDuration.from(totalSeconds),
+                member.getProfileImg(),
+                team9.ddang.walk.service.response.TimeDuration.from(totalSeconds),
                 totalDistanceMeter,
                 WalkCalculator.calculateCalorie(dog.getWeight(), totalDistanceMeter));
     }
@@ -41,7 +44,8 @@ public record MainResponse(
         return new MainResponse(0L,
                 null,
                 dog.getName(),
-                TimeDuration.from(totalSeconds),
+                dog.getProfileImg(),
+                team9.ddang.walk.service.response.TimeDuration.from(totalSeconds),
                 totalDistanceMeter,
                 WalkCalculator.calculateCalorie(dog.getWeight(), totalDistanceMeter));
     }

@@ -11,10 +11,11 @@ public record CompleteWalkServiceRequest(
         Long totalWalkTime
 ) {
 
-    public Walk toEntity(List<Location> locations, Member member){
+    public Walk toEntity(List<Location> locations, Member member, String walkImg){
         return  Walk.builder()
                 .totalDistance(totalDistance)
                 .member(member)
+                .walkImg(walkImg)
                 .startTime(locations.get(0).getPosition().getTimeStamp())
                 .endTime(locations.get(locations.size()-1).getPosition().getTimeStamp())
                 .build();

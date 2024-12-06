@@ -83,9 +83,8 @@ public class WalkLogServiceImpl implements WalkLogService{
                 .collect(Collectors.groupingBy(Walk::getMember, Collectors.counting()));
 
         List<WalkLogByFamilyResponse> responseList = new ArrayList<>(walkCountByMember.entrySet().stream()
-                .map(entry -> new WalkLogByFamilyResponse(
-                        entry.getKey().getMemberId(),
-                        entry.getKey().getFamilyRole(),
+                .map(entry -> WalkLogByFamilyResponse.of(
+                        entry.getKey(),
                         entry.getValue().intValue()))
                 .sorted(Comparator.comparingInt(WalkLogByFamilyResponse::count).reversed())
                 .toList());

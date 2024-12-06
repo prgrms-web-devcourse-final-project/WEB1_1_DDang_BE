@@ -32,11 +32,14 @@ public record MemberNearbyResponse(
         Long memberId,
 
         @Schema(description = "회원 이메일", example = "example@example.com")
-        String memberEmail
+        String memberEmail,
+
+        @Schema(description = "메시지 타입", example = "WALK_ALONE")
+        Type type
 ) {
     public static MemberNearbyResponse from(MemberNearbyInfo memberNearbyInfo){
         return new MemberNearbyResponse(memberNearbyInfo.dogId(), memberNearbyInfo.profileImg(), memberNearbyInfo.dogName(),
                 memberNearbyInfo.breed(), memberNearbyInfo.walkCount(), calculateAgeFromNow(memberNearbyInfo.dogBirthDate()),
-                memberNearbyInfo.dogGender(),memberNearbyInfo.memberId(), memberNearbyInfo.email());
+                memberNearbyInfo.dogGender(),memberNearbyInfo.memberId(), memberNearbyInfo.email(), Type.WALK_ALONE);
     }
 }

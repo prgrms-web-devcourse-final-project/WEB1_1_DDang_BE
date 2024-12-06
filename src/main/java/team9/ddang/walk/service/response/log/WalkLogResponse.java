@@ -9,8 +9,11 @@ import java.util.List;
 
 @Schema(description = "산책 기록 응답")
 public record WalkLogResponse(
-        @Schema(description = "위치 리스트", example = "[{lat: 37.5665, lng: 126.9780}]")
-        List<Position> points,
+        @Schema(description = "산책 경로 이미지", example = "https://~~~~.com")
+        String walkImg,
+
+        @Schema(description = "산책 아이디", example = "1")
+        Long walkId,
 
         TimeDuration timeDuration,
 
@@ -28,8 +31,9 @@ public record WalkLogResponse(
 ) {
     public static WalkLogResponse of(List<Position> points, Walk walk, int totalCalorie) {
         return new WalkLogResponse(
-                points,
-                TimeDuration.of(walk.getStartTime(), walk.getEndTime()),
+                walk.getWalkImg(),
+                walk.getWalkId(),
+                team9.ddang.walk.service.response.TimeDuration.of(walk.getStartTime(), walk.getEndTime()),
                 totalCalorie,
                 walk.getTotalDistance(),
                 walk.getMember().getName(),
