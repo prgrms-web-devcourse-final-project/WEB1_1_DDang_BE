@@ -35,9 +35,6 @@ public class ChatBatchConfig {
     private final S3Service s3Service;
     private final ChatRepository chatRepository;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
-
     @Bean
     public Job chatArchiveJob(JobRepository jobRepository, Step chatArchiveStep) {
         return new JobBuilder("chatArchiveJob", jobRepository)
@@ -80,7 +77,7 @@ public class ChatBatchConfig {
 
             File csvFile = createCsvFile(chats, fileName);
 
-            boolean isUploaded = s3Service.uploadChatFile(bucket, "archive/" + fileName, csvFile);
+            boolean isUploaded = s3Service.uploadChatFile("archive/" + fileName, csvFile);
             if (isUploaded) {
                 csvFile.delete();
             } else {

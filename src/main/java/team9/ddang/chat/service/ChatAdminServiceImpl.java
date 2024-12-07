@@ -29,9 +29,6 @@ public class ChatAdminServiceImpl implements ChatAdminService {
     private final S3Service s3Service;
     private final AmazonS3Client amazonS3Client;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
-
     public List<Map<String, String>> extractMessagesFromCsv(LocalDate startDate, LocalDate endDate, Long chatRoomId) {
         try {
             List<String> files = listFilesInArchiveFolder();
@@ -43,7 +40,7 @@ public class ChatAdminServiceImpl implements ChatAdminService {
             List<Map<String, String>> results = new ArrayList<>();
 
             for (String fileKey : filteredFiles) {
-                File localFile = s3Service.downloadChatFile(bucket, fileKey);
+                File localFile = s3Service.downloadChatFile(fileKey);
 
                 try {
                     results.addAll(filterMessagesByChatRoomId(localFile, chatRoomId));
@@ -62,7 +59,6 @@ public class ChatAdminServiceImpl implements ChatAdminService {
 
     private List<String> listFilesInArchiveFolder() {
         ListObjectsV2Request request = new ListObjectsV2Request()
-                .withBucketName(bucket)
                 .withPrefix("archive/");
         ListObjectsV2Result result = amazonS3Client.listObjectsV2(request);
 
