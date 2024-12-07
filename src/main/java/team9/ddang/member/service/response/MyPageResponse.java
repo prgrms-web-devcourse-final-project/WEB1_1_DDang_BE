@@ -15,6 +15,9 @@ public record MyPageResponse(
         @Schema(description = "회원 이름", example = "John Doe")
         String name,
 
+        @Schema(description = "회원 이메일", example = "test@gmail.com")
+        String email,
+
         @Schema(description = "회원 주소", example = "123 Main Street")
         String address,
 
@@ -44,6 +47,7 @@ public record MyPageResponse(
         return new MyPageResponse(
                 member.getMemberId(),
                 member.getName(),
+                member.getEmail(),
                 member.getAddress(),
                 member.getGender(),
                 member.getFamilyRole(),
