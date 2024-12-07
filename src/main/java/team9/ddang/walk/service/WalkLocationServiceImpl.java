@@ -15,12 +15,16 @@ import team9.ddang.global.service.RedisService;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
+import team9.ddang.walk.entity.Location;
+import team9.ddang.walk.entity.Position;
+import team9.ddang.walk.repository.LocationRepository;
 import team9.ddang.walk.service.request.walk.DecisionWalkServiceRequest;
 import team9.ddang.walk.service.request.walk.ProposalWalkServiceRequest;
 import team9.ddang.walk.service.request.walk.StartWalkServiceRequest;
 import team9.ddang.walk.service.response.walk.*;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +39,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     private final MemberDogRepository memberDogRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final MemberRepository memberRepository;
+    private final LocationRepository locationRepository;
 
 
     @Override
@@ -111,6 +116,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         List<String> memberEmailList = getEmailListFromNearbyMemberResults(results, email);
 
         if(memberEmailList.isEmpty()){
+            sendMessageToWalkUrl(email, null);
             return;
         }
 
@@ -164,5 +170,17 @@ public class WalkLocationServiceImpl implements WalkLocationService {
             throw new IllegalArgumentException(ALREADY_MATCHED_MEMBER.getText());
         }
 
+    }
+
+    private void saveMemberLocationAtRDB(String email, StartWalkServiceRequest startWalkServiceRequest){
+        Location location = Location.builder()
+                .position(Position.builder()
+                        .timeStamp(LocalDateTime.now())
+                        .latitude(startWalkServiceRequest.latitude())
+                        .longitude(startWalkServiceRequest.longitude())
+                        .build())
+                .build();
+
+        locationRepository.save(location);
     }
 }
