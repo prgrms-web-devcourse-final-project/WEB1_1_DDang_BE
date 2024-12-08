@@ -17,6 +17,7 @@ import team9.ddang.family.entity.Family;
 import team9.ddang.family.exception.FamilyExceptionMessage;
 import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.service.response.FamilyDetailResponse;
+import team9.ddang.family.service.response.FamilyDogResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.global.entity.Gender;
 import team9.ddang.global.entity.IsDeleted;
@@ -25,6 +26,7 @@ import team9.ddang.member.repository.MemberRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -214,6 +216,58 @@ class FamilyServiceImplTest extends IntegrationTestSupport {
                 () -> assertThat(response).isNotNull(),
                 () -> assertThat(newMember.getFamily()).isEqualTo(testFamily)
         );
+    }
+
+    @Test
+    @DisplayName("초대 코드로 가족의 강아지 정보를 조회해야 한다")
+    void getFamilyDogs_Success() {
+        var response = familyService.createInviteCode(testMember);
+
+        String inviteCode = response.inviteCode();
+        Member requester = Member.builder()
+                .name("New Member")
+                .email("new.member@example.com")
+                .gender(Gender.FEMALE)
+                .address("456 Another Street")
+                .provider(Provider.GOOGLE)
+                .role(Role.USER)
+                .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
+                .build();
+        memberRepository.save(requester);
+
+        List<FamilyDogResponse> dogs = familyService.getFamilyDogs(inviteCode, requester);
+
+        assertAll(
+                () -> assertThat(dogs).isNotNull(),
+                () -> assertThat(dogs).hasSize(1),
+                () -> assertThat(dogs.get(0).dogId()).isEqualTo(testDog.getDogId()),
+                () -> assertThat(dogs.get(0).name()).isEqualTo(testDog.getName()),
+                () -> assertThat(dogs.get(0).breed()).isEqualTo(testDog.getBreed())
+        );
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 초대 코드로 강아지 정보를 조회하면 예외가 발생해야 한다")
+    void getFamilyDogs_ShouldThrowException_WhenInvalidInviteCode() {
+        String invalidInviteCode = "INVALID_CODE";
+        Member requester = Member.builder()
+                .name("New Member")
+                .email("new.member@example.com")
+                .gender(Gender.FEMALE)
+                .address("456 Another Street")
+                .provider(Provider.GOOGLE)
+                .role(Role.USER)
+                .isMatched(IsMatched.FALSE)
+                .familyRole(FamilyRole.FATHER)
+                .profileImg("test profile img")
+                .build();
+        memberRepository.save(requester);
+
+        assertThatThrownBy(() -> familyService.getFamilyDogs(invalidInviteCode, requester))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(FamilyExceptionMessage.INVALID_INVITE_CODE.getText());
     }
 
     @Test

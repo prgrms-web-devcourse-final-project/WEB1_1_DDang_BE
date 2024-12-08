@@ -2,9 +2,12 @@ package team9.ddang.family.service;
 
 import team9.ddang.family.entity.Family;
 import team9.ddang.family.service.response.FamilyDetailResponse;
+import team9.ddang.family.service.response.FamilyDogResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
 import team9.ddang.member.entity.Member;
+
+import java.util.List;
 
 public interface FamilyService {
     FamilyResponse createFamily(Member member);
@@ -12,6 +15,8 @@ public interface FamilyService {
     InviteCodeResponse createInviteCode(Member member);
 
     FamilyResponse addMemberToFamily(String inviteCode, Member member);
+
+    List<FamilyDogResponse> getFamilyDogs(String inviteCode, Member member);
 
     FamilyDetailResponse getMyFamily(Member member);
 
