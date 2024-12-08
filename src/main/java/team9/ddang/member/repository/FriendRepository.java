@@ -14,8 +14,6 @@ public interface FriendRepository  extends JpaRepository<Friend, Long> {
     SELECT f.receiver
     FROM Friend f
     WHERE f.sender = :sender
-    and f.isDeleted = 'FALSE'
-    and f.receiver.isDeleted = 'FALSE'
     """)
     List<Member> findAllFriendsBySender(Member sender);
 
