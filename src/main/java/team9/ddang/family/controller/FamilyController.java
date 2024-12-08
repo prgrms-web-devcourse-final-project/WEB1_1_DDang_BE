@@ -249,7 +249,7 @@ public class FamilyController {
     @Operation(
             summary = "초대 코드를 입력하여 해당 패밀리댕이 보유한 강아지 정보 리스트를 받습니다.",
             description = """
-                초대 코드를 입력하여 가족의 강아지 정보를 받습니다.
+                초대 코드를 입력하여 가족의 강아지 정보 리스트를 받습니다.
                 초대 코드가 유효하지 않거나 만료되었을 경우 오류를 반환합니다.
                 """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
