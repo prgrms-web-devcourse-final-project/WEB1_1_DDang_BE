@@ -11,19 +11,19 @@ public record MemberResponse(
         @Schema(description = "회원 ID", example = "1")
         Long memberId,
 
-        @Schema(description = "회원 이름", example = "John Doe")
+        @Schema(description = "회원 이름", example = "홍길동")
         String name,
 
-        @Schema(description = "회원 이메일", example = "john.doe@example.com")
+        @Schema(description = "회원 이메일", example = "test@naver.com")
         String email,
 
-        @Schema(description = "OAuth2 제공자", example = "GOOGLE")
+        @Schema(description = "OAuth2 제공자", example = "NAVER")
         Provider provider,
 
         @Schema(description = "회원 성별", example = "MALE")
         Gender gender,
 
-        @Schema(description = "회원 주소", example = "123 Main Street")
+        @Schema(description = "회원 주소", example = "서울시 강남구")
         String address,
 
         @Schema(description = "가족 내 역할", example = "FATHER")

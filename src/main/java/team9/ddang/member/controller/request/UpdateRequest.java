@@ -11,15 +11,19 @@ import team9.ddang.member.service.request.UpdateServiceRequest;
 public record UpdateRequest(
 
         @NotBlank(message = "이름을 입력해주세요.")
+        @Schema(description = "이름", example = "홍길동")
         String name,
 
         @NotNull(message = "성별을 입력해주세요.")
+        @Schema(description = "성별", example = "MALE")
         Gender gender,
 
         @NotNull(message = "가족 역할을 입력해주세요.")
+        @Schema(description = "가족 역할", example = "FATHER")
         FamilyRole familyRole,
 
         @NotBlank(message = "프로필 이미지를 입력해주세요.")
+        @Schema(description = "프로필 이미지", example = "https://example.com/profile.jpg")
         String profileImg
 ) {
     public UpdateServiceRequest toServiceRequest() {

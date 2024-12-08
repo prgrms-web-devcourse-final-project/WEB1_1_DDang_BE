@@ -227,6 +227,7 @@ class MemberControllerTest extends ApiTestSupport {
         MyPageResponse myPageResponse = new MyPageResponse(
                 memberId,
                 "John Doe",
+                "test@naver.com",
                 "123 Test Street",
                 Gender.MALE,
                 FamilyRole.FATHER,
@@ -246,6 +247,7 @@ class MemberControllerTest extends ApiTestSupport {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.memberId").value(memberId))
                 .andExpect(jsonPath("$.data.name").value("John Doe"))
+                .andExpect(jsonPath("$.data.email").value("test@naver.com"))
                 .andExpect(jsonPath("$.data.address").value("123 Test Street"))
                 .andExpect(jsonPath("$.data.gender").value("MALE"))
                 .andExpect(jsonPath("$.data.familyRole").value("FATHER"))
@@ -575,6 +577,7 @@ class MemberControllerTest extends ApiTestSupport {
         MyPageResponse myPageResponse = new MyPageResponse(
                 memberId,
                 "John Doe",
+                "test@naver.com",
                 "123 Main Street",
                 Gender.MALE,
                 FamilyRole.FATHER,
@@ -592,6 +595,7 @@ class MemberControllerTest extends ApiTestSupport {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.memberId").value(memberId))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value("John Doe"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.email").value("test@naver.com"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.address").value("123 Main Street"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.gender").value("MALE"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.familyRole").value("FATHER"))
