@@ -50,7 +50,7 @@ public class ChatRoomController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "존재하지 않는 회원과 채팅방 생성을 진행하려고 하는 경우",
+                    description = "요청 데이터가 유효하지 않은 경우",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponse.class),
@@ -62,6 +62,10 @@ public class ChatRoomController {
                                     @ExampleObject(
                                             name = "유효하지 않은 요청 데이터",
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"상대방의 회원 ID는 필수입니다.\", \"data\": null }"
+                                    ),
+                                    @ExampleObject(
+                                            name = "동시성 오류",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"채팅방 생성에 실패했습니다. 잠시 후 다시 시도해주세요.\", \"data\": null }"
                                     )
                             }
                     )

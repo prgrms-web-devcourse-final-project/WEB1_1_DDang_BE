@@ -2,6 +2,10 @@ package team9.ddang.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +69,59 @@ public class ChatController {
                     @Parameter(name = "lastMessageCreatedAt", description = "마지막으로 로드한 메시지의 생성 시간", example = "2024-12-04T12:34:56"),
             }
     )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "특정 채팅방의 메세지 목록 조회 성공",
+                    useReturnTypeSchema = true
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "요청 데이터가 유효하지 않은 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 회원",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                    ),
+                                    @ExampleObject(
+                                            name = "존재하지 않는 채팅방",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 채팅방을 찾을 수 없습니다.\", \"data\": null }"
+                                    ),
+                                    @ExampleObject(
+                                            name = "본인이 속하지 않는 채팅방",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 회원을 채팅방에서 찾을 수 없습니다.\", \"data\": null }"
+                                    ),
+                            }
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패 또는 유효하지 않은 토큰으로 접근하려는 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class),
+                            examples = @ExampleObject(
+                                    name = "인증 실패 예시",
+                                    value = "{ \"code\": 401, \"status\": \"UNAUTHORIZED\", \"message\": \"AccessToken is invalid\", \"data\": null }"
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "서버 내부에서 처리되지 않은 오류가 발생한 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class),
+                            examples = @ExampleObject(
+                                    name = "서버 오류 예시",
+                                    value = "{ \"code\": 500, \"status\": \"INTERNAL_SERVER_ERROR\", \"message\": \"알 수 없는 오류가 발생했습니다.\", \"data\": null }"
+                            )
+                    )
+            )
+    })
     public ApiResponse<Slice<ChatResponse>> getChatMessages(
             @PathVariable Long chatRoomId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastMessageCreatedAt,
