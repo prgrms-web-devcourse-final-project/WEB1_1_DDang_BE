@@ -275,7 +275,7 @@ public class FamilyController {
                                     @ExampleObject(
                                             name = "강아지를 소유한 경우",
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"이미 강아지를 소유하고 있습니다.\", \"data\": null }"
-                                    ),
+                                    )
                             }
                     )
             ),
@@ -350,7 +350,7 @@ public class FamilyController {
                                     @ExampleObject(
                                             name = "유효하지 않은 회원을 추방하는 경우",
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"다른 패밀리댕에 속한 맴버입니다.\", \"data\": null }"
-                                    ),
+                                    )
                             }
                     )
             ),
