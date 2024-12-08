@@ -1,6 +1,7 @@
 package team9.ddang.walk.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.GeoResult;
 import org.springframework.data.geo.GeoResults;
 import org.springframework.data.geo.Point;
@@ -29,6 +30,7 @@ import static team9.ddang.walk.service.RedisKey.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WalkLocationServiceImpl implements WalkLocationService {
 
     private final RedisService redisService;
@@ -56,7 +58,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         ProposalWalkResponse response = ProposalWalkResponse.of(dog, member, proposalWalkServiceRequest.comment());
 
         sendMessageToWalkUrl(otherEmail, response);
-        sendMessageToWalkUrl(member.getEmail(), response);
+        sendMessageToWalkUrl(member.getEmail(), "Proposal Success");
     }
 
     @Override
@@ -111,6 +113,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         List<String> memberEmailList = getEmailListFromNearbyMemberResults(results, email);
 
         if(memberEmailList.isEmpty()){
+            sendMessageToWalkUrl(email, null);
             return;
         }
 
@@ -143,6 +146,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
 
     private void sendMessageToWalkUrl(String email, Object data){
         messagingTemplate.convertAndSend("/sub/walk/" + email,  WebSocketResponse.ok(data));
+        log.info("Message sent to /sub/walk/" + email + " with data: " + data);
     }
 
     private Member getMemberFromEmailOrElseThrow(String email){

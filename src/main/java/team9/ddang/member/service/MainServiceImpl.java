@@ -38,10 +38,10 @@ public class MainServiceImpl implements MainService{
         long totalDistanceMeter = walkSummary.get("totalDistanceMeter");
 
         if (walkMember == null) {
-            return MainResponse.of(dog, totalSeconds, (int) totalDistanceMeter);
+            return MainResponse.of(dog, totalSeconds, (int) totalDistanceMeter, member);
         }
 
-        return MainResponse.of(walkMember, dog, totalSeconds, (int) totalDistanceMeter);
+        return MainResponse.of(walkMember, dog, totalSeconds, (int) totalDistanceMeter, member);
     }
 
     private Map<String, Long> calculateWalkSummary(Long dogId) {
