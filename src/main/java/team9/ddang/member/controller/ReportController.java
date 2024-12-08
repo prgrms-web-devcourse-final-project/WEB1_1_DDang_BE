@@ -34,7 +34,7 @@ public class ReportController {
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200",
+                    responseCode = "204",
                     description = "채팅방 생성 성공 (이미 존재하는 경우에도 동일)",
                     useReturnTypeSchema = true
             ),
