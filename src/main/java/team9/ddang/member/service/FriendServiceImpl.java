@@ -71,7 +71,7 @@ public class FriendServiceImpl implements FriendService{
         }
 
         Dog dog = memberDogRepository.findMemberDogByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("강아지가 존재하지 않습니다.")).getDog();
+                .orElseThrow(() -> new IllegalArgumentException("소유한 강아지를 찾을 수 없습니다.")).getDog();
 
         int totalDistanceInMeters = walkRepository.findTotalDistanceByMemberId(memberId);
         int countWalks = walkRepository.countWalksByMemberId(memberId);
@@ -139,7 +139,7 @@ public class FriendServiceImpl implements FriendService{
     }
 
     private Member getMemberFromMemberIdOrElseThrow(Long memberId){
-        return memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 멤버 입니다."));
+        return memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("해당 맴버를 찾을 수 없습니다."));
     }
 
     private void sendMessageToNotificationUrl(String email, Object data){
