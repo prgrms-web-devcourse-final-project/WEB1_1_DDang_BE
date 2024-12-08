@@ -12,11 +12,14 @@ import org.springframework.web.bind.annotation.*;
 import team9.ddang.family.controller.request.FamilyJoinRequest;
 import team9.ddang.family.service.FamilyService;
 import team9.ddang.family.service.response.FamilyDetailResponse;
+import team9.ddang.family.service.response.FamilyDogResponse;
 import team9.ddang.family.service.response.FamilyResponse;
 import team9.ddang.family.service.response.InviteCodeResponse;
 import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.oauth2.CustomOAuth2User;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/family")
@@ -237,6 +240,83 @@ public class FamilyController {
                                                   @AuthenticationPrincipal CustomOAuth2User currentUser) {
         Member currentMember = currentUser.getMember();
         FamilyResponse response = familyService.addMemberToFamily(request.inviteCode(), currentMember);
+        return ApiResponse.ok(response);
+    }
+
+
+
+    @GetMapping("/dogs")
+    @Operation(
+            summary = "초대 코드를 입력하여 해당 패밀리댕이 보유한 강아지 정보 리스트를 받습니다.",
+            description = """
+                초대 코드를 입력하여 가족의 강아지 정보를 받습니다.
+                초대 코드가 유효하지 않거나 만료되었을 경우 오류를 반환합니다.
+                """,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "초대 코드 요청 데이터",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation =FamilyJoinRequest.class)
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "패밀리댕 강아지 정보 반환",
+                    useReturnTypeSchema = true
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "요청 데이터가 유효하지 않은 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
+                                    ),
+                                    @ExampleObject(
+                                            name = "초대 코드를 찾을 수 없을 때",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"초대 코드는 필수입니다.\", \"data\": null }"
+                                    ),
+                                    @ExampleObject(
+                                            name = "잘못된 초대 코드",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"유효하지 않거나 만료된 초대 코드입니다.\", \"data\": null }"
+                                    )
+                            }
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패 또는 유효하지 않은 토큰으로 접근하려는 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class),
+                            examples = @ExampleObject(
+                                    name = "인증 실패 예시",
+                                    value = "{ \"code\": 401, \"status\": \"UNAUTHORIZED\", \"message\": \"AccessToken is invalid\", \"data\": null }"
+                            )
+                    )
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "서버 내부에서 처리되지 않은 오류가 발생한 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class),
+                            examples = @ExampleObject(
+                                    name = "서버 오류 예시",
+                                    value = "{ \"code\": 500, \"status\": \"INTERNAL_SERVER_ERROR\", \"message\": \"알 수 없는 오류가 발생했습니다.\", \"data\": null }"
+                            )
+                    )
+            )
+    })
+    public ApiResponse<List<FamilyDogResponse>> getFamilyDogs(@RequestBody FamilyJoinRequest request,
+                                                       @AuthenticationPrincipal CustomOAuth2User currentUser) {
+        Member currentMember = currentUser.getMember();
+        List<FamilyDogResponse> response = familyService.getFamilyDogs(request.inviteCode(), currentMember);
         return ApiResponse.ok(response);
     }
 
