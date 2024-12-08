@@ -26,7 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
 
-    private final KafkaDynamicListenerService kafkaDynamicListenerService;
     private final ChatMemberRepository chatMemberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
@@ -65,8 +64,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                                 .member(opponentMember)
                                 .chatRoom(chatRoom)
                                 .build());
-
-                        kafkaDynamicListenerService.addListenerForChatRoom(chatRoom.getChatroomId());
 
                         sendMessageToUser(opponentMember.getEmail(),
                                 new ChatRoomResponse(chatRoom, null, 0L, curmembers));
