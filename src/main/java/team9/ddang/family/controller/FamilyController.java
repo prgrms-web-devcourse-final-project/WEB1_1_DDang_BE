@@ -245,7 +245,7 @@ public class FamilyController {
 
 
 
-    @GetMapping("/dogs")
+    @PostMapping("/dogs")
     @Operation(
             summary = "초대 코드를 입력하여 해당 패밀리댕이 보유한 강아지 정보 리스트를 받습니다.",
             description = """
