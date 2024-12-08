@@ -1,6 +1,7 @@
 package team9.ddang.walk.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.GeoResult;
 import org.springframework.data.geo.GeoResults;
 import org.springframework.data.geo.Point;
@@ -15,16 +16,12 @@ import team9.ddang.global.service.RedisService;
 import team9.ddang.member.entity.IsMatched;
 import team9.ddang.member.entity.Member;
 import team9.ddang.member.repository.MemberRepository;
-import team9.ddang.walk.entity.Location;
-import team9.ddang.walk.entity.Position;
-import team9.ddang.walk.repository.LocationRepository;
 import team9.ddang.walk.service.request.walk.DecisionWalkServiceRequest;
 import team9.ddang.walk.service.request.walk.ProposalWalkServiceRequest;
 import team9.ddang.walk.service.request.walk.StartWalkServiceRequest;
 import team9.ddang.walk.service.response.walk.*;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,13 +30,13 @@ import static team9.ddang.walk.service.RedisKey.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WalkLocationServiceImpl implements WalkLocationService {
 
     private final RedisService redisService;
     private final MemberDogRepository memberDogRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final MemberRepository memberRepository;
-    private final LocationRepository locationRepository;
 
 
     @Override
@@ -149,6 +146,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
 
     private void sendMessageToWalkUrl(String email, Object data){
         messagingTemplate.convertAndSend("/sub/walk/" + email,  WebSocketResponse.ok(data));
+        log.info("Message sent to /sub/walk/" + email + " with data: " + data);
     }
 
     private Member getMemberFromEmailOrElseThrow(String email){
@@ -170,17 +168,5 @@ public class WalkLocationServiceImpl implements WalkLocationService {
             throw new IllegalArgumentException(ALREADY_MATCHED_MEMBER.getText());
         }
 
-    }
-
-    private void saveMemberLocationAtRDB(String email, StartWalkServiceRequest startWalkServiceRequest){
-        Location location = Location.builder()
-                .position(Position.builder()
-                        .timeStamp(LocalDateTime.now())
-                        .latitude(startWalkServiceRequest.latitude())
-                        .longitude(startWalkServiceRequest.longitude())
-                        .build())
-                .build();
-
-        locationRepository.save(location);
     }
 }
