@@ -2,6 +2,7 @@ package team9.ddang.global.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -99,5 +100,33 @@ public class S3Service {
         }
 
         return fileName;
+    }
+
+    public boolean uploadChatFile(String keyName, File file) {
+        try {
+            PutObjectRequest request = new PutObjectRequest(bucket, keyName, file)
+                    .withCannedAcl(CannedAccessControlList.Private);
+            amazonS3Client.putObject(request);
+
+            log.info("파일 업로드 성공: 버킷={}, 키={}", bucket, keyName);
+            return true;
+        } catch (Exception e) {
+            log.error("파일 업로드 실패: 버킷={}, 키={}, 에러={}", bucket, keyName, e.getMessage());
+            return false;
+        }
+    }
+
+    public File downloadChatFile(String keyName) {
+        try {
+            File tempFile = File.createTempFile("s3-download-", "-" + keyName.replaceAll("/", "_"));
+            GetObjectRequest request = new GetObjectRequest(bucket, keyName);
+            amazonS3Client.getObject(request, tempFile);
+
+            log.info("파일 다운로드 성공: 버킷={}, 키={}, 경로={}", bucket, keyName, tempFile.getAbsolutePath());
+            return tempFile;
+        } catch (Exception e) {
+            log.error("파일 다운로드 실패: 버킷={}, 키={}, 에러={}", bucket, keyName, e.getMessage());
+            throw new IllegalStateException("Failed to download file from S3", e);
+        }
     }
 }

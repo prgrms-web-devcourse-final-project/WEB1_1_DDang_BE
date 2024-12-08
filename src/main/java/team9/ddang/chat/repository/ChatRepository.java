@@ -3,6 +3,7 @@ package team9.ddang.chat.repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import team9.ddang.chat.entity.Chat;
@@ -76,4 +77,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
               AND c.createdAt < :lastMessageCreatedAt
             """)
     Slice<Chat> findChatsBefore(@Param("chatRoomId") Long chatRoomId, @Param("lastMessageCreatedAt") LocalDateTime lastMessageCreatedAt, Pageable pageable);
+
+    @Modifying
+    @Query("DELETE FROM Chat c WHERE c.createdAt < :twoWeeksAgo")
+    void deleteChatsOlderThan(LocalDateTime twoWeeksAgo);
 }

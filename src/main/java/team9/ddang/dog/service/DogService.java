@@ -16,7 +16,9 @@ import team9.ddang.dog.service.request.CreateDogServiceRequest;
 import team9.ddang.dog.service.request.UpdateDogServiceRequest;
 import team9.ddang.dog.service.response.CreateDogResponse;
 import team9.ddang.dog.service.response.GetDogResponse;
+import team9.ddang.family.entity.Family;
 import team9.ddang.family.exception.FamilyExceptionMessage;
+import team9.ddang.family.repository.FamilyRepository;
 import team9.ddang.family.repository.WalkScheduleRepository;
 import team9.ddang.global.service.S3Service;
 import team9.ddang.member.entity.Member;
@@ -37,6 +39,7 @@ public class DogService {
     private final MemberRepository memberRepository;
     private final MemberDogRepository memberDogRepository;
     private final WalkScheduleRepository walkScheduleRepository;
+    private final FamilyRepository familyRepository;
     private final S3Service s3Service;
 
     private final static String DOG_PROFILE_DIR = "dog";
@@ -57,6 +60,17 @@ public class DogService {
             throw new IllegalArgumentException(DogExceptionMessage.ONLY_FAMILY_OWNER_CREATE.getText());
         }
 
+        if(member.getFamily() == null) {
+            Family family = Family.builder()
+                    .member(member)
+                    .familyName("")
+                    .build();
+
+            family = familyRepository.save(family);
+
+            member.updateFamily(family);
+        }
+
 
         // Dog 엔티티 생성 및 저장
         Dog dog = Dog.builder()
@@ -75,22 +89,15 @@ public class DogService {
         dogRepository.save(dog);
 
         // 5. MemberDog 엔티티 생성 및 저장
-        if(member.getFamily() != null){
-            List<Member> members = memberRepository.findAllByFamilyId(member.getFamily().getFamilyId());
-            List<MemberDog> memberDoges = members.stream()
-                    .map(familyMember -> MemberDog.builder()
-                            .member(familyMember)
-                            .dog(dog)
-                            .build())
-                    .collect(Collectors.toList());
-            memberDogRepository.saveAll(memberDoges);
-        }else {
-            MemberDog memberDog = MemberDog.builder()
-                    .member(member)
-                    .dog(dog)
-                    .build();
-            memberDogRepository.save(memberDog);
-        }
+        List<Member> members = memberRepository.findAllByFamilyId(member.getFamily().getFamilyId());
+        List<MemberDog> memberDog = members.stream()
+                .map(familyMember -> MemberDog.builder()
+                        .member(familyMember)
+                        .dog(dog)
+                        .build())
+                .collect(Collectors.toList());
+
+        memberDogRepository.saveAll(memberDog);
 
         // 6. CreateDogResponse 반환
         return new CreateDogResponse(
