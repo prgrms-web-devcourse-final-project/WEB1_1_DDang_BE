@@ -2,6 +2,7 @@ package team9.ddang.global.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,11 +35,82 @@ public class WebSocketController {
             ),
             responses = {
                     @ApiResponse(
+                            responseCode = "200",
+                            description = "채팅 메시지 전송",
+                            useReturnTypeSchema = true
+                    ),
+                    @ApiResponse(
                             responseCode = "400",
                             description = "잘못된 요청 (유효성 검사 실패 또는 기타 클라이언트 오류)",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = WebSocketErrorResponse.class)
+                                    schema = @Schema(implementation = WebSocketResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "채팅방 아이디가 누락된 경우",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"채팅방 아이디는 필수입니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "채팅방 메세지가 누락된 경우",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"채팅 메세지는 필수입니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "유효하지 않은 채팅방의 경우",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"해당 채팅방을 찾을 수 없습니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "메세지 변환 오류",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"메시지 변환 중 문제가 발생했습니다.\", \"data\": null }"
+                                            )
+                                    }
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "잘못된 요청 (유효성 검사 실패 또는 기타 클라이언트 오류)",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = WebSocketResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "채팅방 아이디가 누락된 경우",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"채팅방 아이디는 필수입니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "채팅방 메세지가 누락된 경우",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"채팅 메세지는 필수입니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "유효하지 않은 채팅방의 경우",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"해당 채팅방을 찾을 수 없습니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "메세지 변환 오류",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"메시지 변환 중 문제가 발생했습니다.\", \"data\": null }"
+                                            )
+                                    }
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "인증 실패 또는 유효하지 않은 토큰으로 접근하려는 경우",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = team9.ddang.global.api.ApiResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "인증 실패 예시",
+                                                    value = "{ \"code\": 4001, \"status\": \"UNAUTHORIZED\", \"message\": \"AccessToken is invalid\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "토큰이 없는 경우",
+                                                    value = "{ \"code\": 4002, \"status\": \"UNAUTHORIZED\", \"message\": \"토큰을 찾을 수 없습니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "이메일 추출 실패",
+                                                    value = "{ \"code\": 4002, \"status\": \"UNAUTHORIZED\", \"message\": \"AccessToken에서 email을 추출할 수 없습니다.\", \"data\": null }"
+                                            )
+                                    }
                             )
                     ),
                     @ApiResponse(
@@ -46,7 +118,11 @@ public class WebSocketController {
                             description = "서버 에러 (감지하지 못한 서버 에러)",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = WebSocketErrorResponse.class)
+                                    schema = @Schema(implementation = WebSocketErrorResponse.class),
+                                    examples = @ExampleObject(
+                                            name = "서버 오류",
+                                            value = "{ \"code\": 5000, \"status\": \"INTERNAL_SERVER_ERROR\", \"message\": \"서버 내부 오류\", \"data\": null }"
+                                    )
                             )
                     )
             }
@@ -69,11 +145,48 @@ public class WebSocketController {
             ),
             responses = {
                     @ApiResponse(
+                            responseCode = "200",
+                            description = "메세지 읽음 처리",
+                            useReturnTypeSchema = true
+                    ),
+                    @ApiResponse(
                             responseCode = "400",
                             description = "잘못된 요청 (유효성 검사 실패 또는 기타 클라이언트 오류)",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = WebSocketErrorResponse.class)
+                                    schema = @Schema(implementation = WebSocketResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "채팅방 아이디가 누락된 경우",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"채팅방 아이디는 필수입니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "유효하지 않은 채팅방의 경우",
+                                                    value = "{ \"code\": 4000, \"status\": \"UNAUTHORIZED\", \"message\": \"해당 채팅방을 찾을 수 없습니다.\", \"data\": null }"
+                                            )
+                                    }
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "인증 실패 또는 유효하지 않은 토큰으로 접근하려는 경우",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = team9.ddang.global.api.ApiResponse.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "인증 실패 예시",
+                                                    value = "{ \"code\": 4001, \"status\": \"UNAUTHORIZED\", \"message\": \"AccessToken is invalid\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "토큰이 없는 경우",
+                                                    value = "{ \"code\": 4002, \"status\": \"UNAUTHORIZED\", \"message\": \"토큰을 찾을 수 없습니다.\", \"data\": null }"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "이메일 추출 실패",
+                                                    value = "{ \"code\": 4002, \"status\": \"UNAUTHORIZED\", \"message\": \"AccessToken에서 email을 추출할 수 없습니다.\", \"data\": null }"
+                                            )
+                                    }
                             )
                     ),
                     @ApiResponse(
@@ -81,7 +194,11 @@ public class WebSocketController {
                             description = "서버 에러 (감지하지 못한 서버 에러)",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = WebSocketErrorResponse.class)
+                                    schema = @Schema(implementation = WebSocketErrorResponse.class),
+                                    examples = @ExampleObject(
+                                            name = "서버 오류",
+                                            value = "{ \"code\": 5000, \"status\": \"INTERNAL_SERVER_ERROR\", \"message\": \"서버 내부 오류\", \"data\": null }"
+                                    )
                             )
                     )
             }

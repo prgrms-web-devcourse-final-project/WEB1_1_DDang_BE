@@ -21,15 +21,15 @@ public class WebSocketExceptionHandler {
     @SendToUser("/queue/errors")
     public WebSocketResponse<String> handleBindException(BindException e) {
         log.error("WebSocket BindException: {}", e.getMessage());
-        String errorMessage = "유효성 검사 실패: " + e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
-        return WebSocketResponse.of(4001, errorMessage, null);
+        String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        return WebSocketResponse.of(4000, errorMessage, null);
     }
 
     @MessageExceptionHandler(IllegalArgumentException.class)
     @SendToUser("/queue/errors")
     public WebSocketResponse<String> handleIllegalArgumentException(IllegalArgumentException e) {
         log.error("WebSocket IllegalArgumentException: {}", e.getMessage());
-        return WebSocketResponse.of(4002, "잘못된 요청: " + e.getMessage(), null);
+        return WebSocketResponse.of(4000, e.getMessage(), null);
     }
 
     @MessageExceptionHandler(HandlerMethodValidationException.class)
@@ -40,7 +40,7 @@ public class WebSocketExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         log.error("WebSocket HandlerMethodValidationException: {}", message);
-        return WebSocketResponse.of(4003, "유효성 검사 실패: " + message, null);
+        return WebSocketResponse.of(4000, message, null);
     }
 
     @MessageExceptionHandler(MethodArgumentNotValidException.class)
@@ -52,13 +52,21 @@ public class WebSocketExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         log.error("WebSocket MethodArgumentNotValidException: {}", message);
-        return WebSocketResponse.of(4004, "유효성 검사 실패: " + message, null);
+        return WebSocketResponse.of(4000, message, null);
+    }
+
+    @MessageExceptionHandler(AuthenticationException.class)
+    @SendToUser("/queue/errors")
+    public WebSocketResponse<String> AuthenticationException(AuthenticationException e) {
+
+        log.error("WebSocket MethodArgumentNotValidException: {}", e.getMessage());
+        return WebSocketResponse.of(4001, e.getMessage(), null);
     }
 
     @MessageExceptionHandler(Exception.class)
     @SendToUser("/queue/errors")
     public WebSocketResponse<String> handleGeneralException(Exception e) {
         log.error("WebSocket Exception: {}", e.getMessage());
-        return WebSocketResponse.of(5000, "서버 내부 오류: " + e.getMessage(), null);
+        return WebSocketResponse.of(5000, e.getMessage(), null);
     }
 }
