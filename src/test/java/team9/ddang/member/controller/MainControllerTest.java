@@ -62,7 +62,7 @@ class MainControllerTest extends ApiTestSupport {
                 .weight(BigDecimal.valueOf(3.3))
                 .build();
 
-        MainResponse mainResponse = MainResponse.of(customOAuth2User.getMember(), dog, 3600, 3000);
+        MainResponse mainResponse = MainResponse.of(customOAuth2User.getMember(), dog, 3600, 3000, customOAuth2User.getMember());
 
         //when
 
@@ -83,7 +83,7 @@ class MainControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.data.dogName").value("코코"))
                 .andExpect(jsonPath("$.data.timeDuration.hours").value("1"))
                 .andExpect(jsonPath("$.data.totalDistanceMeter").value("3000"))
-                .andExpect(jsonPath("$.data.totalCalorie").value("6"));
+                .andExpect(jsonPath("$.data.totalCalorie").value("7"));
 
     }
 }
