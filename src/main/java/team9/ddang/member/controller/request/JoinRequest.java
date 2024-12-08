@@ -20,24 +20,31 @@ public record JoinRequest(
 
         @NotBlank(message = "이메일을 입력해주세요.")
         @Email(message = "유효한 이메일 형식을 입력해주세요.")
+        @Schema(description = "이메일", example = "test@naver.com")
         String email,
 
         @NotNull(message = "Provider를 입력해주세요.")
+        @Schema(description = "Provider", example = "NAVER")
         Provider provider,
 
         @NotBlank(message = "이름을 입력해주세요.")
+        @Schema(description = "이름", example = "홍길동")
         String name,
 
         @NotNull(message = "성별을 입력해주세요.")
+        @Schema(description = "성별", example = "MALE")
         Gender gender,
 
         @NotBlank(message = " 주소를 입력해주세요.")
+        @Schema(description = "주소", example = "서울시 강남구")
         String address,
 
         @NotNull(message = "가족 역할을 입력해주세요.")
+        @Schema(description = "가족 역할", example = "FATHER")
         FamilyRole familyRole,
 
         @NotBlank(message = "프로필 이미지를 입력해주세요.")
+        @Schema(description = "프로필 이미지", example = "https://example.com/profile.jpg")
         String profileImg
 ) {
 

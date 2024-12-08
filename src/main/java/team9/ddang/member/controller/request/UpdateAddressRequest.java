@@ -8,6 +8,7 @@ import team9.ddang.member.service.request.UpdateAddressServiceRequest;
 public record UpdateAddressRequest(
 
         @NotBlank(message = "주소를 입력해주세요")
+        @Schema(description = "주소", example = "서울시 강남구")
         String address
 ) {
     public UpdateAddressServiceRequest toServiceRequest() {

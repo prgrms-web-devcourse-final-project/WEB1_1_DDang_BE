@@ -11,7 +11,7 @@ public record UpdateResponse(
         @Schema(description = "회원 ID", example = "1")
         Long memberId,
 
-        @Schema(description = "회원 이름", example = "John Doe")
+        @Schema(description = "회원 이름", example = "홍길동")
         String name,
 
         @Schema(description = "회원 성별", example = "MALE")
