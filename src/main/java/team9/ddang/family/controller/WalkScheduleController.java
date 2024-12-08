@@ -56,11 +56,11 @@ public class WalkScheduleController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
+                                            name = "패밀리댕에 속하지 않은 유저",
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
@@ -125,11 +125,11 @@ public class WalkScheduleController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
+                                            name = "패밀리댕에 속하지 않은 유저",
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     )
                             }
@@ -169,7 +169,7 @@ public class WalkScheduleController {
 
     @GetMapping("/{memberId}")
     @Operation(
-            summary = "특정 맴버 산책 일정 리스트 조회",
+            summary = "특정 유저 산책 일정 리스트 조회",
             description = """
                 지정한 사용자의 모든 산책 일정을 조회합니다.
                 """
@@ -177,7 +177,7 @@ public class WalkScheduleController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "특정 맴버의 산책 일정 리스트 조회",
+                    description = "특정 유저의 산책 일정 리스트 조회",
                     useReturnTypeSchema = true
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -188,11 +188,11 @@ public class WalkScheduleController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
+                                            name = "패밀리댕에 속하지 않은 유저",
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     )
                             }
@@ -256,11 +256,11 @@ public class WalkScheduleController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
+                                            name = "패밀리댕에 속하지 않은 유저",
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(

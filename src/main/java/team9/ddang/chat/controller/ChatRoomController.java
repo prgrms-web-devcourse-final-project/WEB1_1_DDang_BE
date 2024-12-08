@@ -30,8 +30,8 @@ public class ChatRoomController {
             summary = "채팅방 생성",
             description = """
                     새로운 채팅방을 생성하고, 채팅방 정보를 반환합니다.
-                    이미 동일한 맴버와의 채팅방이 있다면, 해당 채팅방을 반환합니다.
-                    요청 본문에 상대방의 회원 ID(opponentMemberId)를 포함해야 합니다.
+                    이미 동일한 유저와의 채팅방이 있다면, 해당 채팅방을 반환합니다.
+                    요청 본문에 상대방의 유저 ID(opponentMemberId)를 포함해야 합니다.
                     새로운 채팅방이 생성된다면, "/sub/chatroom/{opponentMemberEmail} 구독 경로로 채팅방이 생성되었음을 알립니다.
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -56,12 +56,12 @@ public class ChatRoomController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
                                             name = "유효하지 않은 요청 데이터",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"상대방의 회원 ID는 필수입니다.\", \"data\": null }"
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"상대방의 유저 ID는 필수입니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
                                             name = "동시성 오류",
@@ -119,14 +119,14 @@ public class ChatRoomController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "회원 정보를 찾을 수 없는 경우",
+                    description = "유저 정보를 찾을 수 없는 경우",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     )
                             }
                     )

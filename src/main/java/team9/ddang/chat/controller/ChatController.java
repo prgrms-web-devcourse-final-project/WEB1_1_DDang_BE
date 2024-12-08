@@ -83,8 +83,8 @@ public class ChatController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
                                             name = "존재하지 않는 채팅방",
@@ -92,7 +92,7 @@ public class ChatController {
                                     ),
                                     @ExampleObject(
                                             name = "본인이 속하지 않는 채팅방",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 회원을 채팅방에서 찾을 수 없습니다.\", \"data\": null }"
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 채팅방에서 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                             }
                     )

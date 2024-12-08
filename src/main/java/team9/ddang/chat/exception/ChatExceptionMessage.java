@@ -15,10 +15,10 @@ public enum ChatExceptionMessage {
     CHATROOM_CREATION_FAILED("채팅방 생성에 실패했습니다. 잠시 후 다시 시도해주세요."),
 
     // MEMBER
-    MEMBER_NOT_FOUND("해당 맴버를 찾을 수 없습니다."),
+    MEMBER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
 
     // ChatMember
-    CHATMEMBER_NOT_IN_CHATROOM("해당 회원을 채팅방에서 찾을 수 없습니다.");
+    CHATMEMBER_NOT_IN_CHATROOM("해당 유저를 채팅방에서 찾을 수 없습니다.");
 
     private final String text;
 }

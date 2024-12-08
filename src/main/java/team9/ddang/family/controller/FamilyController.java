@@ -30,7 +30,7 @@ public class FamilyController {
             summary = "가족 생성",
             description = """
                     새로운 가족을 생성하고, 생성된 가족 정보를 반환합니다.
-                    강아지를 소유하고, 패밀리댕에 속해 있지 않은 맴버만 생성할 수 있습니다.
+                    강아지를 소유하고, 패밀리댕에 속해 있지 않은 유저만 생성할 수 있습니다.
                     """
     )
     @ApiResponses(value = {
@@ -47,15 +47,15 @@ public class FamilyController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "이미 패밀리댕에 속한 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 이미 다른 가족에 속해 있습니다.\", \"data\": null }"
+                                            name = "이미 패밀리댕에 속한 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저는 이미 다른 가족에 속해 있습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "강아지를 소유하지 않은 회원",
+                                            name = "강아지를 소유하지 않은 유저",
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"소유한 강아지를 찾을 수 없습니다.\", \"data\": null }"
                                     )
                             }
@@ -116,12 +116,12 @@ public class FamilyController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
+                                            name = "패밀리댕에 속하지 않은 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     )
                             }
                     )
@@ -186,12 +186,12 @@ public class FamilyController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "이미 패밀리댕에 속한 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 이미 다른 가족에 속해 있습니다.\", \"data\": null }"
+                                            name = "이미 패밀리댕에 속한 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저는 이미 다른 가족에 속해 있습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
                                             name = "초대 코드를 찾을 수 없을 때",
@@ -261,12 +261,12 @@ public class FamilyController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
+                                            name = "패밀리댕에 속하지 않은 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
                                             name = "잘못된 초대 코드",
@@ -312,16 +312,16 @@ public class FamilyController {
 
     @DeleteMapping("/members/{memberId}")
     @Operation(
-            summary = "가족 멤버 추방",
+            summary = "가족 유저 추방",
             description = """
-                가족 소유자가 특정 멤버를 가족에서 추방합니다.
+                가족 소유자가 특정 유저를 가족에서 추방합니다.
                 추방 권한은 가족 소유자에게만 주어집니다.
                 """
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "204",
-                    description = "맴버 추방 성공",
+                    description = "유저 추방 성공",
                     useReturnTypeSchema = true
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -332,12 +332,12 @@ public class FamilyController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
+                                            name = "패밀리댕에 속하지 않은 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
                                             name = "패밀리댕 주인을 추방하려고 하는 경우",
@@ -348,8 +348,8 @@ public class FamilyController {
                                             value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"패밀리댕의 주인이 아닙니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "유효하지 않은 회원을 추방하는 경우",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"다른 패밀리댕에 속한 맴버입니다.\", \"data\": null }"
+                                            name = "유효하지 않은 유저을 추방하는 경우",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"다른 패밀리댕에 속한 유저입니다.\", \"data\": null }"
                                     )
                             }
                     )
@@ -410,12 +410,12 @@ public class FamilyController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
+                                            name = "패밀리댕에 속하지 않은 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
                                             name = "가족 구성원이 남아있는 경우",
@@ -480,12 +480,12 @@ public class FamilyController {
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "존재하지 않는 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 맴버를 찾을 수 없습니다.\", \"data\": null }"
+                                            name = "존재하지 않는 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저를 찾을 수 없습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
-                                            name = "패밀리댕에 속하지 않은 회원",
-                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 멤버는 가족에 속해 있지 않습니다.\", \"data\": null }"
+                                            name = "패밀리댕에 속하지 않은 유저",
+                                            value = "{ \"code\": 400, \"status\": \"BAD_REQUEST\", \"message\": \"해당 유저는 가족에 속해 있지 않습니다.\", \"data\": null }"
                                     ),
                                     @ExampleObject(
                                             name = "가족 구성원이 남아있는 경우",
