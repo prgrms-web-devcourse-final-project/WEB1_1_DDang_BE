@@ -58,7 +58,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
         ProposalWalkResponse response = ProposalWalkResponse.of(dog, member, proposalWalkServiceRequest.comment());
 
         sendMessageToWalkUrl(otherEmail, response);
-        sendMessageToWalkUrl(member.getEmail(), response);
+        sendMessageToWalkUrl(member.getEmail(), "Proposal Success");
     }
 
     @Override
