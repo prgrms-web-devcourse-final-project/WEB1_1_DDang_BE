@@ -62,7 +62,7 @@ public class MainServiceImpl implements MainService{
 
     private Dog getDogFromMemberId(Long memberId){
         return memberDogRepository.findMemberDogByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("강아지를 찾을 수 없습니다.")).getDog();
+                .orElseThrow(() -> new IllegalArgumentException("소유한 강아지를 찾을 수 없습니다.")).getDog();
     }
 
     private List<Walk> findWalksByDogIdAndToday(Long dogId) {

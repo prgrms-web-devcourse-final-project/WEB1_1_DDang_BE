@@ -8,12 +8,12 @@ import team9.ddang.global.exception.ExceptionMessage;
 @RequiredArgsConstructor
 public enum WalkExceptionMessage implements ExceptionMessage {
     //Member
-    MEMBER_NOT_FOUND("존재하지 않는 유저 입니다."),
+    MEMBER_NOT_FOUND("해당 맴버를 찾을 수 없습니다."),
     EMAIL_NOT_FOUND("상대 이메일 정보가 존재하지 않습니다"),
 
 
     //Dog
-    DOG_NOT_FOUND("존재하지 않는 강아지 입니다."),
+    DOG_NOT_FOUND("소유한 강아지를 찾을 수 없습니다."),
 
     //Walk
     NOT_EXIST_PROPOSAL("제안을 취소했거나 이미 강번따를 진행 중인 유저 입니다."),
