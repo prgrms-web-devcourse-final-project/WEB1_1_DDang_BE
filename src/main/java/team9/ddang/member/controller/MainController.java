@@ -28,16 +28,7 @@ public class MainController {
 
     @Operation(
             summary = "메인 화면 조회",
-            description = "메인에 띄울 정보를 조회 합니다. 만약 오늘 산책 멤버가 없을시 familyRole 이 null 로 표현 됩니다.",
-            parameters = {
-                    @Parameter(
-                            name = "Authorization",
-                            description = "액세스 토큰",
-                            required = true,
-                            in = ParameterIn.HEADER,
-                            schema = @Schema(type = "string", example = "Bearer eyJhbGciOiJIUzI1...")
-                    )
-            }
+            description = "메인에 띄울 정보를 조회 합니다. 만약 오늘 산책 멤버가 없을시 familyRole 이 null 로 표현 됩니다."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(

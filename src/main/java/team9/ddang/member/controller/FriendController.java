@@ -46,16 +46,7 @@ public class FriendController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = AddFriendRequest.class)
                     )
-            ),
-            parameters = {
-                    @Parameter(
-                            name = "Authorization",
-                            description = "액세스 토큰",
-                            required = true,
-                            in = ParameterIn.HEADER,
-                            schema = @Schema(type = "string", example = "Bearer eyJhbGciOiJIUzI1...")
-                    )
-            }
+            )
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -120,16 +111,7 @@ public class FriendController {
 
     @Operation(
             summary = "친구 리스트 조회",
-            description = "친구인 멤버들의 리스트를 조회 합니다.",
-            parameters = {
-                    @Parameter(
-                            name = "Authorization",
-                            description = "액세스 토큰",
-                            required = true,
-                            in = ParameterIn.HEADER,
-                            schema = @Schema(type = "string", example = "Bearer eyJhbGciOiJIUzI1...")
-                    )
-            }
+            description = "친구인 멤버들의 리스트를 조회 합니다."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -173,13 +155,6 @@ public class FriendController {
             summary = "친구 상세 조회",
             description = "친구의 프로필을 상세 조회합니다.",
             parameters = {
-                    @Parameter(
-                            name = "Authorization",
-                            description = "액세스 토큰",
-                            required = true,
-                            in = ParameterIn.HEADER,
-                            schema = @Schema(type = "string", example = "Bearer eyJhbGciOiJIUzI1...")
-                    ),
                     @Parameter(
                             name = "memberId",
                             description = "멤버 ID",
@@ -254,13 +229,6 @@ public class FriendController {
             summary = "친구 삭제",
             description = "친구를 삭제합니다.",
             parameters = {
-                    @Parameter(
-                            name = "Authorization",
-                            description = "액세스 토큰",
-                            required = true,
-                            in = ParameterIn.HEADER,
-                            schema = @Schema(type = "string", example = "Bearer eyJhbGciOiJIUzI1...")
-                    ),
                     @Parameter(
                             name = "memberId",
                             description = "멤버 ID",
