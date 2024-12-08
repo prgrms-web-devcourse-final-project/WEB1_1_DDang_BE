@@ -9,9 +9,11 @@ import team9.ddang.notification.entity.Type;
 public record NotificationSettingsRequest(
 
         @NotNull(message = "알림 타입은 필수입니다.")
+        @Schema(description = "알림 타입", example = "WALK")
         Type type,
 
         @NotNull(message = "알림 설정 여부는 필수입니다.")
+        @Schema(description = "알림 설정 여부", example = "TRUE")
         IsAgreed isAgreed
 ) {
 }
