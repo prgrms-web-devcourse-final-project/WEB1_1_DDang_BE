@@ -13,8 +13,8 @@ import team9.ddang.notification.entity.*;
 import team9.ddang.notification.repository.NotificationRepository;
 import team9.ddang.notification.repository.NotificationSettingsRepository;
 import team9.ddang.global.api.WebSocketResponse;
-import team9.ddang.notification.scheduler.request.NotificationSchedulerRequest;
 import team9.ddang.notification.scheduler.request.FamilyRoleMessageRequest;
+import team9.ddang.notification.service.response.NotificationResponse;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -95,8 +95,8 @@ public class WalkScheduleNotificationScheduler {
     }
 
     private void sendMessageToNotificationUrl(String email, Notification notification) {
-        NotificationSchedulerRequest request = NotificationSchedulerRequest.of(notification);
-        messagingTemplate.convertAndSend("/sub/notification/" + email, WebSocketResponse.ok(request));
+        NotificationResponse response = NotificationResponse.of(notification);
+        messagingTemplate.convertAndSend("/sub/notification/" + email, WebSocketResponse.ok(response));
         log.info("Notification sent to WebSocket for email: {}", email);
     }
 

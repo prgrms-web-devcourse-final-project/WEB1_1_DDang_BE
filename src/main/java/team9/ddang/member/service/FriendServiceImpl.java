@@ -21,6 +21,7 @@ import team9.ddang.member.service.response.MemberResponse;
 import team9.ddang.notification.entity.Notification;
 import team9.ddang.notification.repository.NotificationRepository;
 import team9.ddang.notification.service.request.FriendNotificationRequest;
+import team9.ddang.notification.service.response.NotificationResponse;
 import team9.ddang.walk.repository.WalkRepository;
 
 import java.util.List;
@@ -105,8 +106,8 @@ public class FriendServiceImpl implements FriendService{
 
             notificationRepository.saveAll(List.of(notificationForMember, notificationForOtherMember));
 
-            sendMessageToNotificationUrl(member.getEmail(), notificationForMember.getContent());
-            sendMessageToNotificationUrl(otherMember.getEmail(), notificationForOtherMember.getContent());
+            sendMessageToNotificationUrl(member.getEmail(), notificationForMember);
+            sendMessageToNotificationUrl(otherMember.getEmail(), notificationForOtherMember);
             return;
         }
         createFriendRequest(member, otherMember);
@@ -142,7 +143,8 @@ public class FriendServiceImpl implements FriendService{
         return memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("해당 맴버를 찾을 수 없습니다."));
     }
 
-    private void sendMessageToNotificationUrl(String email, Object data){
-        messagingTemplate.convertAndSend("/sub/notification/" + email,  WebSocketResponse.ok(data));
+    private void sendMessageToNotificationUrl(String email, Notification notification){
+        NotificationResponse response = NotificationResponse.of(notification);
+        messagingTemplate.convertAndSend("/sub/notification/" + email,  WebSocketResponse.ok(response));
     }
 }
