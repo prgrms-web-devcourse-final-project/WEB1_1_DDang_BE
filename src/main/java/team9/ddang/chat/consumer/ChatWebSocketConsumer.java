@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import team9.ddang.chat.service.WebSocketMessageService;
 import team9.ddang.chat.service.request.ChatReadServiceRequest;
@@ -21,10 +22,10 @@ public class ChatWebSocketConsumer {
 
     @KafkaListener(
             topics = "topic-chat",
-            containerFactory = "kafkaListenerContainerFactory",
+            containerFactory = "webSocketListenerContainerFactory",
             groupId = "chat-websocket-consumer-group"
     )
-    public void listen(ConsumerRecord<String, String> record) {
+    public void listen(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
         String chatRoomId = record.key();
         String message = record.value();
 
@@ -34,6 +35,7 @@ public class ChatWebSocketConsumer {
             } else {
                 broadcastChatMessage(chatRoomId, message);
             }
+            acknowledgment.acknowledge();
         } catch (Exception e) {
             log.error("Failed to process Kafka message for chatRoomId {} in ChatWebSocketConsumer: {}", chatRoomId, message, e);
         }
