@@ -39,7 +39,6 @@ public class WalkScheduleNotificationScheduler {
         try {
             java.time.DayOfWeek currentDay = LocalDateTime.now().getDayOfWeek();
             LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
-            ;
 
             LocalTime targetTime = currentTime.plusMinutes(15);
 
