@@ -54,6 +54,10 @@ public class StompHandler implements ChannelInterceptor {
             if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
                 handleSubscribe(accessor);
             }
+
+            if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+                handleDisconnect(accessor);
+            }
         } catch (Exception e) {
             log.error("Error in StompHandler: {}", e.getMessage(), e);
             accessor.getSessionAttributes().put("error", e.getMessage());
@@ -137,6 +141,20 @@ public class StompHandler implements ChannelInterceptor {
                     )
             );
         }, 100, TimeUnit.MILLISECONDS); // 100ms 대기
+    }
+
+    private void handleDisconnect(StompHeaderAccessor accessor) {
+        Principal principal = accessor.getUser();
+        if (principal == null) {
+            principal = (Principal) accessor.getSessionAttributes().get("user");
+        }
+
+        if (principal != null) {
+            String email = principal.getName();
+            log.info("User disconnected: {}", email);
+        } else {
+            log.info("Unknown user disconnected.");
+        }
     }
 
     private Long extractChatRoomId(String destination) {
