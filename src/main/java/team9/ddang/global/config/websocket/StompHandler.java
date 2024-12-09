@@ -55,6 +55,10 @@ public class StompHandler implements ChannelInterceptor {
                 handleSubscribe(accessor);
             }
 
+            if (StompCommand.UNSUBSCRIBE.equals(accessor.getCommand())) {
+                handleUnsubscribe(accessor);
+            }
+
             if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
                 handleDisconnect(accessor);
             }
@@ -154,6 +158,21 @@ public class StompHandler implements ChannelInterceptor {
             log.info("User disconnected: {}", email);
         } else {
             log.info("Unknown user disconnected.");
+        }
+    }
+
+    private void handleUnsubscribe(StompHeaderAccessor accessor) {
+        Principal principal = accessor.getUser();
+        if (principal == null) {
+            principal = (Principal) accessor.getSessionAttributes().get("user");
+        }
+
+        if (principal != null) {
+            String email = principal.getName();
+            String destination = accessor.getSubscriptionId();
+            log.info("User unsubscribed: {} from subscription ID: {}", email, destination);
+        } else {
+            log.info("Unknown user unsubscribed.");
         }
     }
 
