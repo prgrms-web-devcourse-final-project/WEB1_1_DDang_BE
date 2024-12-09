@@ -48,7 +48,7 @@ public class ChatController {
         ChatServiceRequest chatServiceRequest = chatRequest.toServiceRequest(AuthenticationContext.getEmail());
         chatService.checkChat(chatServiceRequest);
 
-        chatProducer.sendMessage("topic-chat-" + chatRequest.chatRoomId(), chatServiceRequest);
+        chatProducer.sendMessage(chatRequest.chatRoomId(), chatServiceRequest);
     }
 
     @MessageMapping("/api/v1/chat/ack")
@@ -57,7 +57,7 @@ public class ChatController {
 
         ChatReadServiceRequest chatReadServiceRequest = chatReadRequest.toServiceRequest(AuthenticationContext.getEmail());
 
-        chatProducer.sendReadEvent("topic-chat-" + chatReadRequest.chatRoomId(), chatReadServiceRequest);
+        chatProducer.sendReadEvent(chatReadRequest.chatRoomId(), chatReadServiceRequest);
     }
 
     @GetMapping("/{chatRoomId}")

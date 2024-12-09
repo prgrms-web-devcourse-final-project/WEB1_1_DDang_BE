@@ -67,8 +67,7 @@ public class ChatServiceImpl implements ChatService {
 
         Slice<Chat> chats = chatRepository.findByChatRoomId(chatRoomId, pageable);
 
-        String topic = "topic-chat-" + chatRoomId;
-        chatProducer.sendReadEvent(topic, new ChatReadServiceRequest(chatRoomId, currentMember.getEmail(), null));
+        chatProducer.sendReadEvent(chatRoomId, new ChatReadServiceRequest(chatRoomId, currentMember.getEmail(), null));
 
         List<ChatResponse> reversedResponses = new java.util.ArrayList<>(chats.getContent()
                 .stream()
