@@ -81,7 +81,7 @@ public class KafkaConfig {
         config.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StringDeserializer.class);
         config.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
+        config.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
@@ -95,7 +95,7 @@ public class KafkaConfig {
         config.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StringDeserializer.class);
         config.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
+        config.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
@@ -109,7 +109,7 @@ public class KafkaConfig {
         config.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StringDeserializer.class);
         config.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
+        config.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
@@ -121,12 +121,15 @@ public class KafkaConfig {
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         config.put(ProducerConfig.RETRIES_CONFIG, 3);
+        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "chat-transaction-id");
         return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+        KafkaTemplate<String, String> template = new KafkaTemplate<>(producerFactory());
+        template.setTransactionIdPrefix("tx-");
+        return template;
     }
 
     @Bean
@@ -139,6 +142,11 @@ public class KafkaConfig {
     @Bean
     public NewTopic chatTopic() {
         return new NewTopic("topic-chat", 10, (short) 1);
+    }
+
+    @Bean
+    public NewTopic chatBroadcastTopic() {
+        return new NewTopic("topic-chat-broadcast", 10, (short) 1);
     }
 
     @Bean

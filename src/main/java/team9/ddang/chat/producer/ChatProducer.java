@@ -19,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class ChatProducer {
 
     private static final String TOPIC_CHAT = "topic-chat";
+    private static final String TOPIC_CHAT_BROADCAST = "topic-chat-broadcast";
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
@@ -27,16 +28,10 @@ public class ChatProducer {
         try {
             String message = objectMapper.writeValueAsString(chatServiceRequest);
 
-            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(TOPIC_CHAT, chatRoomId.toString(), message);
-
-            future.whenComplete((result, ex) -> {
-                if (ex != null) {
-                    log.error("Failed to send message to Kafka for chatRoomId {}: {}", chatRoomId, ex.getMessage(), ex);
-                } else {
-                    RecordMetadata metadata = result.getRecordMetadata();
-                    log.info("Message sent to Kafka for chatRoomId {}: topic={}, partition={}, offset={}",
-                            chatRoomId, metadata.topic(), metadata.partition(), metadata.offset());
-                }
+            kafkaTemplate.executeInTransaction(operations -> {
+                operations.send(TOPIC_CHAT, chatRoomId.toString(), message);
+                log.info("Message sent to Kafka for chatRoomId {}: {}", chatRoomId, message);
+                return null;
             });
         } catch (Exception e) {
             log.error("Failed to serialize ChatServiceRequest: {}", chatServiceRequest, e);
@@ -44,20 +39,34 @@ public class ChatProducer {
         }
     }
 
+    public void sendMessageToBroadcast(Long chatRoomId, String message) {
+        try {
+            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(TOPIC_CHAT_BROADCAST, chatRoomId.toString(), message);
+
+            future.whenComplete((result, ex) -> {
+                if (ex != null) {
+                    log.error("Failed to send broadcast message for chatRoomId {}: {}", chatRoomId, message, ex);
+                    throw new IllegalArgumentException("Failed to send broadcast message", ex);
+                } else {
+                    RecordMetadata metadata = result.getRecordMetadata();
+                    log.info("Broadcast message sent to Kafka for chatRoomId {}: {}, partition: {}, offset: {}",
+                            chatRoomId, message, metadata.partition(), metadata.offset());
+                }
+            });
+        } catch (Exception e) {
+            log.error("Unexpected error occurred while sending broadcast message for chatRoomId {}: {}", chatRoomId, message, e);
+            throw new IllegalStateException("Unexpected error during broadcast message sending", e);
+        }
+    }
+
     public void sendReadEvent(Long chatRoomId, ChatReadServiceRequest chatReadServiceRequest) {
         try {
             String message = objectMapper.writeValueAsString(chatReadServiceRequest);
 
-            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(TOPIC_CHAT, chatRoomId.toString(), message);
-
-            future.whenComplete((result, ex) -> {
-                if (ex != null) {
-                    log.error("Failed to send read event to Kafka for chatRoomId {}: {}", chatRoomId, ex.getMessage(), ex);
-                } else {
-                    RecordMetadata metadata = result.getRecordMetadata();
-                    log.info("Read event sent to Kafka for chatRoomId {}: topic={}, partition={}, offset={}",
-                            chatRoomId, metadata.topic(), metadata.partition(), metadata.offset());
-                }
+            kafkaTemplate.executeInTransaction(operations -> {
+                operations.send(TOPIC_CHAT, chatRoomId.toString(), message);
+                log.info("Read event sent to Kafka for chatRoomId {}: {}", chatRoomId, message);
+                return null;
             });
         } catch (Exception e) {
             log.error("Failed to serialize ChatReadServiceRequest: {}", chatReadServiceRequest, e);

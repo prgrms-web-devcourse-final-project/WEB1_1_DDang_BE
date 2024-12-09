@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import team9.ddang.chat.service.WebSocketMessageService;
 import team9.ddang.chat.service.request.ChatReadServiceRequest;
 import team9.ddang.chat.service.request.ChatServiceRequest;
+import team9.ddang.chat.service.response.ChatReadResponse;
+import team9.ddang.chat.service.response.ChatResponse;
 import team9.ddang.global.api.WebSocketResponse;
 
 @Slf4j
@@ -21,7 +23,7 @@ public class ChatWebSocketConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = "topic-chat",
+            topics = "topic-chat-broadcast",
             containerFactory = "webSocketListenerContainerFactory",
             groupId = "chat-websocket-consumer-group"
     )
@@ -38,15 +40,16 @@ public class ChatWebSocketConsumer {
             acknowledgment.acknowledge();
         } catch (Exception e) {
             log.error("Failed to process Kafka message for chatRoomId {} in ChatWebSocketConsumer: {}", chatRoomId, message, e);
+            throw e;
         }
     }
 
     private void broadcastChatMessage(String chatRoomId, String message) {
         try {
-            ChatServiceRequest chatServiceRequest = objectMapper.readValue(message, ChatServiceRequest.class);
+            ChatResponse chatResponse = objectMapper.readValue(message, ChatResponse.class);
 
-            String destination = "/sub/chat/" + chatServiceRequest.chatRoomId();
-            webSocketMessageService.broadcastMessage(destination, WebSocketResponse.ok(chatServiceRequest.message()));
+            String destination = "/sub/chat/" + chatResponse.chatRoomId();
+            webSocketMessageService.broadcastMessage(destination, WebSocketResponse.ok(chatResponse));
 
             log.info("Message broadcasted to WebSocket for chatRoomId {}: {}", chatRoomId, destination);
         } catch (Exception e) {
@@ -56,10 +59,10 @@ public class ChatWebSocketConsumer {
 
     private void broadcastReadEvent(String chatRoomId, String message) {
         try {
-            ChatReadServiceRequest chatReadServiceRequest = objectMapper.readValue(message, ChatReadServiceRequest.class);
+            ChatReadResponse chatReadResponse = objectMapper.readValue(message, ChatReadResponse.class);
 
-            String destination = "/sub/chat/" + chatReadServiceRequest.chatRoomId();
-            webSocketMessageService.broadcastMessage(destination, WebSocketResponse.ok(chatReadServiceRequest));
+            String destination = "/sub/chat/" + chatReadResponse.chatRoomId();
+            webSocketMessageService.broadcastMessage(destination, WebSocketResponse.ok(chatReadResponse));
 
             log.info("Read event broadcasted to WebSocket for chatRoomId {}: {}", chatRoomId, destination);
         } catch (Exception e) {
