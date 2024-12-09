@@ -1,6 +1,7 @@
 package team9.ddang.global.config.websocket;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -25,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class StompHandler implements ChannelInterceptor {
@@ -53,8 +55,7 @@ public class StompHandler implements ChannelInterceptor {
                 handleSubscribe(accessor);
             }
         } catch (Exception e) {
-            System.err.println("Error in StompHandler: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error in StompHandler: {}", e.getMessage(), e);
             accessor.getSessionAttributes().put("error", e.getMessage());
             return null;
         }
@@ -78,7 +79,7 @@ public class StompHandler implements ChannelInterceptor {
         accessor.getSessionAttributes().put("user", authentication);
         accessor.getSessionAttributes().put("token", token);
 
-        System.out.println("User connected: " + email);
+        log.info("User connected: {}", email);
     }
 
     private void handleSubscribe(StompHeaderAccessor accessor) {
@@ -93,17 +94,20 @@ public class StompHandler implements ChannelInterceptor {
         }
 
         String email = principal.getName();
-        System.out.println("User subscribing: " + email);
-
         String destination = accessor.getDestination();
-        if (destination != null && destination.startsWith("/sub/chat/")) {
+        if (destination == null) {
+            throw new IllegalArgumentException("구독 요청에 destination 정보가 없습니다.");
+        }
+        log.info("User subscribing: {} to destination: {}", email, destination);
+
+        if (destination.startsWith("/sub/chat/")) {
             Long chatRoomId = extractChatRoomId(destination);
 
             boolean isParticipant = chatMemberRepository.existsByChatRoomIdAndEmail(chatRoomId, email);
             if (!isParticipant) {
                 throw new IllegalArgumentException("해당 채팅방에 접근할 권한이 없습니다.");
             }
-        } else if (destination != null && destination.startsWith("/sub/message/")) {
+        } else if (destination.startsWith("/sub/message/")) {
             handleMessageSubscription(destination, email);
         }
     }
