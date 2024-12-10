@@ -30,4 +30,8 @@ public class WebSocketResponse<T> {
         return of(1000, "success", data);
     }
 
+    public static <T> WebSocketResponse<T> created(T data) {
+        return of(1001, "created", data);
+    }
+
 }
