@@ -44,6 +44,7 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     public void startWalk(String email, StartWalkServiceRequest startWalkServiceRequest){
         saveMemberLocation(email, startWalkServiceRequest);
         findNearbyMember(email);
+
     }
 
     @Override
@@ -70,20 +71,22 @@ public class WalkLocationServiceImpl implements WalkLocationService {
             throw new IllegalArgumentException(NOT_EXIST_PROPOSAL.getText());
         }
 
-        if(!memberEmail.equals(member.getEmail())){
+        if(!memberEmail.equals(email)){
             throw new IllegalArgumentException(NOT_MATCHED_MEMBER.getText());
         }
 
         Member otherMember = getMemberFromEmailOrElseThrow(memberEmail);
+        Dog dog = getDogFromMemberId(member.getMemberId());
+        Dog otherDog = getDogFromMemberId(otherMember.getMemberId());
         redisService.deleteValues(PROPOSAL_KEY + serviceRequest.otherEmail());
 
         if(serviceRequest.decision().equals("ACCEPT")){
-            redisService.setValues(WALK_WITH_KEY + member.getEmail(), serviceRequest.otherEmail());
-            redisService.setValues(WALK_WITH_KEY + serviceRequest.otherEmail(), member.getEmail());
+            redisService.setValues(WALK_WITH_KEY + email, serviceRequest.otherEmail());
+            redisService.setValues(WALK_WITH_KEY + serviceRequest.otherEmail(), email);
         }
 
-        sendMessageToWalkUrl(member.getEmail(), DecisionWalkResponse.of(serviceRequest.decision(), otherMember));
-        sendMessageToWalkUrl(serviceRequest.otherEmail(), DecisionWalkResponse.of(serviceRequest.decision(), member));
+        sendMessageToWalkUrl(email, DecisionWalkResponse.of(serviceRequest.decision(), otherMember, otherDog));
+        sendMessageToWalkUrl(serviceRequest.otherEmail(), DecisionWalkResponse.of(serviceRequest.decision(), member, dog));
     }
 
     @Override

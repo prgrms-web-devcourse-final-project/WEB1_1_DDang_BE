@@ -60,7 +60,7 @@ public class WalkServiceImpl implements WalkService{
         Walk walk = completeWalkServiceRequest.toEntity(locations, member, walkImg);
         saveWalkAndLocationAndDog(locations, walk, dog);
 
-        redisService.deleteGeoValues(POINT_KEY, member.getEmail());
+        deleteRedisData(member.getEmail());
 
         return CompleteWalkResponse.of(
                 member.getName(), dog.getName(), walk.getTotalDistance(), completeWalkServiceRequest.totalWalkTime(),
@@ -136,6 +136,15 @@ public class WalkServiceImpl implements WalkService{
                 .build();
 
         walkWithMemberRepository.save(walkWithMember);
+    }
+
+    private void deleteRedisData(String email){
+        if(redisService.checkHasKey(PROPOSAL_KEY + email)){
+            redisService.deleteValues(PROPOSAL_KEY + email);
+        }
+
+        redisService.deleteGeoValues(POINT_KEY, email);
+
     }
 
 
