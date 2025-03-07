@@ -33,7 +33,7 @@
 | [문재경](https://github.com/MoonJaeGyeong) | [노관태(팀장)](https://github.com/Repaion24) | [송경훈](https://github.com/rudgns328) | [장준우](https://github.com/highjjjw) |
 |:-:|:-:|:-:|:-:|
 | <img src="https://avatars.githubusercontent.com/u/108010440?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/65394501?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/128586833?v=4" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/176549799?v=4" width="150" height="150"/> |
-| **산책, 강번따, 댕로그 <br>친구관리, 메인** | **가족관리, 실시간 채팅** | **멤버, 시큐리티, <br>마이페이지** | **강아지 관리** |
+| **산책, 강번따, 댕로그 <br>친구관리, 메인** | **패밀리댕, 실시간 채팅, <br>산책 일정** | **멤버, 시큐리티, <br>마이페이지, 알림** | **강아지 관리** |
 
 </div>
 
