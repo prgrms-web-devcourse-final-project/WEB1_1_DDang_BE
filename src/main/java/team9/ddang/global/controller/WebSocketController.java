@@ -13,6 +13,7 @@ import team9.ddang.chat.controller.request.ChatReadRequest;
 import team9.ddang.chat.controller.request.ChatRequest;
 import team9.ddang.chat.service.response.ChatReadResponse;
 import team9.ddang.chat.service.response.ChatResponse;
+import team9.ddang.chat.service.response.ChatRoomResponse;
 import team9.ddang.global.api.WebSocketResponse;
 import team9.ddang.global.controller.response.WebSocketChatInfoResponse;
 import team9.ddang.global.controller.response.WebSocketErrorResponse;
@@ -211,7 +212,22 @@ public class WebSocketController {
 
     @Operation(
             summary = "채팅방 정보 url",
-            description = " 해당 url을 구독하면, 내가 속한 채팅방 목록 및 읽지 않은 메세지 개수를 받을 수 있습니다. 또한 타 유저에 의해 새로운 채팅방이 생성되면 해당 채팅방 정보를 받습니다."
+            description = " 해당 url을 구독하면, 내가 속한 채팅방 목록 및 읽지 않은 메세지 개수를 받을 수 있습니다. 또한 타 유저에 의해 새로운 채팅방이 생성되면 해당 채팅방 정보를 받습니다.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "참여중인 채팅방 정보 리스트",
+                            useReturnTypeSchema = true
+                    ),
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "새로운 채팅방 생성 시 code = 1001, message = created 로 전송합니다. data는 다음과 같습니다.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ChatRoomResponse.class)
+                            )
+                    )
+            }
     )
     @PostMapping("/sub/message/{email}")
     public WebSocketResponse<List<WebSocketChatInfoResponse>> subMemberEmail(){

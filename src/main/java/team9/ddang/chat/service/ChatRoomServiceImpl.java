@@ -99,7 +99,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     private void sendMessageToUser(String email, Object data) {
-        messagingTemplate.convertAndSend("/sub/chatroom/" + email, WebSocketResponse.ok(data));
+        messagingTemplate.convertAndSend("/sub/chatroom/" + email, WebSocketResponse.created(data));
     }
 
 

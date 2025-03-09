@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -96,7 +97,7 @@ public class ChatRoomController {
             )
     })
     public ApiResponse<ChatRoomResponse> createChatRoom(
-            @RequestBody ChatRoomCreateRequest request,
+            @Valid @RequestBody ChatRoomCreateRequest request,
             @AuthenticationPrincipal CustomOAuth2User currentUser
     ) {
         ChatRoomResponse response = chatRoomService.createChatRoom(request.toServiceRequest(), currentUser.getMember());

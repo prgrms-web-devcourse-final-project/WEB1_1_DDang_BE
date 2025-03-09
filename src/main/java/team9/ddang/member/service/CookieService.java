@@ -24,9 +24,8 @@ public class CookieService {
                 .path("/")
                 .maxAge(refreshTokenExpirationPeriod / 1000)
                 .httpOnly(true)
-//                 TODO : https 설정 시 적용
-//                .sameSite("None") // 필요 시 설정
-//                .secure(true)     // HTTPS 사용 시 설정
+                .sameSite("None") // 필요 시 설정
+                .secure(true)     // HTTPS 사용 시 설정
                 .build();
     }
 

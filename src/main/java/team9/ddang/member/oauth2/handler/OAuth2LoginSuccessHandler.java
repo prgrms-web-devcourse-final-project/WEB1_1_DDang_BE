@@ -1,28 +1,19 @@
 package team9.ddang.member.oauth2.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import team9.ddang.global.api.ApiResponse;
 import team9.ddang.member.entity.Member;
-import team9.ddang.member.entity.Provider;
 import team9.ddang.member.entity.Role;
 import team9.ddang.member.jwt.service.JwtService;
 import team9.ddang.member.oauth2.CustomOAuth2User;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -54,11 +45,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         log.info("GUEST 상태 - 추가 정보 입력 페이지로 리디렉션");
 
         // email과 provider 정보를 객체로 묶어서 리디렉션
-        String redirectUrl = "https://localhost:3000/register?email=" + member.getEmail() + "&provider=" + member.getProvider().name();
+        String redirectUrl = "https://ddang.pages.dev/register?email=" + member.getEmail() + "&provider=" + member.getProvider().name();
         log.info("Redirecting to: {}", redirectUrl);
 
         // 리디렉션
         response.sendRedirect(redirectUrl);
+
+
+
+
     }
 
     private void handleUserLogin(HttpServletResponse response, String accessToken, String email) throws IOException {
@@ -69,7 +64,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
 
         // 사용자가 로그인 성공 시 홈 페이지로 리디렉션
-        response.sendRedirect("https://localhost:3000/?accessToken=" + accessToken);
+        response.sendRedirect("https://ddang.pages.dev/?accessToken=" + accessToken);
     }
 }
 
