@@ -44,7 +44,6 @@ public class WalkLocationServiceImpl implements WalkLocationService {
     public void startWalk(String email, StartWalkServiceRequest startWalkServiceRequest){
         saveMemberLocation(email, startWalkServiceRequest);
         findNearbyMember(email);
-
     }
 
     @Override

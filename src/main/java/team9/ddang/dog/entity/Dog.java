@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import team9.ddang.family.entity.Family;
 import team9.ddang.global.entity.BaseEntity;
 import team9.ddang.global.entity.Gender;
-import team9.ddang.global.entity.IsDeleted;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
